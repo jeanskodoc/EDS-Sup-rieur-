@@ -235,7 +235,7 @@
         .btn-print { background-color: var(--primary-color); color: white; }
         .btn-download { background-color: var(--success-color); color: white; }
         
-        /* Styles améliorés pour le Relevé avec Filigrane */
+        /* Styles améliorés pour le Relevé avec FILIGRANE */
         .semester-selector {
             display: flex;
             gap: 12px;
@@ -261,17 +261,17 @@
         .semester-btn .semester-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
         .semester-btn .semester-name { font-size: 0.9rem; }
         
-        /* Relevé container avec filigrane */
+        /* Relevé container avec support filigrane */
         .releve-container {
             background: white;
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 2px 20px rgba(0,0,0,0.08);
             position: relative;
             overflow: hidden;
         }
         
-        /* Filigrane en arrière-plan */
+        /* FILIGRANE - Version améliorée */
         .watermark {
             position: absolute;
             top: 0;
@@ -282,27 +282,41 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            z-index: 1;
-            opacity: 0.06;
-            font-size: 4rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            transform: rotate(-25deg);
-            white-space: nowrap;
-            font-family: 'Arial Black', sans-serif;
-            color: #000;
+            z-index: 10;
+            overflow: hidden;
         }
         
         .watermark-text {
-            font-size: clamp(2rem, 8vw, 5rem);
+            position: absolute;
+            font-size: 3rem;
+            font-weight: bold;
+            color: rgba(52, 152, 219, 0.08);
+            white-space: nowrap;
+            transform: rotate(-25deg);
+            font-family: 'Times New Roman', serif;
             letter-spacing: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            width: 200%;
+            text-align: center;
         }
         
-        .releve-content {
-            position: relative;
-            z-index: 2;
-            background: transparent;
+        .watermark-text::before {
+            content: "🏫 ";
+            font-size: 2rem;
+        }
+        
+        .watermark-text::after {
+            content: " 🎓";
+            font-size: 2rem;
+        }
+        
+        /* Filigrane pour l'impression - plus visible sur papier */
+        @media print {
+            .watermark-text {
+                color: rgba(0, 0, 0, 0.06);
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
         
         .releve-header {
@@ -310,6 +324,9 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 3px solid var(--primary-color);
+            position: relative;
+            z-index: 5;
+            background: white;
         }
         .releve-header h2 {
             color: var(--primary-color);
@@ -325,6 +342,8 @@
             padding: 10px;
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-radius: 12px;
+            position: relative;
+            z-index: 5;
         }
         .student-info-detail {
             display: grid;
@@ -334,6 +353,8 @@
             padding: 15px;
             background: #f8fafc;
             border-radius: 12px;
+            position: relative;
+            z-index: 5;
         }
         .student-info-detail .info-row {
             display: flex;
@@ -356,6 +377,9 @@
             border-collapse: collapse;
             font-size: 0.8rem;
             margin-bottom: 20px;
+            position: relative;
+            z-index: 5;
+            background: white;
         }
         .releve-table th {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
@@ -385,6 +409,8 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin: 20px 0;
+            position: relative;
+            z-index: 5;
         }
         .summary-card {
             background: #f8fafc;
@@ -408,6 +434,8 @@
             border-radius: 10px;
             font-weight: bold;
             font-size: 1rem;
+            position: relative;
+            z-index: 5;
         }
         .decision-admis { background: #d1fae5; color: #065f46; }
         .decision-non-admis { background: #fee2e2; color: #991b1b; }
@@ -419,6 +447,8 @@
             color: var(--gray);
             padding-top: 15px;
             border-top: 1px solid #e5e7eb;
+            position: relative;
+            z-index: 5;
         }
         
         .page-content { animation: fadeIn 0.3s ease-in-out; }
@@ -430,6 +460,7 @@
             .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
             .summary-cards { gap: 15px; }
             .summary-card .summary-value { font-size: 1.8rem; }
+            .watermark-text { font-size: 4rem; }
         }
         
         @media (max-width: 768px) {
@@ -437,6 +468,7 @@
             .bottom-nav { display: flex; }
             .student-info-detail { grid-template-columns: 1fr; }
             .summary-cards { grid-template-columns: repeat(2, 1fr); }
+            .watermark-text { font-size: 2rem; }
         }
         
         @media (min-width: 769px) {
@@ -447,15 +479,16 @@
         @media (max-width: 480px) {
             .summary-cards { grid-template-columns: 1fr; }
             .action-buttons { flex-direction: column; }
+            .watermark-text { font-size: 1.5rem; white-space: normal; width: 100%; line-height: 1.5; }
         }
         
-        /* Print styles */
+        /* Print styles avec filigrane */
         @media print {
             body * { visibility: hidden; }
             #printable-bulletin, #printable-bulletin * { visibility: visible; }
             #printable-bulletin { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; }
             .no-print { display: none !important; }
-            .watermark { opacity: 0.1; }
+            .watermark-text { color: rgba(0, 0, 0, 0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
         
         #printable-bulletin-container {
@@ -528,18 +561,21 @@
             <!-- Notes détaillées -->
             <div id="gradesPage" class="page-content hidden">
                 <div class="info-card"><h3><i class="fas fa-list-alt"></i> Notes par matière</h3>
-                    <div class="grades-table-container"><table class="grades-table"><thead><tr><th>Matière</th><th>Professeur</th><th>Coeff</th><th>Devoir</th><th>Examen</th><th>Moyenne</th><th>Statut</th></table></thead><tbody id="detailedGrades"></tbody></table></div>
+                    <div class="grades-table-container"><table class="grades-table"><thead><tr><th>Matière</th><th>Professeur</th><th>Coeff</th><th>Devoir</th><th>Examen</th><th>Moyenne</th><th>Statut</th></tr></thead><tbody id="detailedGrades"></tbody></table></div>
                 </div>
                 <div class="remarks-card"><h4><i class="fas fa-comment-alt"></i> Appréciations</h4><div id="teacherRemarks"></div></div>
             </div>
             
-            <!-- Relevé avec filigrane -->
+            <!-- Relevé avec FILIGRANE -->
             <div id="relevePage" class="page-content hidden">
                 <div class="semester-selector">
                     <button class="semester-btn active" data-semester="harmattan"><span class="semester-icon">🍂</span><span class="semester-name">Harmattan (Oct-Jan)</span></button>
                     <button class="semester-btn" data-semester="mousson"><span class="semester-icon">☔</span><span class="semester-name">Mousson (Fév-Juin)</span></button>
                 </div>
                 <div id="releveContainer" class="releve-container">
+                    <div class="watermark">
+                        <div class="watermark-text">UNIVERSITÉ EDU-MANAGE TOGO</div>
+                    </div>
                     <div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary-color);"></i><p>Chargement du relevé...</p></div>
                 </div>
                 <div class="action-buttons no-print">
@@ -573,6 +609,8 @@
 
     <script>
         // Base de données locale
+        const UNIVERSITY_NAME = "UNIVERSITÉ EDU-MANAGE TOGO";
+        
         const studentsDB = {
             "2024001": {
                 password: "etudiant123",
@@ -830,69 +868,64 @@
             else if (moyenneGenerale >= 10) mention = 'Passable';
             else mention = 'Non classé';
             
-            const institutionName = "UNIVERSITÉ EDU-MANAGE";
-            const institutionSubtitle = "Direction des Affaires Académiques";
-            
             const releveHTML = `
-                <div class="watermark">
-                    <div class="watermark-text">${institutionName}</div>
+                <div class="releve-header">
+                    <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
+                    <p>Semestre ${relevé.semester} - Année Académique ${relevé.year}</p>
                 </div>
-                <div class="releve-content">
-                    <div class="releve-header">
-                        <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
-                        <p>Semestre ${relevé.semester} - Année Académique ${relevé.year}</p>
-                    </div>
-                    <div class="university-header">
-                        <div><strong>${institutionName}</strong></div>
-                        <div><strong>${institutionSubtitle}</strong></div>
-                    </div>
-                    <div class="student-info-detail">
-                        <div class="info-row"><span class="info-label">Étudiant</span><span class="info-value">${currentStudent.name}</span></div>
-                        <div class="info-row"><span class="info-label">Matricule</span><span class="info-value">${currentStudent.matricule}</span></div>
-                        <div class="info-row"><span class="info-label">Classe</span><span class="info-value">${currentStudent.class}</span></div>
-                        <div class="info-row"><span class="info-label">Spécialité</span><span class="info-value">${currentStudent.specialty}</span></div>
-                        <div class="info-row"><span class="info-label">Date naissance</span><span class="info-value">${currentStudent.birthDate}</span></div>
-                        <div class="info-row"><span class="info-label">Date édition</span><span class="info-value">${new Date().toLocaleDateString('fr-FR')}</span></div>
-                    </div>
-                    
-                    <table class="releve-table">
-                        <thead><tr><th>Code UE</th><th>Type</th><th>Note /20</th><th>Coeff</th><th>Moyenne UE</th><th>Appréciation</th></tr></thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
-                    
-                    <div class="summary-cards">
-                        <div class="summary-card"><div class="summary-value">${moyenneGenerale}/20</div><div class="summary-label">Moyenne Semestre</div></div>
-                        <div class="summary-card"><div class="summary-value">${validatedCredits}/${totalCredits}</div><div class="summary-label">Crédits validés</div></div>
-                        <div class="summary-card"><div class="summary-value">${mention}</div><div class="summary-label">Mention</div></div>
-                        <div class="summary-card"><div class="summary-value">${totalCoeff}</div><div class="summary-label">Total coefficients</div></div>
-                    </div>
-                    
-                    <div class="decision-badge ${decision === 'ADMIS(E)' ? 'decision-admis' : 'decision-non-admis'}">
-                        <strong>Décision du Jury : ${decision}</strong>
-                    </div>
-                    
-                    <div class="print-footer">
-                        <p>Signature du Directeur des Études</p>
-                        <p>___________________________________</p>
-                        <p>Cachet de l'établissement</p>
-                    </div>
+                <div class="university-header">
+                    <div><strong>Établissement:</strong> ${UNIVERSITY_NAME}</div>
+                    <div><strong>Direction des Affaires Académiques</strong></div>
+                </div>
+                <div class="student-info-detail">
+                    <div class="info-row"><span class="info-label">Étudiant</span><span class="info-value">${currentStudent.name}</span></div>
+                    <div class="info-row"><span class="info-label">Matricule</span><span class="info-value">${currentStudent.matricule}</span></div>
+                    <div class="info-row"><span class="info-label">Classe</span><span class="info-value">${currentStudent.class}</span></div>
+                    <div class="info-row"><span class="info-label">Spécialité</span><span class="info-value">${currentStudent.specialty}</span></div>
+                    <div class="info-row"><span class="info-label">Date naissance</span><span class="info-value">${currentStudent.birthDate}</span></div>
+                    <div class="info-row"><span class="info-label">Date édition</span><span class="info-value">${new Date().toLocaleDateString('fr-FR')}</span></div>
+                </div>
+                
+                <table class="releve-table">
+                    <thead><tr><th>Code UE</th><th>Type</th><th>Note /20</th><th>Coeff</th><th>Moyenne UE</th><th>Appréciation</th></tr></thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+                
+                <div class="summary-cards">
+                    <div class="summary-card"><div class="summary-value">${moyenneGenerale}/20</div><div class="summary-label">Moyenne Semestre</div></div>
+                    <div class="summary-card"><div class="summary-value">${validatedCredits}/${totalCredits}</div><div class="summary-label">Crédits validés</div></div>
+                    <div class="summary-card"><div class="summary-value">${mention}</div><div class="summary-label">Mention</div></div>
+                    <div class="summary-card"><div class="summary-value">${totalCoeff}</div><div class="summary-label">Total coefficients</div></div>
+                </div>
+                
+                <div class="decision-badge ${decision === 'ADMIS(E)' ? 'decision-admis' : 'decision-non-admis'}">
+                    <strong>Décision du Jury : ${decision}</strong>
+                </div>
+                
+                <div class="print-footer">
+                    <p>Signature du Directeur des Études</p>
+                    <p>___________________________________</p>
+                    <p>Cachet de l'établissement</p>
                 </div>
             `;
             
-            document.getElementById('releveContainer').innerHTML = releveHTML;
+            document.getElementById('releveContainer').innerHTML = `
+                <div class="watermark">
+                    <div class="watermark-text">${UNIVERSITY_NAME}</div>
+                </div>
+                ${releveHTML}
+            `;
         }
 
         async function printReleve() {
             const printWindow = window.open('', '_blank');
             const content = document.getElementById('releveContainer').innerHTML;
-            const institutionName = "UNIVERSITÉ EDU-MANAGE";
             printWindow.document.write(`
                 <!DOCTYPE html><html><head><title>Relevé - ${currentStudent.name}</title>
                 <style>
                     body{font-family:'Times New Roman',serif; padding:20mm; margin:0; position:relative;}
-                    .watermark{position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; opacity:0.08; pointer-events:none; z-index:1;}
-                    .watermark-text{font-size:4rem; font-weight:800; text-transform:uppercase; transform:rotate(-25deg); white-space:nowrap; color:#000;}
-                    .releve-content{position:relative; z-index:2;}
+                    .watermark{position:fixed; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:1000;}
+                    .watermark-text{font-size:3rem; font-weight:bold; color:rgba(0,0,0,0.05); transform:rotate(-25deg); white-space:nowrap; text-transform:uppercase; letter-spacing:5px;}
                     .releve-header{text-align:center;margin-bottom:20px;border-bottom:2px solid #3498db;padding-bottom:10px;}
                     .university-header{display:flex;justify-content:space-between;margin-bottom:15px;padding:10px;background:#f8f9fa;}
                     .student-info-detail{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;padding:15px;background:#f8fafc;}

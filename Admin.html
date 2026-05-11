@@ -263,7 +263,7 @@
         .modal-content {
             background: var(--white);
             border-radius: var(--radius);
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -323,9 +323,38 @@
         }
         .info-item { font-size: 0.875rem; }
         .info-label { font-weight: 600; color: var(--dark); margin-right: 8px; }
-        .releve-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        .releve-table th, .releve-table td { padding: 12px; border: 1px solid #e5e7eb; text-align: center; }
-        .releve-table th { background: var(--primary); color: white; }
+        
+        .releve-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.8rem;
+        }
+        .releve-table th, .releve-table td {
+            padding: 12px 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .releve-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        .releve-table .ue-row {
+            background-color: #f0fdf4;
+            font-weight: 600;
+        }
+        .releve-table .ue-title {
+            text-align: left;
+            background-color: #e8f0fe;
+        }
+        .sub-row td {
+            background-color: #fafafa;
+        }
+        .note-devoir { color: #d97706; font-weight: 500; }
+        .note-examen { color: #059669; font-weight: 500; }
+        .note-moyenne { font-weight: 700; color: var(--primary); }
+        
         .releve-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -346,6 +375,17 @@
             gap: 16px;
         }
 
+        /* Badge pour les crédits */
+        .credits-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
         @media print {
             body * { visibility: hidden; }
             .releve-container, .releve-container * { visibility: visible; }
@@ -360,8 +400,9 @@
             .nav-tab { text-align: center; }
             .dashboard-grid { grid-template-columns: 1fr; }
             .quick-actions { grid-template-columns: 1fr; }
-            th, td { padding: 10px 12px; }
+            th, td { padding: 10px 12px; font-size: 0.7rem; }
             .student-info-grid { grid-template-columns: 1fr; }
+            .releve-table th, .releve-table td { padding: 6px 4px; font-size: 0.7rem; }
         }
 
         .footer {
@@ -438,10 +479,9 @@
             </div>
 
             <div id="gradesPanel" class="content-panel">
-                <div class="table-container"><table><thead><tr><th>Étudiant</th><th>Matière</th><th>Note</th><th>Semestre</th><th>Date</th><th>Actions</th></tr></thead><tbody id="gradesList"></tbody></table></div>
+                <div class="table-container"><table><thead><tr><th>Étudiant</th><th>Matière</th><th>Devoir</th><th>Examen</th><th>Moyenne</th><th>Semestre</th><th>Actions</th></tr></thead><tbody id="gradesList"></tbody></table></div>
             </div>
 
-            <!-- Nouvel onglet: Relevé Universitaire -->
             <div id="relevePanel" class="content-panel">
                 <div class="semester-selector">
                     <div class="semester-btn active" data-semester="harmattan">
@@ -457,23 +497,9 @@
                 </div>
                 
                 <div class="releve-container" id="releveContainer">
-                    <div class="releve-header">
-                        <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
-                        <p id="releveSubtitle">Semestre Harmattan - Année Académique 2024/2025</p>
-                    </div>
-                    
-                    <div class="student-info-grid" id="studentInfoReleve">
-                        <div class="info-item"><span class="info-label">👤 Étudiant:</span> <span id="releveStudentName">-</span></div>
-                        <div class="info-item"><span class="info-label">📌 Matricule:</span> <span id="releveMatricule">-</span></div>
-                        <div class="info-item"><span class="info-label">🏫 Classe:</span> <span id="releveClass">-</span></div>
-                        <div class="info-item"><span class="info-label">📚 Spécialité:</span> <span id="releveSpecialty">-</span></div>
-                    </div>
-                    
-                    <div id="releveContent">
-                        <div style="text-align:center; padding:40px; color:var(--gray);">
-                            <i class="fas fa-search" style="font-size:2rem; margin-bottom:16px; display:block;"></i>
-                            <p>Sélectionnez un étudiant pour générer son relevé de notes</p>
-                        </div>
+                    <div style="text-align:center; padding:40px; color:var(--gray);">
+                        <i class="fas fa-search" style="font-size:2rem; margin-bottom:16px; display:block;"></i>
+                        <p>Sélectionnez un étudiant pour générer son relevé de notes</p>
                     </div>
                 </div>
             </div>
@@ -483,11 +509,11 @@
     </div>
 
     <!-- Modals -->
-    <div id="studentModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Ajouter un étudiant</h3><button class="modal-close" onclick="closeModal('studentModal')">&times;</button></div><form id="studentForm"><div class="form-group"><label>Nom</label><input type="text" id="sLastName" required></div><div class="form-group"><label>Prénom</label><input type="text" id="sFirstName" required></div><div class="form-group"><label>Matricule</label><input type="text" id="sMatricule" required></div><div class="form-group"><label>Classe</label><select id="sClass"><option>Licence 1</option><option>Licence 2</option><option>Licence 3</option><option>Master 1</option><option>Master 2</option></select></div><div class="form-group"><label>Spécialité</label><input type="text" id="sSpecialty" placeholder="Informatique, Droit..."></div><div class="form-group"><label>Email</label><input type="email" id="sEmail"></div><div class="form-group" style="display:flex; gap:12px; margin-top:20px;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button><button type="button" class="btn btn-outline" onclick="closeModal('studentModal')">Annuler</button></div></form></div></div>
+    <div id="studentModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Ajouter un étudiant</h3><button class="modal-close" onclick="closeModal('studentModal')">&times;</button></div><form id="studentForm"><div class="form-group"><label>Nom</label><input type="text" id="sLastName" required></div><div class="form-group"><label>Prénom</label><input type="text" id="sFirstName" required></div><div class="form-group"><label>Matricule</label><input type="text" id="sMatricule" required></div><div class="form-group"><label>Classe</label><select id="sClass"><option>Licence 1</option><option>Licence 2</option><option>Licence 3</option><option>Master 1</option><option>Master 2</option></select></div><div class="form-group"><label>Spécialité</label><input type="text" id="sSpecialty" placeholder="Informatique, Droit..."></div><div class="form-group"><label>Email</label><input type="email" id="sEmail"></div><div class="form-group" style="display:flex; gap:12px; margin-top:20px;"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" class="btn btn-outline" onclick="closeModal('studentModal')">Annuler</button></div></form></div></div>
 
     <div id="subjectModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Ajouter une matière</h3><button class="modal-close" onclick="closeModal('subjectModal')">&times;</button></div><form id="subjectForm"><div class="form-group"><label>Code</label><input type="text" id="subCode" required></div><div class="form-group"><label>Nom</label><input type="text" id="subName" required></div><div class="form-group"><label>Professeur</label><input type="text" id="subTeacher" required></div><div class="form-group"><label>Coefficient</label><input type="number" id="subCoeff" value="1" min="1"></div><div class="form-group"><label>Crédits</label><input type="number" id="subCredits" value="3" min="1"></div><div class="form-group" style="display:flex; gap:12px; margin-top:20px;"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" class="btn btn-outline" onclick="closeModal('subjectModal')">Annuler</button></div></form></div></div>
 
-    <div id="gradeModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>📝 Ajouter une note</h3><button class="modal-close" onclick="closeModal('gradeModal')">&times;</button></div><form id="gradeForm"><div class="form-group"><label>Étudiant</label><select id="gStudentId" required></select></div><div class="form-group"><label>Matière</label><select id="gSubjectId" required></select></div><div class="form-group"><label>Note /20</label><input type="number" id="gValue" min="0" max="20" step="0.5" required></div><div class="form-group"><label>Semestre</label><select id="gSemester"><option value="harmattan">Harmattan (Oct-Jan)</option><option value="mousson">Mousson (Fév-Juin)</option></select></div><div class="form-group"><label>Date</label><input type="date" id="gDate"></div><div class="form-group" style="display:flex; gap:12px; margin-top:20px;"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" class="btn btn-outline" onclick="closeModal('gradeModal')">Annuler</button></div></form></div></div>
+    <div id="gradeModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>📝 Saisir les notes</h3><button class="modal-close" onclick="closeModal('gradeModal')">&times;</button></div><form id="gradeForm"><div class="form-group"><label>Étudiant</label><select id="gStudentId" required></select></div><div class="form-group"><label>Matière (UE)</label><select id="gSubjectId" required></select></div><div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;"><div class="form-group"><label>Note Devoir (/20)</label><input type="number" id="gDevoir" min="0" max="20" step="0.5"></div><div class="form-group"><label>Note Examen (/20)</label><input type="number" id="gExamen" min="0" max="20" step="0.5" required></div></div><div class="form-group"><label>Semestre</label><select id="gSemester"><option value="harmattan">Harmattan (Oct-Jan)</option><option value="mousson">Mousson (Fév-Juin)</option></select></div><div class="form-group"><label>Date</label><input type="date" id="gDate"></div><div class="form-group" style="display:flex; gap:12px; margin-top:20px;"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" class="btn btn-outline" onclick="closeModal('gradeModal')">Annuler</button></div></form></div></div>
 
     <div id="selectStudentModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>📜 Générer un relevé</h3><button class="modal-close" onclick="closeModal('selectStudentModal')">&times;</button></div><div class="form-group"><label>Sélectionner un étudiant</label><select id="releveStudentSelect" class="form-control"></select></div><div class="btn-group" style="display:flex; gap:12px; margin-top:20px;"><button class="btn btn-primary" onclick="generateReleve()"><i class="fas fa-file-alt"></i> Générer le relevé</button><button class="btn btn-outline" onclick="closeModal('selectStudentModal')">Annuler</button></div></div></div>
 
@@ -538,14 +564,17 @@
                 appData.subjects = data.subjects || [];
                 appData.grades = data.grades || [];
             }
+            // Données d'exemple
             if (appData.students.length === 0) {
                 appData.students.push({ id: "1", lastName: "Dupont", firstName: "Jean", matricule: "2024001", class: "Licence 3", specialty: "Informatique", email: "jean.dupont@email.com", username: "jdupont", password: "pass123" });
                 appData.students.push({ id: "2", lastName: "Martin", firstName: "Marie", matricule: "2024002", class: "Licence 3", specialty: "Informatique", email: "marie.martin@email.com", username: "mmartin", password: "pass456" });
-                appData.subjects.push({ id: "1", code: "INF101", name: "Algorithmique", teacher: "Prof. Martin", coefficient: 2, credits: 4 });
+                appData.subjects.push({ id: "1", code: "INF101", name: "Algorithmique Avancée", teacher: "Prof. Martin", coefficient: 3, credits: 6 });
                 appData.subjects.push({ id: "2", code: "INF102", name: "Base de Données", teacher: "Prof. Dubois", coefficient: 2, credits: 4 });
-                appData.grades.push({ id: "1", studentId: "1", subjectId: "1", value: 15.5, semester: "harmattan", date: "2024-12-15" });
-                appData.grades.push({ id: "2", studentId: "1", subjectId: "2", value: 14.0, semester: "harmattan", date: "2025-01-10" });
-                appData.grades.push({ id: "3", studentId: "2", subjectId: "1", value: 12.5, semester: "harmattan", date: "2024-12-15" });
+                appData.subjects.push({ id: "3", code: "INF103", name: "Programmation Web", teacher: "Prof. Bernard", coefficient: 3, credits: 5 });
+                appData.grades.push({ id: "1", studentId: "1", subjectId: "1", devoir: 14, examen: 16, moyenne: 15.2, semester: "harmattan", date: "2024-12-15" });
+                appData.grades.push({ id: "2", studentId: "1", subjectId: "2", devoir: 12, examen: 13, moyenne: 12.6, semester: "harmattan", date: "2025-01-10" });
+                appData.grades.push({ id: "3", studentId: "1", subjectId: "3", devoir: 15, examen: 17, moyenne: 16.2, semester: "harmattan", date: "2024-12-20" });
+                appData.grades.push({ id: "4", studentId: "2", subjectId: "1", devoir: 10, examen: 11, moyenne: 10.6, semester: "harmattan", date: "2024-12-15" });
             }
             saveData();
         }
@@ -638,8 +667,8 @@
                 document.getElementById('userName').innerText = appData.session?.name || 'Étudiant';
                 document.getElementById('userRole').innerText = 'Étudiant';
                 document.getElementById('userIcon').className = 'fas fa-user-graduate';
-                renderStudentDashboard();
                 switchPanel('releve');
+                if (appData.session.studentId) generateReleveForStudent(appData.session.studentId);
             }
         }
 
@@ -652,23 +681,19 @@
             if (panelId === 'students') renderStudentsTable();
             if (panelId === 'subjects') renderSubjectsTable();
             if (panelId === 'grades') renderGradesTable();
-            if (panelId === 'releve') {
-                if (appData.session?.type === 'student') {
-                    generateReleveForStudent(appData.session.studentId);
-                } else {
-                    openModal('selectStudentModal');
-                    populateStudentSelect();
-                }
+            if (panelId === 'releve' && appData.session?.type === 'admin') {
+                openModal('selectStudentModal');
+                populateStudentSelect();
             }
         }
 
         // ==================== ADMIN DASHBOARD ====================
         function renderDashboard() {
-            const avg = appData.grades.length ? (appData.grades.reduce((a,b)=>a+b.value,0)/appData.grades.length).toFixed(1) : '0.0';
+            const avg = appData.grades.length ? (appData.grades.reduce((a,b)=>a+b.moyenne,0)/appData.grades.length).toFixed(1) : '0.0';
             document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-users"></i></div></div><div class="stat-value">${appData.students.length}</div><div class="stat-label">Étudiants</div></div>
-                <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-book"></i></div></div><div class="stat-value">${appData.subjects.length}</div><div class="stat-label">Matières</div></div>
-                <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div><div class="stat-value">${appData.grades.length}</div><div class="stat-label">Notes</div></div>
+                <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-book"></i></div></div><div class="stat-value">${appData.subjects.length}</div><div class="stat-label">UE enseignées</div></div>
+                <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div><div class="stat-value">${appData.grades.length}</div><div class="stat-label">Notes saisies</div></div>
                 <div class="stat-card"><div class="stat-header"><div class="stat-icon"><i class="fas fa-trophy"></i></div></div><div class="stat-value">${avg}</div><div class="stat-label">Moyenne générale</div></div>
             `;
         }
@@ -676,8 +701,8 @@
         function renderQuickActions() {
             document.getElementById('quickActions').innerHTML = `
                 <div class="action-card" onclick="openModal('studentModal')"><div class="action-icon"><i class="fas fa-user-plus"></i></div><div><strong>Ajouter étudiant</strong><br><small>Nouvel inscrit</small></div></div>
-                <div class="action-card" onclick="openModal('subjectModal')"><div class="action-icon"><i class="fas fa-book-medical"></i></div><div><strong>Ajouter matière</strong><br><small>Nouveau cours</small></div></div>
-                <div class="action-card" onclick="openModal('gradeModal'); populateSelects()"><div class="action-icon"><i class="fas fa-edit"></i></div><div><strong>Saisir notes</strong><br><small>Évaluations</small></div></div>
+                <div class="action-card" onclick="openModal('subjectModal')"><div class="action-icon"><i class="fas fa-book-medical"></i></div><div><strong>Ajouter UE</strong><br><small>Unité d'Enseignement</small></div></div>
+                <div class="action-card" onclick="openModal('gradeModal'); populateSelects()"><div class="action-icon"><i class="fas fa-edit"></i></div><div><strong>Saisir notes</strong><br><small>Devoir + Examen</small></div></div>
                 <div class="action-card" onclick="exportAllData()"><div class="action-icon"><i class="fas fa-database"></i></div><div><strong>Exporter tout</strong><br><small>JSON complet</small></div></div>
             `;
         }
@@ -690,7 +715,7 @@
             tbody.innerHTML = appData.students.map(s => `
                 <tr><td><strong>${s.matricule}</strong></td><td>${s.firstName} ${s.lastName}</td><td>${s.class}</td>
                 <td><button class="btn btn-warning btn-sm" onclick="generateCredentials('${s.id}')" style="padding:4px 10px; margin-right:5px"><i class="fas fa-key"></i></button>
-                <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')" style="padding:4px 10px"><i class="fas fa-trash"></i></button></td></tr>
+                <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')" style="padding:4px 10px"><i class="fas fa-trash"></i></button></td>
             `).join('');
         }
 
@@ -762,10 +787,10 @@
         function renderSubjectsTable() {
             const tbody = document.getElementById('subjectsList');
             if (!tbody) return;
-            if (appData.subjects.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Aucune matière</td></tr>'; return; }
+            if (appData.subjects.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Aucune UE</td></tr>'; return; }
             tbody.innerHTML = appData.subjects.map(s => `
-                <tr><td>${s.code}</td><td>${s.name}</td><td>${s.teacher}</td><td>${s.coefficient}</td><td>${s.credits}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="deleteSubject('${s.id}')"><i class="fas fa-trash"></i></button></td></tr>
+                <tr><td>${s.code}</td><td><strong>${s.name}</strong></td><td>${s.teacher}</td><td>${s.coefficient}</td><td><span class="credits-badge">${s.credits} crédits</span></td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteSubject('${s.id}')"><i class="fas fa-trash"></i></button></td>
             `).join('');
         }
 
@@ -776,18 +801,18 @@
             saveData();
             renderSubjectsTable();
             closeModal('subjectModal');
-            showAlert(`Matière ${subject.name} ajoutée`, 'success', false);
+            showAlert(`UE ${subject.name} ajoutée`, 'success', false);
             document.getElementById('subjectForm').reset();
         }
 
         function deleteSubject(id) {
-            if (confirm('Supprimer cette matière ?')) {
+            if (confirm('Supprimer cette UE ?')) {
                 appData.subjects = appData.subjects.filter(s => s.id !== id);
                 appData.grades = appData.grades.filter(g => g.subjectId !== id);
                 saveData();
                 renderSubjectsTable();
                 renderGradesTable();
-                showAlert('Matière supprimée', 'success', false);
+                showAlert('UE supprimée', 'success', false);
             }
         }
 
@@ -795,22 +820,30 @@
         function renderGradesTable() {
             const tbody = document.getElementById('gradesList');
             if (!tbody) return;
-            if (appData.grades.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Aucune note</td></tr>'; return; }
+            if (appData.grades.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Aucune note</td></tr>'; return; }
             tbody.innerHTML = appData.grades.map(g => {
                 const student = appData.students.find(s => s.id === g.studentId);
                 const subject = appData.subjects.find(s => s.id === g.subjectId);
                 const semesterName = g.semester === 'harmattan' ? 'Harmattan' : 'Mousson';
-                return `<tr><td>${student?.firstName} ${student?.lastName || '-'}</td><td>${subject?.name || '-'}</td><td><strong>${g.value}/20</strong></td><td>${semesterName}</td><td>${g.date || '-'}</td><td><button class="btn btn-danger btn-sm" onclick="deleteGrade('${g.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                const devoirNote = g.devoir ? g.devoir.toFixed(1) : '-';
+                const examenNote = g.examen ? g.examen.toFixed(1) : '-';
+                return `<tr><td>${student?.firstName} ${student?.lastName || '-'}</td><td>${subject?.name || '-'}</td><td class="note-devoir">${devoirNote}/20</td><td class="note-examen">${examenNote}/20</td><td class="note-moyenne"><strong>${g.moyenne.toFixed(1)}/20</strong></td><td>${semesterName}</td><td><button class="btn btn-danger btn-sm" onclick="deleteGrade('${g.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
             }).join('');
         }
 
         function addGrade(e) {
             e.preventDefault();
+            const devoir = parseFloat(document.getElementById('gDevoir').value) || 0;
+            const examen = parseFloat(document.getElementById('gExamen').value);
+            const moyenne = (devoir + examen) / 2;
+            
             const grade = {
                 id: Date.now().toString(),
                 studentId: document.getElementById('gStudentId').value,
                 subjectId: document.getElementById('gSubjectId').value,
-                value: parseFloat(document.getElementById('gValue').value),
+                devoir: devoir,
+                examen: examen,
+                moyenne: moyenne,
                 semester: document.getElementById('gSemester').value,
                 date: document.getElementById('gDate').value || new Date().toISOString().split('T')[0]
             };
@@ -818,7 +851,8 @@
             saveData();
             renderGradesTable();
             closeModal('gradeModal');
-            showAlert('Note ajoutée', 'success', false);
+            showAlert(`Note enregistrée (Moyenne: ${moyenne.toFixed(1)}/20)`, 'success', false);
+            document.getElementById('gradeForm').reset();
         }
 
         function deleteGrade(id) {
@@ -834,7 +868,7 @@
             const studentSelect = document.getElementById('gStudentId');
             const subjectSelect = document.getElementById('gSubjectId');
             if (studentSelect) studentSelect.innerHTML = appData.students.map(s => `<option value="${s.id}">${s.firstName} ${s.lastName} (${s.matricule})</option>`).join('');
-            if (subjectSelect) subjectSelect.innerHTML = appData.subjects.map(s => `<option value="${s.id}">${s.name} (${s.code})</option>`).join('');
+            if (subjectSelect) subjectSelect.innerHTML = appData.subjects.map(s => `<option value="${s.id}">${s.name} (${s.code}) - ${s.credits} crédits</option>`).join('');
         }
 
         function populateStudentSelect() {
@@ -842,7 +876,7 @@
             if (select) select.innerHTML = appData.students.map(s => `<option value="${s.id}">${s.firstName} ${s.lastName} - ${s.matricule} (${s.class})</option>`).join('');
         }
 
-        // ==================== RELEVÉ UNIVERSITAIRE ====================
+        // ==================== RELEVÉ UNIVERSITAIRE AMÉLIORÉ ====================
         function generateReleve() {
             const studentId = document.getElementById('releveStudentSelect').value;
             if (!studentId) { showAlert('Sélectionnez un étudiant', 'error', false); return; }
@@ -856,23 +890,23 @@
             if (!student) return;
 
             const semesterName = currentSemester === 'harmattan' ? 'Harmattan (Octobre - Janvier)' : 'Mousson (Février - Juin)';
-            document.getElementById('releveSubtitle').innerHTML = `Semestre ${semesterName} - Année Académique 2024/2025`;
-            document.getElementById('releveStudentName').innerHTML = `${student.firstName} ${student.lastName}`;
-            document.getElementById('releveMatricule').innerHTML = student.matricule;
-            document.getElementById('releveClass').innerHTML = student.class;
-            document.getElementById('releveSpecialty').innerHTML = student.specialty || 'Non spécifiée';
-
+            
+            // Récupérer les notes de l'étudiant pour le semestre
             const studentGrades = appData.grades.filter(g => g.studentId === studentId && g.semester === currentSemester);
             
-            if (studentGrades.length === 0) {
-                document.getElementById('releveContent').innerHTML = `
-                    <div style="text-align:center; padding:40px; color:var(--gray);">
-                        <i class="fas fa-info-circle" style="font-size:2rem; margin-bottom:16px; display:block;"></i>
-                        <p>Aucune note enregistrée pour le semestre ${currentSemester === 'harmattan' ? 'Harmattan' : 'Mousson'}</p>
-                    </div>
-                `;
-                return;
-            }
+            // Regrouper par matière
+            const gradesBySubject = {};
+            studentGrades.forEach(grade => {
+                const subject = appData.subjects.find(s => s.id === grade.subjectId);
+                if (subject) {
+                    gradesBySubject[subject.id] = {
+                        subject: subject,
+                        devoir: grade.devoir,
+                        examen: grade.examen,
+                        moyenne: grade.moyenne
+                    };
+                }
+            });
 
             let totalPoints = 0;
             let totalCoeff = 0;
@@ -880,62 +914,106 @@
             let validatedCredits = 0;
             let tableRows = '';
 
-            studentGrades.forEach(grade => {
-                const subject = appData.subjects.find(s => s.id === grade.subjectId);
-                if (!subject) return;
-                const weighted = grade.value * subject.coefficient;
+            Object.values(gradesBySubject).forEach(item => {
+                const subject = item.subject;
+                const moyenne = item.moyenne;
+                const weighted = moyenne * subject.coefficient;
                 totalPoints += weighted;
                 totalCoeff += subject.coefficient;
                 totalCredits += subject.credits;
-                if (grade.value >= 10) validatedCredits += subject.credits;
+                if (moyenne >= 10) validatedCredits += subject.credits;
                 
                 let appreciation = '';
-                if (grade.value >= 16) appreciation = 'Très bien';
-                else if (grade.value >= 14) appreciation = 'Bien';
-                else if (grade.value >= 12) appreciation = 'Assez bien';
-                else if (grade.value >= 10) appreciation = 'Passable';
+                if (moyenne >= 16) appreciation = 'Très bien';
+                else if (moyenne >= 14) appreciation = 'Bien';
+                else if (moyenne >= 12) appreciation = 'Assez bien';
+                else if (moyenne >= 10) appreciation = 'Passable';
                 else appreciation = 'Insuffisant';
                 
-                tableRows += `<tr>
-                    <td>${subject.code}</td>
-                    <td>${subject.name}</td>
-                    <td>${subject.coefficient}</td>
-                    <td>${subject.credits}</td>
-                    <td><strong>${grade.value}/20</strong></td>
-                    <td>${appreciation}</td>
-                </tr>`;
+                let appreciationClass = '';
+                if (moyenne >= 16) appreciationClass = 'grade-excellent';
+                else if (moyenne >= 14) appreciationClass = 'grade-good';
+                else if (moyenne >= 10) appreciationClass = 'grade-average';
+                else appreciationClass = 'grade-poor';
+                
+                const devoirNote = item.devoir && item.devoir > 0 ? item.devoir.toFixed(1) : '-';
+                const examenNote = item.examen ? item.examen.toFixed(1) : '-';
+                
+                tableRows += `
+                    <tr class="ue-row">
+                        <td colspan="7" class="ue-title">
+                            <strong>📘 ${subject.name}</strong> 
+                            <span class="credits-badge" style="margin-left:10px;">${subject.credits} crédits</span>
+                        </td>
+                    </tr>
+                    <tr class="sub-row">
+                        <td>${subject.code}</td>
+                        <td>Devoir</td>
+                        <td class="note-devoir">${devoirNote}/20</td>
+                        <td>${subject.coefficient}</td>
+                        <td rowspan="2" class="note-moyenne"><strong>${moyenne.toFixed(1)}/20</strong></td>
+                        <td rowspan="2" class="${appreciationClass}">${appreciation}</td>
+                        <td rowspan="2">${moyenne >= 10 ? '✅ Validé' : '❌ Non validé'}</td>
+                    </tr>
+                    <tr class="sub-row">
+                        <td>${subject.code}</td>
+                        <td>Examen</td>
+                        <td class="note-examen">${examenNote}/20</td>
+                        <td>${subject.coefficient}</td>
+                    </tr>
+                `;
             });
 
-            const moyenne = totalCoeff > 0 ? (totalPoints / totalCoeff).toFixed(2) : '0.00';
-            const decision = parseFloat(moyenne) >= 10 ? 'ADMIS(E)' : 'NON ADMIS(E)';
-            const decisionColor = parseFloat(moyenne) >= 10 ? '#10b981' : '#ef4444';
+            const moyenneGenerale = totalCoeff > 0 ? (totalPoints / totalCoeff).toFixed(2) : '0.00';
+            const decision = parseFloat(moyenneGenerale) >= 10 ? 'ADMIS(E) AU SEMESTRE' : 'NON ADMIS(E) AU SEMESTRE';
+            const decisionColor = parseFloat(moyenneGenerale) >= 10 ? '#10b981' : '#ef4444';
+            const mention = getMention(parseFloat(moyenneGenerale));
 
-            document.getElementById('releveContent').innerHTML = `
+            const releveHTML = `
+                <div class="releve-header">
+                    <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
+                    <p>Semestre ${semesterName} - Année Académique 2024/2025</p>
+                    <p><strong>Université EduManage | Direction des Affaires Académiques</strong></p>
+                </div>
+                
+                <div class="student-info-grid">
+                    <div class="info-item"><span class="info-label">👤 Étudiant:</span> ${student.firstName} ${student.lastName}</div>
+                    <div class="info-item"><span class="info-label">📌 Matricule:</span> ${student.matricule}</div>
+                    <div class="info-item"><span class="info-label">🏫 Classe:</span> ${student.class}</div>
+                    <div class="info-item"><span class="info-label">📚 Spécialité:</span> ${student.specialty || 'Non spécifiée'}</div>
+                    <div class="info-item"><span class="info-label">📅 Date d'édition:</span> ${new Date().toLocaleDateString('fr-FR')}</div>
+                </div>
+                
                 <table class="releve-table">
                     <thead>
-                        <tr><th>Code</th><th>Unité d'Enseignement</th><th>Coeff</th><th>Crédits</th><th>Note</th><th>Appréciation</th></tr>
+                        <tr><th>Code UE</th><th>Type Épreuve</th><th>Note (/20)</th><th>Coeff</th><th>Moyenne UE</th><th>Appréciation</th><th>Statut</th></tr>
                     </thead>
-                    <tbody>${tableRows}</tbody>
+                    <tbody>
+                        ${tableRows || '<tr><td colspan="7" style="text-align:center">Aucune note enregistrée pour ce semestre</td></tr>'}
+                    </tbody>
                 </table>
                 
                 <div class="releve-summary">
-                    <div class="summary-item"><div class="summary-value">${moyenne}/20</div><div class="summary-label">Moyenne du Semestre</div></div>
+                    <div class="summary-item"><div class="summary-value">${moyenneGenerale}/20</div><div class="summary-label">Moyenne du Semestre</div></div>
                     <div class="summary-item"><div class="summary-value">${validatedCredits}/${totalCredits}</div><div class="summary-label">Crédits validés</div></div>
-                    <div class="summary-item"><div class="summary-value" style="color:${decisionColor}">${decision}</div><div class="summary-label">Décision</div></div>
+                    <div class="summary-item"><div class="summary-value">${mention}</div><div class="summary-label">Mention</div></div>
+                    <div class="summary-item"><div class="summary-value" style="color:${decisionColor}">${decision}</div><div class="summary-label">Décision du Jury</div></div>
                 </div>
                 
                 <div class="print-btn">
                     <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Imprimer / PDF</button>
                 </div>
             `;
+            
+            document.getElementById('releveContainer').innerHTML = releveHTML;
         }
 
-        // ==================== STUDENT PORTAL ====================
-        function renderStudentDashboard() {
-            const studentId = appData.session?.studentId;
-            const student = appData.students.find(s => s.id === studentId);
-            if (!student) return;
-            generateReleveForStudent(studentId);
+        function getMention(moyenne) {
+            if (moyenne >= 16) return 'Très honorable';
+            if (moyenne >= 14) return 'Honorable';
+            if (moyenne >= 12) return 'Assez honorable';
+            if (moyenne >= 10) return 'Passable';
+            return 'Non classé';
         }
 
         // ==================== UTILS ====================

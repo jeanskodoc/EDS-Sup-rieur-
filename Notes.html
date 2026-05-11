@@ -36,7 +36,7 @@
             padding-bottom: 80px;
         }
         
-        /* Écran de connexion */
+        /* Login styles */
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -56,28 +56,10 @@
             width: 100%;
         }
         
-        .app-logo {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        
-        .app-logo h1 {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-        
+        .app-logo { text-align: center; margin-bottom: 25px; }
+        .app-logo h1 { color: var(--primary-color); font-size: 1.8rem; margin-bottom: 5px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark-color); }
         .form-input {
             width: 100%;
             padding: 16px 15px;
@@ -87,13 +69,7 @@
             background-color: #fafafa;
             transition: all 0.3s;
         }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background-color: white;
-        }
-        
+        .form-input:focus { outline: none; border-color: var(--primary-color); background-color: white; }
         .btn {
             width: 100%;
             padding: 16px;
@@ -108,17 +84,8 @@
             justify-content: center;
             gap: 10px;
         }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-primary:active {
-            background-color: var(--primary-dark);
-            transform: translateY(1px);
-        }
-        
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:active { background-color: var(--primary-dark); transform: translateY(1px); }
         .login-error {
             background-color: rgba(231, 76, 60, 0.1);
             color: var(--danger-color);
@@ -126,24 +93,12 @@
             border-radius: 8px;
             margin-top: 15px;
             text-align: center;
-            font-size: 0.9rem;
             display: none;
         }
+        .demo-accounts { margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; color: #666; font-size: 0.85rem; }
+        .hidden { display: none !important; }
         
-        .demo-accounts {
-            margin-top: 25px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            color: #666;
-            font-size: 0.85rem;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        /* En-tête */
+        /* Header */
         .app-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
             color: white;
@@ -152,30 +107,10 @@
             top: 0;
             z-index: 100;
         }
-        
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .app-title h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-        
-        .app-title p {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-        
-        .user-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .app-title h1 { font-size: 1.4rem; font-weight: 600; }
+        .app-title p { font-size: 0.85rem; opacity: 0.9; }
+        .user-header { display: flex; align-items: center; gap: 12px; }
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -188,35 +123,12 @@
             font-weight: bold;
             font-size: 1.1rem;
         }
+        .user-info h3 { font-size: 1rem; font-weight: 600; }
+        .user-info p { font-size: 0.8rem; opacity: 0.9; }
+        .logout-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 8px; }
         
-        .user-info h3 {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        
-        .user-info p {
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
-        
-        .logout-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 8px;
-        }
-        
-        /* Navigation par onglets */
-        .tab-nav {
-            display: flex;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 5px;
-            margin-top: 10px;
-        }
-        
+        /* Navigation */
+        .tab-nav { display: flex; background-color: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 5px; margin-top: 10px; }
         .tab-btn {
             flex: 1;
             padding: 12px 5px;
@@ -230,25 +142,36 @@
             border-radius: 8px;
             transition: all 0.3s;
         }
-        
-        .tab-btn.active {
+        .tab-btn.active { background-color: white; color: var(--primary-color); }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background-color: white;
-            color: var(--primary-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
-        
-        /* Contenu principal */
-        .main-content {
-            padding: 20px 15px;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            transition: all 0.3s;
+            flex: 1;
+            padding: 8px 0;
         }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-icon { font-size: 1.3rem; margin-bottom: 4px; }
+        .nav-label { font-size: 0.75rem; font-weight: 500; }
         
-        /* Statistiques */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-        
+        /* Main content */
+        .main-content { padding: 20px 15px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
         .stat-card {
             background-color: white;
             border-radius: var(--border-radius);
@@ -256,18 +179,11 @@
             text-align: center;
             box-shadow: var(--box-shadow);
         }
-        
-        .stat-card .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 8px 0;
-        }
-        
+        .stat-card .stat-value { font-size: 1.5rem; font-weight: 700; margin: 8px 0; }
         .stat-average .stat-value { color: var(--primary-color); }
         .stat-validated .stat-value { color: var(--success-color); }
         .stat-success .stat-value { color: var(--warning-color); }
         
-        /* Informations */
         .info-card {
             background-color: white;
             border-radius: var(--border-radius);
@@ -275,7 +191,6 @@
             margin-bottom: 15px;
             box-shadow: var(--box-shadow);
         }
-        
         .info-card h3 {
             color: var(--dark-color);
             margin-bottom: 15px;
@@ -283,60 +198,18 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--gray-light);
         }
+        .info-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--gray-light); }
+        .info-item:last-child { border-bottom: none; }
+        .info-label { font-weight: 500; color: var(--dark-color); }
+        .info-value { color: #555; text-align: right; }
         
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .info-item:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-        
-        .info-value {
-            color: #555;
-            text-align: right;
-        }
-        
-        /* Tableaux */
-        .grades-table-container {
-            overflow-x: auto;
-            margin-bottom: 20px;
-            border-radius: var(--border-radius);
-        }
-        
-        .grades-table {
-            width: 100%;
-            min-width: 500px;
-            border-collapse: collapse;
-            background-color: white;
-        }
-        
-        .grades-table th {
-            background-color: var(--light-color);
-            padding: 15px 10px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark-color);
-            border-bottom: 2px solid var(--gray-light);
-        }
-        
-        .grades-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
+        .grades-table-container { overflow-x: auto; margin-bottom: 20px; border-radius: var(--border-radius); }
+        .grades-table { width: 100%; min-width: 500px; border-collapse: collapse; background-color: white; }
+        .grades-table th { background-color: var(--light-color); padding: 15px 10px; text-align: left; font-weight: 600; color: var(--dark-color); border-bottom: 2px solid var(--gray-light); }
+        .grades-table td { padding: 12px 10px; border-bottom: 1px solid var(--gray-light); }
         .grade-bad { color: var(--danger-color); font-weight: 600; }
         .grade-good { color: var(--success-color); font-weight: 600; }
         
-        /* Remarques */
         .remarks-card {
             background-color: white;
             border-radius: var(--border-radius);
@@ -345,13 +218,7 @@
             border-left: 4px solid var(--warning-color);
         }
         
-        /* Boutons d'action */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-        
+        .action-buttons { display: flex; gap: 10px; margin-top: 25px; }
         .action-btn {
             flex: 1;
             padding: 16px;
@@ -365,74 +232,187 @@
             justify-content: center;
             gap: 8px;
         }
-        
-        .action-btn:active { transform: translateY(1px); }
         .btn-print { background-color: var(--primary-color); color: white; }
         .btn-download { background-color: var(--success-color); color: white; }
         
-        /* Barre de navigation inférieure */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
+        /* Styles améliorés pour le Relevé */
+        .semester-selector {
             display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 100;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
+        .semester-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .semester-btn.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #e8f4fd, white);
+            color: var(--primary-color);
+        }
+        .semester-btn .semester-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
+        .semester-btn .semester-name { font-size: 0.9rem; }
         
-        .nav-item {
+        /* Relevé container amélioré */
+        .releve-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+        }
+        .releve-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        .releve-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        .releve-header p { color: var(--gray); font-size: 0.85rem; }
+        .university-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+        }
+        .student-info-detail {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        .student-info-detail .info-row {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-decoration: none;
+        }
+        .student-info-detail .info-label {
+            font-size: 0.7rem;
             color: var(--gray);
-            transition: all 0.3s;
-            flex: 1;
-            padding: 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .student-info-detail .info-value {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.9rem;
         }
         
-        .nav-item.active { color: var(--primary-color); }
-        .nav-icon { font-size: 1.3rem; margin-bottom: 4px; }
-        .nav-label { font-size: 0.75rem; font-weight: 500; }
+        .releve-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+        }
+        .releve-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .releve-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .releve-table .ue-title-row td {
+            background: #f0fdf4;
+            font-weight: 600;
+            text-align: left;
+            border-top: 1px solid #d1fae5;
+        }
+        .grade-excellent { background: #d1fae5; color: #065f46; font-weight: 600; }
+        .grade-good { background: #fef3c7; color: #92400e; font-weight: 600; }
+        .grade-average { background: #dbeafe; color: #1e40af; font-weight: 600; }
+        .grade-poor { background: #fee2e2; color: #991b1b; font-weight: 600; }
         
-        /* Animation */
-        .page-content {
-            animation: fadeIn 0.3s ease-in-out;
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .summary-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+        .summary-card .summary-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .summary-card .summary-label {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+        .decision-badge {
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .decision-admis { background: #d1fae5; color: #065f46; }
+        .decision-non-admis { background: #fee2e2; color: #991b1b; }
+        
+        .print-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--gray);
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .page-content { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Responsive */
         @media (min-width: 768px) {
             .stats-grid { gap: 15px; }
             .stat-card .stat-value { font-size: 1.8rem; }
             .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .summary-cards { gap: 15px; }
+            .summary-card .summary-value { font-size: 1.8rem; }
         }
         
-        @media (max-width: 360px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .stats-grid .stat-card:last-child { grid-column: span 2; max-width: 50%; justify-self: center; }
-            .action-buttons { flex-direction: column; }
+        @media (max-width: 768px) {
+            .tab-nav { display: none; }
+            .bottom-nav { display: flex; }
+            .student-info-detail { grid-template-columns: 1fr; }
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
         }
         
-        @media (min-width: 768px) {
+        @media (min-width: 769px) {
             .tab-nav { display: flex; }
             .bottom-nav { display: none; }
         }
         
-        @media (max-width: 767px) {
-            .tab-nav { display: none; }
-            .bottom-nav { display: flex; }
+        @media (max-width: 480px) {
+            .summary-cards { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
         }
         
-        /* Styles pour l'impression */
+        /* Print styles */
         @media print {
             body * { visibility: hidden; }
             #printable-bulletin, #printable-bulletin * { visibility: visible; }
@@ -445,65 +425,32 @@
             left: -9999px;
             top: -9999px;
         }
-        
-        .printable-bulletin {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
-            background: white;
-            font-family: 'Times New Roman', Times, serif;
-        }
-        
-        .print-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px; }
-        .print-stats { display: flex; justify-content: space-between; margin-bottom: 25px; text-align: center; }
-        .print-stat { flex: 1; padding: 15px; border: 1px solid #000; margin: 0 5px; }
-        .print-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-        .print-table th, .print-table td { border: 1px solid #000; padding: 10px; text-align: center; }
-        .print-table th { background-color: #f2f2f2; }
-        .print-remarks { margin-top: 30px; padding: 15px; border: 1px solid #000; }
-        .print-footer { margin-top: 40px; text-align: center; font-size: 10pt; }
     </style>
 </head>
 <body>
-    <!-- Écran de connexion -->
+    <!-- Login -->
     <div id="loginPage" class="login-container">
         <div class="login-box">
-            <div class="app-logo">
-                <h1>EduManage Pro</h1>
-                <p>Consultation des notes & relevés</p>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Matricule</label>
-                <input type="text" id="matricule" class="form-input" placeholder="Votre matricule">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Mot de passe</label>
-                <input type="password" id="password" class="form-input" placeholder="Mot de passe">
-            </div>
+            <div class="app-logo"><h1>EduManage Pro</h1><p>Consultation des notes & relevés</p></div>
+            <div class="form-group"><label class="form-label">Matricule</label><input type="text" id="matricule" class="form-input" placeholder="Votre matricule"></div>
+            <div class="form-group"><label class="form-label">Mot de passe</label><input type="password" id="password" class="form-input" placeholder="Mot de passe"></div>
             <button id="loginBtn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
             <div id="loginError" class="login-error">Matricule ou mot de passe incorrect</div>
-            <div class="demo-accounts">
-                <p>📋 Comptes de démonstration :</p>
-                <div class="demo-account">Matricule: 2024001 | Mot de passe: etudiant123</div>
-                <div class="demo-account">Matricule: 2024002 | Mot de passe: etudiant456</div>
+            <div class="demo-accounts"><p>📋 Comptes de démonstration :</p>
+                <div>Matricule: 2024001 | Mot de passe: etudiant123</div>
+                <div>Matricule: 2024002 | Mot de passe: etudiant456</div>
             </div>
         </div>
     </div>
     
-    <!-- Interface principale -->
+    <!-- Main App -->
     <div id="mainApp" class="hidden">
         <header class="app-header">
             <div class="header-top">
-                <div class="app-title">
-                    <h1>EduManage Pro</h1>
-                    <p id="currentPageTitle">Tableau de bord</p>
-                </div>
+                <div class="app-title"><h1>EduManage Pro</h1><p id="currentPageTitle">Tableau de bord</p></div>
                 <div class="user-header">
                     <div class="user-avatar" id="userAvatar">JD</div>
-                    <div class="user-info">
-                        <h3 id="userName">Jean Dupont</h3>
-                        <p id="userClass">Licence 3 - Info</p>
-                    </div>
+                    <div class="user-info"><h3 id="userName">Jean Dupont</h3><p id="userClass">Licence 3 - Info</p></div>
                     <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
@@ -516,7 +463,7 @@
         </header>
         
         <main class="main-content">
-            <!-- Page Dashboard -->
+            <!-- Dashboard -->
             <div id="dashboardPage" class="page-content">
                 <div class="stats-grid">
                     <div class="stat-card stat-average"><div class="stat-label">Moyenne</div><div class="stat-value" id="generalAverage">0.00/20</div></div>
@@ -527,7 +474,7 @@
                     <div class="info-card"><h3><i class="fas fa-user-circle"></i> Informations</h3>
                         <div class="info-item"><span class="info-label">Nom complet</span><span class="info-value" id="studentName"></span></div>
                         <div class="info-item"><span class="info-label">Matricule</span><span class="info-value" id="studentMatricule"></span></div>
-                        <div class="info-item"><span class="info-label">Date naissance</span><span class="info-value" id="studentBirth">15/05/2004</span></div>
+                        <div class="info-item"><span class="info-label">Date naissance</span><span class="info-value" id="studentBirth"></span></div>
                     </div>
                     <div class="info-card"><h3><i class="fas fa-graduation-cap"></i> Académique</h3>
                         <div class="info-item"><span class="info-label">Classe</span><span class="info-value" id="studentClassDisplay"></span></div>
@@ -540,7 +487,7 @@
                 </div>
             </div>
             
-            <!-- Page Notes détaillées -->
+            <!-- Notes détaillées -->
             <div id="gradesPage" class="page-content hidden">
                 <div class="info-card"><h3><i class="fas fa-list-alt"></i> Notes par matière</h3>
                     <div class="grades-table-container"><table class="grades-table"><thead><tr><th>Matière</th><th>Professeur</th><th>Coeff</th><th>Devoir</th><th>Examen</th><th>Moyenne</th><th>Statut</th></tr></thead><tbody id="detailedGrades"></tbody></table></div>
@@ -548,30 +495,30 @@
                 <div class="remarks-card"><h4><i class="fas fa-comment-alt"></i> Appréciations</h4><div id="teacherRemarks"></div></div>
             </div>
             
-            <!-- Page Relevé Universitaire -->
+            <!-- Relevé amélioré -->
             <div id="relevePage" class="page-content hidden">
-                <div class="semester-selector" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="semester-btn active" data-semester="harmattan" style="flex:1; padding:12px; border:2px solid #e5e7eb; border-radius:10px; background:white; cursor:pointer;">🍂 Harmattan</button>
-                    <button class="semester-btn" data-semester="mousson" style="flex:1; padding:12px; border:2px solid #e5e7eb; border-radius:10px; background:white; cursor:pointer;">☔ Mousson</button>
+                <div class="semester-selector">
+                    <button class="semester-btn active" data-semester="harmattan"><span class="semester-icon">🍂</span><span class="semester-name">Harmattan (Oct-Jan)</span></button>
+                    <button class="semester-btn" data-semester="mousson"><span class="semester-icon">☔</span><span class="semester-name">Mousson (Fév-Juin)</span></button>
                 </div>
-                <div id="releveContainer" class="info-card">
-                    <div style="text-align:center; padding:40px; color:var(--gray);"><i class="fas fa-scroll" style="font-size:2rem; margin-bottom:16px; display:block;"></i><p>Génération du relevé...</p></div>
+                <div id="releveContainer" class="releve-container">
+                    <div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary-color);"></i><p>Chargement du relevé...</p></div>
                 </div>
-                <div class="action-buttons">
+                <div class="action-buttons no-print">
                     <button class="action-btn btn-print" id="printReleve"><i class="fas fa-print"></i> Imprimer</button>
-                    <button class="action-btn btn-download" id="downloadReleve"><i class="fas fa-download"></i> PDF</button>
+                    <button class="action-btn btn-download" id="downloadReleve"><i class="fas fa-download"></i> Télécharger PDF</button>
                 </div>
             </div>
             
-            <!-- Page Profil -->
+            <!-- Profil -->
             <div id="profilePage" class="page-content hidden">
                 <div class="info-card"><h3><i class="fas fa-id-card"></i> Profil étudiant</h3>
                     <div class="info-item"><span class="info-label">Nom complet</span><span class="info-value" id="profileName"></span></div>
                     <div class="info-item"><span class="info-label">Matricule</span><span class="info-value" id="profileMatricule"></span></div>
-                    <div class="info-item"><span class="info-label">Date naissance</span><span class="info-value" id="profileBirth">15/05/2004</span></div>
-                    <div class="info-item"><span class="info-label">Lieu naissance</span><span class="info-value" id="profileBirthplace">Abidjan, Côte d'Ivoire</span></div>
+                    <div class="info-item"><span class="info-label">Date naissance</span><span class="info-value" id="profileBirth"></span></div>
+                    <div class="info-item"><span class="info-label">Lieu naissance</span><span class="info-value" id="profileBirthplace"></span></div>
                     <div class="info-item"><span class="info-label">Email</span><span class="info-value" id="profileEmail"></span></div>
-                    <div class="info-item"><span class="info-label">Téléphone</span><span class="info-value" id="profilePhone">+228 92 87 16 05</span></div>
+                    <div class="info-item"><span class="info-label">Téléphone</span><span class="info-value" id="profilePhone"></span></div>
                 </div>
             </div>
         </main>
@@ -584,11 +531,10 @@
         </nav>
     </div>
     
-    <div id="printable-bulletin-container"><div id="printable-bulletin" class="printable-bulletin"></div></div>
+    <div id="printable-bulletin-container"><div id="printable-bulletin"></div></div>
 
     <script>
-        // ==================== BASE DE DONNÉES LOCALE ====================
-        // Données des étudiants avec leurs relevés (notes de devoir + examen)
+        // Base de données locale
         const studentsDB = {
             "2024001": {
                 password: "etudiant123",
@@ -602,7 +548,6 @@
                 birthDate: "15/05/2002",
                 birthPlace: "Lomé, Togo",
                 phone: "+228 90 12 34 56",
-                // Relevés par semestre
                 relevés: {
                     harmattan: {
                         semester: "Harmattan",
@@ -659,15 +604,11 @@
             }
         };
 
-        // État de l'application
         let currentStudent = null;
         let currentSemester = "harmattan";
         let currentPage = "dashboard";
-        let isMobile = window.innerWidth < 768;
 
-        // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
-            // Vérifier session sauvegardée
             const savedSession = localStorage.getItem('edumanage_session');
             if (savedSession) {
                 const session = JSON.parse(savedSession);
@@ -676,7 +617,6 @@
                     showMainApp();
                 }
             }
-            
             setupEventListeners();
             handleResize();
             window.addEventListener('resize', handleResize);
@@ -707,42 +647,21 @@
                 });
             });
             
-            document.getElementById('matricule').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleLogin();
-            });
-            document.getElementById('password').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleLogin();
-            });
+            document.getElementById('matricule').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+            document.getElementById('password').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
         }
 
         function handleLogin() {
             const matricule = document.getElementById('matricule').value.trim();
             const password = document.getElementById('password').value.trim();
-            
-            if (!matricule || !password) {
-                showLoginError("Veuillez saisir votre matricule et mot de passe");
-                return;
-            }
+            if (!matricule || !password) { showLoginError("Veuillez saisir matricule et mot de passe"); return; }
             
             const student = studentsDB[matricule];
             if (student && student.password === password) {
                 currentStudent = student;
                 localStorage.setItem('edumanage_session', JSON.stringify({ matricule: student.matricule, loginTime: new Date().toISOString() }));
                 showMainApp();
-            } else {
-                showLoginError("Matricule ou mot de passe incorrect");
-            }
-        }
-
-        function handleLogout() {
-            if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
-                localStorage.removeItem('edumanage_session');
-                currentStudent = null;
-                document.getElementById('mainApp').classList.add('hidden');
-                document.getElementById('loginPage').classList.remove('hidden');
-                document.getElementById('matricule').value = '';
-                document.getElementById('password').value = '';
-            }
+            } else { showLoginError("Matricule ou mot de passe incorrect"); }
         }
 
         function showLoginError(message) {
@@ -750,6 +669,15 @@
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
             setTimeout(() => errorDiv.style.display = 'none', 4000);
+        }
+
+        function handleLogout() {
+            if (confirm("Voulez-vous vous déconnecter ?")) {
+                localStorage.removeItem('edumanage_session');
+                currentStudent = null;
+                document.getElementById('mainApp').classList.add('hidden');
+                document.getElementById('loginPage').classList.remove('hidden');
+            }
         }
 
         function showMainApp() {
@@ -772,24 +700,24 @@
             document.getElementById('studentMatricule').textContent = currentStudent.matricule;
             document.getElementById('studentClassDisplay').textContent = currentStudent.class;
             document.getElementById('studentSpecialtyDisplay').textContent = currentStudent.specialty;
+            document.getElementById('studentBirth').textContent = currentStudent.birthDate;
             
             document.getElementById('profileName').textContent = currentStudent.name;
             document.getElementById('profileMatricule').textContent = currentStudent.matricule;
+            document.getElementById('profileBirth').textContent = currentStudent.birthDate;
+            document.getElementById('profileBirthplace').textContent = currentStudent.birthPlace;
             document.getElementById('profileEmail').textContent = currentStudent.email;
+            document.getElementById('profilePhone').textContent = currentStudent.phone;
         }
 
         function loadDashboardData() {
             const relevé = currentStudent.relevés.harmattan;
-            let totalNotes = 0;
-            let totalCoeff = 0;
-            let validCount = 0;
-            
+            let totalNotes = 0, totalCoeff = 0, validCount = 0;
             relevé.ues.forEach(ue => {
                 totalNotes += ue.moyenne * ue.coefficient;
                 totalCoeff += ue.coefficient;
                 if (ue.moyenne >= 10) validCount++;
             });
-            
             const moyenne = totalCoeff > 0 ? (totalNotes / totalCoeff).toFixed(2) : "0.00";
             const successRate = relevé.ues.length > 0 ? ((validCount / relevé.ues.length) * 100).toFixed(0) : "0";
             
@@ -809,9 +737,7 @@
             relevé.ues.forEach(ue => {
                 const gradeClass = ue.moyenne >= 10 ? 'grade-good' : 'grade-bad';
                 detailedTbody.innerHTML += `<tr>
-                    <td>${ue.name}</td>
-                    <td>${ue.teacher}</td>
-                    <td>${ue.coefficient}</td>
+                    <td>${ue.name}</td><td>${ue.teacher}</td><td>${ue.coefficient}</td>
                     <td>${ue.devoir}/20</td><td>${ue.examen}/20</td>
                     <td class="${gradeClass}"><strong>${ue.moyenne.toFixed(1)}/20</strong></td>
                     <td>${ue.moyenne >= 10 ? '✅ Validé' : '❌ Échoué'}</td>
@@ -830,36 +756,35 @@
             const relevé = currentStudent.relevés[currentSemester];
             if (!relevé) return;
             
-            let totalPoints = 0;
-            let totalCoeff = 0;
-            let totalCredits = 0;
-            let validatedCredits = 0;
+            let totalPoints = 0, totalCoeff = 0, totalCredits = 0, validatedCredits = 0;
             let tableRows = '';
             
             relevé.ues.forEach(ue => {
-                const weighted = ue.moyenne * ue.coefficient;
-                totalPoints += weighted;
+                totalPoints += ue.moyenne * ue.coefficient;
                 totalCoeff += ue.coefficient;
                 totalCredits += ue.credits;
                 if (ue.moyenne >= 10) validatedCredits += ue.credits;
                 
-                let appreciationColor = '';
-                if (ue.moyenne >= 16) appreciationColor = '#2ecc71';
-                else if (ue.moyenne >= 14) appreciationColor = '#2ecc71';
-                else if (ue.moyenne >= 12) appreciationColor = '#f39c12';
-                else if (ue.moyenne >= 10) appreciationColor = '#f39c12';
-                else appreciationColor = '#e74c3c';
+                let gradeClass = '';
+                if (ue.moyenne >= 16) gradeClass = 'grade-excellent';
+                else if (ue.moyenne >= 14) gradeClass = 'grade-good';
+                else if (ue.moyenne >= 12) gradeClass = 'grade-average';
+                else if (ue.moyenne >= 10) gradeClass = 'grade-average';
+                else gradeClass = 'grade-poor';
                 
                 tableRows += `
-                    <tr><td colspan="6" style="background:#f0fdf4; font-weight:600;"><strong>📘 ${ue.name}</strong> <span style="background:#10b981; color:white; padding:2px 8px; border-radius:20px; font-size:0.7rem;">${ue.credits} crédits</span></td></tr>
-                    <tr><td>${ue.code}</td><td>Devoir</td><td>${ue.devoir}/20</td><td>${ue.coefficient}</td><td rowspan="2" style="font-weight:700; color:#4f46e5;">${ue.moyenne.toFixed(1)}/20</td><td rowspan="2" style="color:${appreciationColor}; font-weight:500;">${ue.appreciation}</td></tr>
+                    <tr class="ue-title-row"><td colspan="6"><i class="fas fa-book"></i> ${ue.name} <span style="background:#10b981; color:white; padding:2px 8px; border-radius:20px; font-size:0.7rem; margin-left:10px;">${ue.credits} crédits</span></td></tr>
+                    <tr>
+                        <td>${ue.code}</td><td>Devoir</td><td>${ue.devoir}/20</td><td>${ue.coefficient}</td>
+                        <td rowspan="2" class="${gradeClass}" style="font-weight:700;">${ue.moyenne.toFixed(1)}/20</td>
+                        <td rowspan="2">${ue.appreciation}</td>
+                    </tr>
                     <tr><td>${ue.code}</td><td>Examen</td><td>${ue.examen}/20</td><td>${ue.coefficient}</td></tr>
                 `;
             });
             
             const moyenneGenerale = totalCoeff > 0 ? (totalPoints / totalCoeff).toFixed(2) : "0.00";
             const decision = parseFloat(moyenneGenerale) >= 10 ? 'ADMIS(E)' : 'NON ADMIS(E)';
-            const decisionColor = parseFloat(moyenneGenerale) >= 10 ? '#10b981' : '#ef4444';
             let mention = '';
             if (moyenneGenerale >= 16) mention = 'Très honorable';
             else if (moyenneGenerale >= 14) mention = 'Honorable';
@@ -868,26 +793,44 @@
             else mention = 'Non classé';
             
             const releveHTML = `
-                <div class="print-header">
-                    <h2>RELEVÉ UNIVERSITAIRE</h2>
-                    <p>Semestre ${relevé.semester} - Année ${relevé.year}</p>
-                    <p>${currentStudent.name} - ${currentStudent.matricule}</p>
+                <div class="releve-header">
+                    <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
+                    <p>Semestre ${relevé.semester} - Année Académique ${relevé.year}</p>
                 </div>
-                <div style="margin-bottom:20px; padding:10px; background:#f8f9fa;">
-                    <p><strong>Classe:</strong> ${currentStudent.class} - ${currentStudent.specialty}</p>
-                    <p><strong>Date d'édition:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+                <div class="university-header">
+                    <div><strong>Établissement:</strong> Université EduManage</div>
+                    <div><strong>Direction des Affaires Académiques</strong></div>
                 </div>
-                <table class="print-table">
+                <div class="student-info-detail">
+                    <div class="info-row"><span class="info-label">Étudiant</span><span class="info-value">${currentStudent.name}</span></div>
+                    <div class="info-row"><span class="info-label">Matricule</span><span class="info-value">${currentStudent.matricule}</span></div>
+                    <div class="info-row"><span class="info-label">Classe</span><span class="info-value">${currentStudent.class}</span></div>
+                    <div class="info-row"><span class="info-label">Spécialité</span><span class="info-value">${currentStudent.specialty}</span></div>
+                    <div class="info-row"><span class="info-label">Date naissance</span><span class="info-value">${currentStudent.birthDate}</span></div>
+                    <div class="info-row"><span class="info-label">Date édition</span><span class="info-value">${new Date().toLocaleDateString('fr-FR')}</span></div>
+                </div>
+                
+                <table class="releve-table">
                     <thead><tr><th>Code UE</th><th>Type</th><th>Note /20</th><th>Coeff</th><th>Moyenne UE</th><th>Appréciation</th></tr></thead>
                     <tbody>${tableRows}</tbody>
                 </table>
-                <div class="print-stats">
-                    <div class="print-stat"><div><strong>Moyenne</strong></div><div style="font-size:20pt;">${moyenneGenerale}/20</div></div>
-                    <div class="print-stat"><div><strong>Crédits validés</strong></div><div style="font-size:20pt;">${validatedCredits}/${totalCredits}</div></div>
-                    <div class="print-stat"><div><strong>Mention</strong></div><div style="font-size:12pt;">${mention}</div></div>
+                
+                <div class="summary-cards">
+                    <div class="summary-card"><div class="summary-value">${moyenneGenerale}/20</div><div class="summary-label">Moyenne Semestre</div></div>
+                    <div class="summary-card"><div class="summary-value">${validatedCredits}/${totalCredits}</div><div class="summary-label">Crédits validés</div></div>
+                    <div class="summary-card"><div class="summary-value">${mention}</div><div class="summary-label">Mention</div></div>
+                    <div class="summary-card"><div class="summary-value">${totalCoeff}</div><div class="summary-label">Total coefficients</div></div>
                 </div>
-                <div class="print-remarks"><h4>Décision du Jury</h4><p style="color:${decisionColor}; font-weight:bold;">${decision}</p></div>
-                <div class="print-footer"><p>Signature du Directeur des Études</p><p>___________________________________</p></div>
+                
+                <div class="decision-badge ${decision === 'ADMIS(E)' ? 'decision-admis' : 'decision-non-admis'}">
+                    <strong>Décision du Jury : ${decision}</strong>
+                </div>
+                
+                <div class="print-footer">
+                    <p>Signature du Directeur des Études</p>
+                    <p>___________________________________</p>
+                    <p>Cachet de l'établissement</p>
+                </div>
             `;
             
             document.getElementById('releveContainer').innerHTML = releveHTML;
@@ -898,7 +841,21 @@
             const content = document.getElementById('releveContainer').innerHTML;
             printWindow.document.write(`
                 <!DOCTYPE html><html><head><title>Relevé - ${currentStudent.name}</title>
-                <style>body{font-family:'Times New Roman';padding:20mm;} .print-header{text-align:center;border-bottom:2px solid #000;margin-bottom:20px;} .print-table{width:100%;border-collapse:collapse;} .print-table th,.print-table td{border:1px solid #000;padding:8px;text-align:center;} .print-stats{display:flex;justify-content:space-between;margin:20px 0;} .print-stat{flex:1;text-align:center;padding:10px;border:1px solid #000;margin:0 5px;} .print-remarks{border:1px solid #000;padding:15px;margin-top:20px;} .print-footer{text-align:center;margin-top:40px;}</style>
+                <style>
+                    body{font-family:'Times New Roman',serif; padding:20mm; margin:0;}
+                    .releve-header{text-align:center;margin-bottom:20px;border-bottom:2px solid #3498db;padding-bottom:10px;}
+                    .university-header{display:flex;justify-content:space-between;margin-bottom:15px;padding:10px;background:#f8f9fa;}
+                    .student-info-detail{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;padding:15px;background:#f8fafc;}
+                    .releve-table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+                    .releve-table th,.releve-table td{border:1px solid #000;padding:8px;text-align:center;}
+                    .releve-table th{background:#3498db;color:white;}
+                    .summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0;}
+                    .summary-card{text-align:center;padding:10px;border:1px solid #ddd;border-radius:8px;}
+                    .decision-badge{text-align:center;padding:12px;border-radius:8px;margin:15px 0;}
+                    .decision-admis{background:#d1fae5;color:#065f46;}
+                    .decision-non-admis{background:#fee2e2;color:#991b1b;}
+                    .print-footer{text-align:center;margin-top:30px;padding-top:15px;border-top:1px solid #ddd;}
+                </style>
                 </head><body>${content}</body></html>
             `);
             printWindow.document.close();
@@ -906,17 +863,14 @@
         }
 
         async function downloadRelevePDF() {
-            const reloadBtn = document.getElementById('downloadReleve');
-            const originalHTML = reloadBtn.innerHTML;
-            reloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
-            reloadBtn.disabled = true;
+            const btn = document.getElementById('downloadReleve');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+            btn.disabled = true;
             
             const releveDiv = document.getElementById('releveContainer');
-            const originalDisplay = releveDiv.style.display;
-            releveDiv.style.display = 'block';
-            
             try {
-                const canvas = await html2canvas(releveDiv, { scale: 2, backgroundColor: '#ffffff' });
+                const canvas = await html2canvas(releveDiv, { scale: 2, backgroundColor: '#ffffff', logging: false });
                 const imgData = canvas.toDataURL('image/png');
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
@@ -933,15 +887,13 @@
                 alert('Erreur lors de la génération du PDF');
             }
             
-            releveDiv.style.display = originalDisplay;
-            reloadBtn.innerHTML = '<i class="fas fa-download"></i> PDF';
-            reloadBtn.disabled = false;
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
         }
 
         function switchPage(page) {
             document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
             document.getElementById(`${page}Page`).classList.remove('hidden');
-            
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.tab-btn[data-page="${page}"]`)?.classList.add('active');
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -949,14 +901,12 @@
             
             const titles = { dashboard: "Tableau de bord", grades: "Notes détaillées", releve: "Relevé Universitaire", profile: "Profil étudiant" };
             document.getElementById('currentPageTitle').textContent = titles[page];
-            
             if (page === 'releve' && currentStudent) generateReleve();
             if (page === 'grades' && currentStudent) loadDashboardData();
-            currentPage = page;
         }
 
         function handleResize() {
-            isMobile = window.innerWidth < 768;
+            const isMobile = window.innerWidth < 768;
             const tabNav = document.getElementById('tabNav');
             const bottomNav = document.querySelector('.bottom-nav');
             if (tabNav && bottomNav) {

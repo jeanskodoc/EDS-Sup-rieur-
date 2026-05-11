@@ -235,7 +235,7 @@
         .btn-print { background-color: var(--primary-color); color: white; }
         .btn-download { background-color: var(--success-color); color: white; }
         
-        /* Styles améliorés pour le Relevé */
+        /* Styles améliorés pour le Relevé avec Filigrane */
         .semester-selector {
             display: flex;
             gap: 12px;
@@ -261,13 +261,50 @@
         .semester-btn .semester-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
         .semester-btn .semester-name { font-size: 0.9rem; }
         
-        /* Relevé container amélioré */
+        /* Relevé container avec filigrane */
         .releve-container {
             background: white;
             border-radius: 16px;
-            padding: 20px;
+            padding: 25px;
             box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
         }
+        
+        /* Filigrane en arrière-plan */
+        .watermark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.06;
+            font-size: 4rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            transform: rotate(-25deg);
+            white-space: nowrap;
+            font-family: 'Arial Black', sans-serif;
+            color: #000;
+        }
+        
+        .watermark-text {
+            font-size: clamp(2rem, 8vw, 5rem);
+            letter-spacing: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .releve-content {
+            position: relative;
+            z-index: 2;
+            background: transparent;
+        }
+        
         .releve-header {
             text-align: center;
             margin-bottom: 20px;
@@ -418,6 +455,7 @@
             #printable-bulletin, #printable-bulletin * { visibility: visible; }
             #printable-bulletin { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; }
             .no-print { display: none !important; }
+            .watermark { opacity: 0.1; }
         }
         
         #printable-bulletin-container {
@@ -490,12 +528,12 @@
             <!-- Notes détaillées -->
             <div id="gradesPage" class="page-content hidden">
                 <div class="info-card"><h3><i class="fas fa-list-alt"></i> Notes par matière</h3>
-                    <div class="grades-table-container"><table class="grades-table"><thead><tr><th>Matière</th><th>Professeur</th><th>Coeff</th><th>Devoir</th><th>Examen</th><th>Moyenne</th><th>Statut</th></tr></thead><tbody id="detailedGrades"></tbody></table></div>
+                    <div class="grades-table-container"><table class="grades-table"><thead><tr><th>Matière</th><th>Professeur</th><th>Coeff</th><th>Devoir</th><th>Examen</th><th>Moyenne</th><th>Statut</th></table></thead><tbody id="detailedGrades"></tbody></table></div>
                 </div>
                 <div class="remarks-card"><h4><i class="fas fa-comment-alt"></i> Appréciations</h4><div id="teacherRemarks"></div></div>
             </div>
             
-            <!-- Relevé amélioré -->
+            <!-- Relevé avec filigrane -->
             <div id="relevePage" class="page-content hidden">
                 <div class="semester-selector">
                     <button class="semester-btn active" data-semester="harmattan"><span class="semester-icon">🍂</span><span class="semester-name">Harmattan (Oct-Jan)</span></button>
@@ -792,44 +830,52 @@
             else if (moyenneGenerale >= 10) mention = 'Passable';
             else mention = 'Non classé';
             
+            const institutionName = "UNIVERSITÉ EDU-MANAGE";
+            const institutionSubtitle = "Direction des Affaires Académiques";
+            
             const releveHTML = `
-                <div class="releve-header">
-                    <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
-                    <p>Semestre ${relevé.semester} - Année Académique ${relevé.year}</p>
+                <div class="watermark">
+                    <div class="watermark-text">${institutionName}</div>
                 </div>
-                <div class="university-header">
-                    <div><strong>Établissement:</strong> Université EduManage</div>
-                    <div><strong>Direction des Affaires Académiques</strong></div>
-                </div>
-                <div class="student-info-detail">
-                    <div class="info-row"><span class="info-label">Étudiant</span><span class="info-value">${currentStudent.name}</span></div>
-                    <div class="info-row"><span class="info-label">Matricule</span><span class="info-value">${currentStudent.matricule}</span></div>
-                    <div class="info-row"><span class="info-label">Classe</span><span class="info-value">${currentStudent.class}</span></div>
-                    <div class="info-row"><span class="info-label">Spécialité</span><span class="info-value">${currentStudent.specialty}</span></div>
-                    <div class="info-row"><span class="info-label">Date naissance</span><span class="info-value">${currentStudent.birthDate}</span></div>
-                    <div class="info-row"><span class="info-label">Date édition</span><span class="info-value">${new Date().toLocaleDateString('fr-FR')}</span></div>
-                </div>
-                
-                <table class="releve-table">
-                    <thead><tr><th>Code UE</th><th>Type</th><th>Note /20</th><th>Coeff</th><th>Moyenne UE</th><th>Appréciation</th></tr></thead>
-                    <tbody>${tableRows}</tbody>
-                </table>
-                
-                <div class="summary-cards">
-                    <div class="summary-card"><div class="summary-value">${moyenneGenerale}/20</div><div class="summary-label">Moyenne Semestre</div></div>
-                    <div class="summary-card"><div class="summary-value">${validatedCredits}/${totalCredits}</div><div class="summary-label">Crédits validés</div></div>
-                    <div class="summary-card"><div class="summary-value">${mention}</div><div class="summary-label">Mention</div></div>
-                    <div class="summary-card"><div class="summary-value">${totalCoeff}</div><div class="summary-label">Total coefficients</div></div>
-                </div>
-                
-                <div class="decision-badge ${decision === 'ADMIS(E)' ? 'decision-admis' : 'decision-non-admis'}">
-                    <strong>Décision du Jury : ${decision}</strong>
-                </div>
-                
-                <div class="print-footer">
-                    <p>Signature du Directeur des Études</p>
-                    <p>___________________________________</p>
-                    <p>Cachet de l'établissement</p>
+                <div class="releve-content">
+                    <div class="releve-header">
+                        <h2><i class="fas fa-scroll"></i> RELEVÉ UNIVERSITAIRE</h2>
+                        <p>Semestre ${relevé.semester} - Année Académique ${relevé.year}</p>
+                    </div>
+                    <div class="university-header">
+                        <div><strong>${institutionName}</strong></div>
+                        <div><strong>${institutionSubtitle}</strong></div>
+                    </div>
+                    <div class="student-info-detail">
+                        <div class="info-row"><span class="info-label">Étudiant</span><span class="info-value">${currentStudent.name}</span></div>
+                        <div class="info-row"><span class="info-label">Matricule</span><span class="info-value">${currentStudent.matricule}</span></div>
+                        <div class="info-row"><span class="info-label">Classe</span><span class="info-value">${currentStudent.class}</span></div>
+                        <div class="info-row"><span class="info-label">Spécialité</span><span class="info-value">${currentStudent.specialty}</span></div>
+                        <div class="info-row"><span class="info-label">Date naissance</span><span class="info-value">${currentStudent.birthDate}</span></div>
+                        <div class="info-row"><span class="info-label">Date édition</span><span class="info-value">${new Date().toLocaleDateString('fr-FR')}</span></div>
+                    </div>
+                    
+                    <table class="releve-table">
+                        <thead><tr><th>Code UE</th><th>Type</th><th>Note /20</th><th>Coeff</th><th>Moyenne UE</th><th>Appréciation</th></tr></thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                    
+                    <div class="summary-cards">
+                        <div class="summary-card"><div class="summary-value">${moyenneGenerale}/20</div><div class="summary-label">Moyenne Semestre</div></div>
+                        <div class="summary-card"><div class="summary-value">${validatedCredits}/${totalCredits}</div><div class="summary-label">Crédits validés</div></div>
+                        <div class="summary-card"><div class="summary-value">${mention}</div><div class="summary-label">Mention</div></div>
+                        <div class="summary-card"><div class="summary-value">${totalCoeff}</div><div class="summary-label">Total coefficients</div></div>
+                    </div>
+                    
+                    <div class="decision-badge ${decision === 'ADMIS(E)' ? 'decision-admis' : 'decision-non-admis'}">
+                        <strong>Décision du Jury : ${decision}</strong>
+                    </div>
+                    
+                    <div class="print-footer">
+                        <p>Signature du Directeur des Études</p>
+                        <p>___________________________________</p>
+                        <p>Cachet de l'établissement</p>
+                    </div>
                 </div>
             `;
             
@@ -839,10 +885,14 @@
         async function printReleve() {
             const printWindow = window.open('', '_blank');
             const content = document.getElementById('releveContainer').innerHTML;
+            const institutionName = "UNIVERSITÉ EDU-MANAGE";
             printWindow.document.write(`
                 <!DOCTYPE html><html><head><title>Relevé - ${currentStudent.name}</title>
                 <style>
-                    body{font-family:'Times New Roman',serif; padding:20mm; margin:0;}
+                    body{font-family:'Times New Roman',serif; padding:20mm; margin:0; position:relative;}
+                    .watermark{position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; opacity:0.08; pointer-events:none; z-index:1;}
+                    .watermark-text{font-size:4rem; font-weight:800; text-transform:uppercase; transform:rotate(-25deg); white-space:nowrap; color:#000;}
+                    .releve-content{position:relative; z-index:2;}
                     .releve-header{text-align:center;margin-bottom:20px;border-bottom:2px solid #3498db;padding-bottom:10px;}
                     .university-header{display:flex;justify-content:space-between;margin-bottom:15px;padding:10px;background:#f8f9fa;}
                     .student-info-detail{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;padding:15px;background:#f8fafc;}

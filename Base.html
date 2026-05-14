@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Gestion Administrative - Université IQRA (Authentification)</title>
+    <!-- html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #d4e0f0 0%, #b8c9e0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        /* Overlay d'authentification */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .auth-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem 1.8rem;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .auth-card h2 {
+            color: #0a2b3e;
+            margin-bottom: 0.5rem;
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin: 0.8rem 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+        }
+        .auth-card button {
+            background: #1e6f5c;
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+        .error-msg {
+            color: #b91c1c;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .main-app {
+            display: none;
+            width: 100%;
+        }
+
+        /* ---------- STYLES PRINCIPAUX (responsive) ---------- */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .admin-header {
+            background: #0a2b3e;
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .admin-header h1 {
+            font-size: 1.4rem;
+        }
+        .logout-btn {
+            background: #9e2a2a;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            border-radius: 2rem;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .tabs-nav {
+            display: flex;
+            flex-wrap: wrap;
+            background: #f0f4f9;
+            border-bottom: 1px solid #dce5ec;
+        }
+        .tab-btn {
+            flex: 1 0 auto;
+            background: transparent;
+            border: none;
+            padding: 0.7rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2c4e6e;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        @media (max-width: 680px) {
+            .tab-btn { font-size: 0.7rem; padding: 0.6rem 0.3rem; white-space: normal; }
+        }
+        .tab-btn.active {
+            background: white;
+            border-bottom: 3px solid #1e6f5c;
+            color: #0f3b2c;
+        }
+        .tab-content {
+            display: none;
+            padding: 1.2rem;
+            animation: fade 0.2s;
+        }
+        .tab-content.active { display: block; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .card {
+            background: #fff;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+        .stat-box {
+            background: #f8fafc;
+            border-radius: 0.9rem;
+            padding: 0.8rem;
+            border-left: 4px solid #1e6f5c;
+        }
+        input, select, textarea {
+            padding: 0.55rem 0.8rem;
+            border-radius: 0.6rem;
+            border: 1px solid #cbd5e1;
+            width: 100%;
+            font-size: 0.85rem;
+        }
+        label {
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #2d4a6e;
+        }
+        button, .btn-like {
+            background: #1e6f5c;
+            color: white;
+            border: none;
+            padding: 0.45rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover { background: #0e5948; transform: scale(0.97); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #1e6f5c;
+            color: #1e6f5c;
+        }
+        .btn-print {
+            background: #2c3e66;
+            font-size: 0.7rem;
+            padding: 0.4rem 0.9rem;
+        }
+        .flex-between {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.8rem;
+        }
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+        .filter-group { flex: 1; min-width: 140px; }
+        .table-responsive { overflow-x: auto; margin: 0.8rem 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 500px; }
+        th { background: #eef2f6; padding: 0.6rem 0.5rem; }
+        td { padding: 0.55rem 0.5rem; border-bottom: 1px solid #e2e8f0; }
+        .total-box {
+            background: #e6f7f0;
+            padding: 0.6rem;
+            border-radius: 0.7rem;
+            margin-top: 0.7rem;
+            font-size: 0.85rem;
+        }
+        .ue-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .ue-row input { flex: 2; min-width: 120px; }
+        .ue-row input.credits-input { flex: 0.5; min-width: 70px; }
+        footer { padding: 0.8rem; text-align: center; font-size: 0.65rem; background: #f8fafc; border-top: 1px solid #e2edf2; }
+        @media (max-width: 520px) {
+            .tab-content { padding: 0.8rem; }
+            .card { padding: 0.8rem; }
+            button { padding: 0.4rem 0.8rem; }
+        }
+        @media print {
+            .tabs-nav, .admin-header, footer, button, .filter-bar, .logout-btn { display: none; }
+            .tab-content { display: block !important; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- MODAL AUTHENTIFICATION -->
+<div id="authOverlay" class="auth-overlay">
+    <div class="auth-card">
+        <h2>🔐 Accès sécurisé</h2>
+        <p style="margin-bottom: 1rem; color: #4b5563;">Université IQRA · Administration</p>
+        <input type="text" id="loginUsername" placeholder="Identifiant" autocomplete="off">
+        <input type="password" id="loginPassword" placeholder="Mot de passe">
+        <button id="loginBtn">Se connecter</button>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+</div>
+
+<!-- APPLICATION PRINCIPALE (protégée) -->
+<div id="mainApp" class="main-app">
+    <div class="main-container">
+        <div class="admin-header">
+            <div>
+                <h1>📊 Université IQRA · Registre académique</h1>
+                <p style="font-size: 0.7rem;">Gestion complète · UE · Statistiques · Export PDF</p>
+            </div>
+            <button id="logoutBtn" class="logout-btn">🚪 Déconnexion</button>
+        </div>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="tab1">📝 Gestion étudiant</button>
+            <button class="tab-btn" data-tab="tab2">📚 UE & Validations</button>
+            <button class="tab-btn" data-tab="tab3">📈 Regroupements & Filtres</button>
+            <button class="tab-btn" data-tab="tab4">🔍 Recherche & Vérif</button>
+            <button class="tab-btn" data-tab="tab5">📖 Étudiants par UE</button>
+        </div>
+
+        <!-- ONGLET 1 : FORMULAIRE ÉTUDIANT -->
+        <div id="tab1" class="tab-content active">
+            <div class="card">
+                <h3>➕ Ajouter / Modifier étudiant (UE intégrées)</h3>
+                <form id="studentForm">
+                    <div class="grid-2col">
+                        <div><label>🏛 Université</label><input type="text" id="universite" placeholder="Université" required></div>
+                        <div><label>👤 Nom</label><input type="text" id="nom" required></div>
+                        <div><label>📛 Prénoms</label><input type="text" id="prenoms" required></div>
+                        <div><label>⚥ Sexe</label><select id="sexe"><option>Homme</option><option>Femme</option><option>Autre</option></select></div>
+                        <div><label>🔄 Statut</label><select id="statut"><option value="nouveau">Nouveau</option><option value="ancien">Ancien</option></select></div>
+                        <div><label>📅 Date naissance</label><input type="date" id="dateNaissance"></div>
+                        <div><label>📍 Lieu naissance</label><input type="text" id="lieuNaissance"></div>
+                        <div><label>🌍 Nationalité</label><input type="text" id="nationalite"></div>
+                        <div><label>🎓 Faculté</label><select id="filiere"><option>Mathématique</option><option>Sciences physique</option><option>Médecine</option><option>Autres</option></select><input type="text" id="autreFiliere" placeholder="Précisez autre" style="margin-top:4px;"></div>
+                        <div><label>📖 Année d'étude</label><select id="anneeEtude"><option>L1</option><option>L2</option><option>L3</option><option>BTS1</option><option>BTS2</option><option>M1</option><option>M2</option></select></div>
+                        <div><label>🆔 N° étudiant</label><input type="text" id="numeroEtudiant" required></div>
+                        <div><label>💰 Montant payé</label><input type="number" id="montantPaye" step="any" value="0"></div>
+                        <div><label>🧾 Référence paiement</label><input type="text" id="referencePaiement"></div>
+                    </div>
+                    <hr>
+                    <h4>📚 Unités d'enseignement achetées (crédits)</h4>
+                    <div id="ueDynamicRows"></div>
+                    <div style="margin: 8px 0;"><button type="button" id="addUeRowBtn" class="btn-outline btn-sm">➕ Ajouter UE</button></div>
+                    <div class="total-box">
+                        📊 Total UE : <strong id="totalUeCount">0</strong> &nbsp;|&nbsp; 🎓 Crédits totaux : <strong id="totalCreditsAuto">0</strong>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem;">
+                        <button type="submit">💾 Enregistrer</button>
+                        <button type="button" id="resetFormBtn" class="btn-outline">Réinitialiser</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ONGLET 2 : VALIDATIONS ANCIENS -->
+        <div id="tab2" class="tab-content">
+            <div class="card">
+                <h3>📌 Gestion des validations (étudiants anciens)</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                    <div class="filter-group"><label>Choisir étudiant</label><select id="studentSelectUE"></select></div>
+                    <button id="loadStudentUE" class="btn-sm">Charger</button>
+                </div>
+                <hr>
+                <h4>Unités achetées :</h4>
+                <div id="displayUeList" style="background:#f4f9fa; padding: 0.5rem; border-radius: 0.6rem;"></div>
+                <hr>
+                <div style="background:#faf6e8; padding: 0.8rem; border-radius: 0.8rem;">
+                    <h4>✅ Pour ANCIENS : validations / échecs</h4>
+                    <div><label>Unités validées (virgule)</label><input type="text" id="ueValidees" placeholder="ex: Algèbre, Biologie"></div>
+                    <div><label>Unités non validées (avec crédits)</label><textarea id="ueNonValidees" rows="2" placeholder="ex: Physique (3 crédits)"></textarea></div>
+                    <button id="saveAncienValidationBtn" style="margin-top: 8px;">💾 Sauvegarder validations</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET 3 : REGROUPEMENTS + PDF -->
+        <div id="tab3" class="tab-content">
+            <div class="card">
+                <div class="flex-between"><h3>📊 Statistiques</h3><button id="printRegroupementsBtn" class="btn-print">🖨️ PDF Stats</button></div>
+                <div id="printableRegroupements"><div class="grid-2col" id="statsContainer"></div></div>
+                <button id="refreshStatsBtn" class="btn-sm" style="margin-top: 0.6rem;">⟳ Actualiser</button>
+            </div>
+            <div class="card">
+                <div class="flex-between"><h3>📋 Liste filtrée</h3><button id="printFiltresListeBtn" class="btn-print">🖨️ PDF Liste</button></div>
+                <div class="filter-bar">
+                    <div class="filter-group"><label>Statut</label><select id="filterStatut"><option value="all">Tous</option><option value="nouveau">Nouveau</option><option value="ancien">Ancien</option></select></div>
+                    <div class="filter-group"><label>Faculté</label><select id="filterFiliere"><option value="all">Toutes</option><option>Mathématique</option><option>Sciences physique</option><option>Médecine</option><option>Autres</option></select></div>
+                    <div class="filter-group"><label>Sexe</label><select id="filterSexe"><option value="all">Tous</option><option>Homme</option><option>Femme</option></select></div>
+                    <button id="applyFilterBtn">Appliquer</button>
+                </div>
+                <div id="printableListeFiltree"><div class="table-responsive"><table id="filteredStudentsTable"><thead><tr><th>N°</th><th>Nom</th><th>Sexe</th><th>Statut</th><th>Faculté</th><th>Année</th><th>Crédits</th><th>UE</th></tr></thead><tbody id="filteredTableBody"></tbody></table></div></div>
+            </div>
+        </div>
+
+        <!-- ONGLET 4 : RECHERCHE + VÉRIFICATION -->
+        <div id="tab4" class="tab-content">
+            <div class="card">
+                <div class="flex-between"><h3>🔎 Rechercher un étudiant</h3><button id="printRechercheBtn" class="btn-print">🖨️ PDF Résultat</button></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;"><input type="text" id="searchStudentInput" placeholder="Nom, prénom ou matricule" style="flex:2"><button id="searchStudentBtn">Chercher</button></div>
+                <div id="printableRecherche"><div id="searchResult" style="margin-top: 1rem; background:#f1f9fe; padding: 0.8rem; border-radius: 0.8rem;"></div></div>
+            </div>
+            <div class="card">
+                <div class="flex-between"><h3>📆 Vérifier inscription 2025-2026</h3><button id="printVerificationBtn" class="btn-print">🖨️ PDF Vérif</button></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;"><input type="text" id="verifNumEtudiant" placeholder="Numéro étudiant" style="flex:2"><button id="verifInscriptionBtn">Vérifier</button></div>
+                <div id="printableVerification"><div id="verifResult" style="margin-top:1rem; padding:0.8rem; background:#eef2fa; border-radius:0.8rem;"></div></div>
+            </div>
+        </div>
+
+        <!-- ONGLET 5 : ÉTUDIANTS PAR UE -->
+        <div id="tab5" class="tab-content">
+            <div class="card">
+                <div class="flex-between"><h3>📖 Étudiants par unité d'enseignement</h3><button id="printUeListBtn" class="btn-print">🖨️ PDF UE</button></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;"><div class="filter-group"><label>Sélectionner UE</label><select id="ueSelectForFilter"></select></div><button id="filterByUeBtn">Afficher</button></div>
+                <div id="printableUeResult"><div id="studentsByUeResult" style="margin-top: 1rem;"></div></div>
+            </div>
+        </div>
+        <footer>Données sauvegardées localement · Session sécurisée</footer>
+    </div>
+</div>
+
+<script>
+    // ---------- AUTHENTIFICATION ----------
+    const AUTH_USER = "admin";
+    const AUTH_PASS = "admin123";
+
+    function checkAuth() {
+        const auth = sessionStorage.getItem("auth_univ");
+        if(auth === "true") {
+            document.getElementById("authOverlay").style.display = "none";
+            document.getElementById("mainApp").style.display = "block";
+            loadData(); // charger les données après authentification
+        } else {
+            document.getElementById("authOverlay").style.display = "flex";
+            document.getElementById("mainApp").style.display = "none";
+        }
+    }
+
+    document.getElementById("loginBtn")?.addEventListener("click", () => {
+        const user = document.getElementById("loginUsername").value.trim();
+        const pwd = document.getElementById("loginPassword").value;
+        if(user === AUTH_USER && pwd === AUTH_PASS) {
+            sessionStorage.setItem("auth_univ", "true");
+            checkAuth();
+            document.getElementById("loginError").innerText = "";
+        } else {
+            document.getElementById("loginError").innerText = "Identifiant ou mot de passe incorrect";
+        }
+    });
+
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        sessionStorage.removeItem("auth_univ");
+        checkAuth();
+        // reset formulaire et données côté interface
+        clearMainForm();
+    });
+
+    // ---------- DONNÉES & LOGIQUE MÉTIER ----------
+    let students = [];
+    let currentEditingStudentUeList = [];
+    let activeStudent = null;
+
+    function loadData() {
+        const stored = localStorage.getItem("univ_advanced_v4");
+        if(stored) students = JSON.parse(stored);
+        else students = [];
+        renderAll();
+    }
+    function saveData() { localStorage.setItem("univ_advanced_v4", JSON.stringify(students)); }
+
+    function renderAll() {
+        renderStudentSelects();
+        refreshStatsAndGroupings();
+        renderFilteredTable();
+        populateUeSelectForFilter();
+    }
+
+    function renderStudentSelects() {
+        const select = document.getElementById("studentSelectUE");
+        if(select) {
+            select.innerHTML = '<option value="">-- Sélectionner --</option>';
+            students.forEach(s => select.innerHTML += `<option value="${s.numeroEtudiant}">${s.numeroEtudiant} - ${s.nom} ${s.prenoms}</option>`);
+        }
+    }
+
+    // Gestion dynamique des UE dans formulaire
+    function renderUeRowsInForm(ueList) {
+        const container = document.getElementById("ueDynamicRows");
+        if(!container) return;
+        container.innerHTML = "";
+        ueList.forEach((ue, idx) => {
+            const row = document.createElement("div");
+            row.className = "ue-row";
+            row.innerHTML = `
+                <input type="text" class="ue-name-input" value="${escapeHtml(ue.nom)}" placeholder="Nom UE" data-index="${idx}">
+                <input type="number" class="ue-credits-input" value="${ue.credits}" placeholder="Crédits" step="1" min="1" data-index="${idx}" style="width:95px">
+                <button type="button" class="remove-ue-row" data-index="${idx}" style="background:#b91c1c; padding:0.3rem 0.7rem;">🗑</button>
+            `;
+            container.appendChild(row);
+        });
+        attachUeRowEvents();
+        updateTotalUeAndCredits();
+    }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;';}); }
+    function attachUeRowEvents() {
+        document.querySelectorAll(".ue-name-input").forEach(inp => inp.addEventListener("change", updateUeFromRow));
+        document.querySelectorAll(".ue-credits-input").forEach(inp => inp.addEventListener("change", updateUeFromRow));
+        document.querySelectorAll(".remove-ue-row").forEach(btn => btn.addEventListener("click", removeUeRow));
+    }
+    function updateUeFromRow(e) {
+        const idx = parseInt(e.target.getAttribute("data-index"));
+        if(!isNaN(idx) && currentEditingStudentUeList[idx]) {
+            if(e.target.classList.contains("ue-name-input")) currentEditingStudentUeList[idx].nom = e.target.value;
+            if(e.target.classList.contains("ue-credits-input")) currentEditingStudentUeList[idx].credits = parseInt(e.target.value) || 0;
+            updateTotalUeAndCredits();
+        }
+    }
+    function removeUeRow(e) {
+        const idx = parseInt(e.target.getAttribute("data-index"));
+        if(!isNaN(idx) && currentEditingStudentUeList) {
+            currentEditingStudentUeList.splice(idx,1);
+            renderUeRowsInForm(currentEditingStudentUeList);
+        }
+    }
+    function updateTotalUeAndCredits() {
+        const totalUe = currentEditingStudentUeList.length;
+        let totalCredits = 0;
+        currentEditingStudentUeList.forEach(ue => totalCredits += (parseInt(ue.credits) || 0));
+        document.getElementById("totalUeCount").innerText = totalUe;
+        document.getElementById("totalCreditsAuto").innerText = totalCredits;
+        const creditsField = document.getElementById("creditsAchetes");
+        if(creditsField) creditsField.value = totalCredits;
+    }
+    document.getElementById("addUeRowBtn")?.addEventListener("click", () => {
+        currentEditingStudentUeList.push({ nom: "Nouvelle UE", credits: 3 });
+        renderUeRowsInForm(currentEditingStudentUeList);
+    });
+
+    // Enregistrement étudiant
+    document.getElementById("studentForm")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const universite = document.getElementById("universite").value;
+        const nom = document.getElementById("nom").value;
+        const prenoms = document.getElementById("prenoms").value;
+        const sexe = document.getElementById("sexe").value;
+        const statut = document.getElementById("statut").value;
+        const dateNaissance = document.getElementById("dateNaissance").value;
+        const lieuNaissance = document.getElementById("lieuNaissance").value;
+        const nationalite = document.getElementById("nationalite").value;
+        let filiere = document.getElementById("filiere").value;
+        const autre = document.getElementById("autreFiliere").value;
+        if(filiere === "Autres" && autre.trim()) filiere = autre;
+        const anneeEtude = document.getElementById("anneeEtude").value;
+        const numeroEtudiant = document.getElementById("numeroEtudiant").value.trim();
+        const montantPaye = parseFloat(document.getElementById("montantPaye").value);
+        const referencePaiement = document.getElementById("referencePaiement").value;
+        if(!numeroEtudiant || !nom) return alert("Numéro étudiant et nom requis");
+        const totalCredits = currentEditingStudentUeList.reduce((s,u)=> s + (parseInt(u.credits)||0),0);
+        const existingIdx = students.findIndex(s => s.numeroEtudiant === numeroEtudiant);
+        const newStudent = {
+            universite, nom, prenoms, sexe, statut, dateNaissance, lieuNaissance, nationalite,
+            filiere, anneeEtude, numeroEtudiant, montantPaye, referencePaiement, creditsAchetes: totalCredits,
+            ueChoisies: [...currentEditingStudentUeList],
+            ueValideesList: (existingIdx !== -1) ? students[existingIdx].ueValideesList : [],
+            ueNonValideesRaw: (existingIdx !== -1) ? students[existingIdx].ueNonValideesRaw : ""
+        };
+        if(existingIdx !== -1) students[existingIdx] = newStudent;
+        else students.push(newStudent);
+        saveData();
+        renderAll();
+        alert("Étudiant enregistré");
+        clearMainForm();
+    });
+    function clearMainForm() {
+        document.getElementById("studentForm").reset();
+        document.getElementById("autreFiliere").value = "";
+        currentEditingStudentUeList = [];
+        renderUeRowsInForm([]);
+    }
+    document.getElementById("resetFormBtn")?.addEventListener("click", clearMainForm);
+
+    // Validations anciens
+    function displayUeForValidation() {
+        const div = document.getElementById("displayUeList");
+        if(activeStudent && div) {
+            const ues = activeStudent.ueChoisies || [];
+            div.innerHTML = ues.length ? `<ul style="margin-left:1rem;">${ues.map(ue => `<li>${ue.nom} (${ue.credits} crédits)</li>`).join('')}</ul>` : "<p>Aucune UE achetée</p>";
+            if(activeStudent.statut === "ancien") {
+                document.getElementById("ueValidees").value = (activeStudent.ueValideesList || []).join(", ");
+                document.getElementById("ueNonValidees").value = activeStudent.ueNonValideesRaw || "";
+            }
+        }
+    }
+    document.getElementById("loadStudentUE")?.addEventListener("click", () => {
+        const num = document.getElementById("studentSelectUE").value;
+        if(!num) return alert("Sélectionnez un étudiant");
+        activeStudent = students.find(s => s.numeroEtudiant === num);
+        if(activeStudent) displayUeForValidation(); else alert("Introuvable");
+    });
+    document.getElementById("saveAncienValidationBtn")?.addEventListener("click", () => {
+        if(!activeStudent) return alert("Charger un étudiant d'abord");
+        if(activeStudent.statut !== "ancien") return alert("Réservé aux anciens");
+        activeStudent.ueValideesList = document.getElementById("ueValidees").value.split(",").map(s=>s.trim()).filter(s=>s);
+        activeStudent.ueNonValideesRaw = document.getElementById("ueNonValidees").value;
+        saveData();
+        alert("Validations enregistrées");
+    });
+
+    // Statistiques
+    function refreshStatsAndGroupings() {
+        const statsStatut = { nouveau:0, ancien:0 };
+        const statsFiliere = {};
+        const statsSexe = { Homme:0, Femme:0, Autre:0 };
+        students.forEach(s => {
+            statsStatut[s.statut] = (statsStatut[s.statut] || 0) + 1;
+            statsFiliere[s.filiere || "Non définie"] = (statsFiliere[s.filiere || "Non définie"] || 0) + 1;
+            if(s.sexe) statsSexe[s.sexe] = (statsSexe[s.sexe] || 0) + 1;
+        });
+        document.getElementById("statsContainer").innerHTML = `
+            <div class="stat-box"><h4>👥 Par statut</h4>🎓 Nouveau: ${statsStatut.nouveau}<br>📖 Ancien: ${statsStatut.ancien}</div>
+            <div class="stat-box"><h4>🏛️ Par faculté</h4>${Object.entries(statsFiliere).map(([k,v])=>`${k}: ${v}`).join('<br>') || "Aucune"}</div>
+            <div class="stat-box"><h4>⚥ Par sexe</h4>♂️ Homme: ${statsSexe.Homme}<br>♀️ Femme: ${statsSexe.Femme}<br>⚧ Autre: ${statsSexe.Autre}</div>
+            <div class="stat-box"><h4>📅 Inscrits 2025-2026</h4>✅ Total: ${students.length} étudiant(s)</div>
+        `;
+    }
+    function renderFilteredTable() {
+        const statut = document.getElementById("filterStatut")?.value || "all";
+        const filiere = document.getElementById("filterFiliere")?.value || "all";
+        const sexe = document.getElementById("filterSexe")?.value || "all";
+        let filtered = students.filter(s => (statut==="all" || s.statut===statut) && (filiere==="all" || s.filiere===filiere) && (sexe==="all" || s.sexe===sexe));
+        const tbody = document.getElementById("filteredTableBody");
+        if(tbody) {
+            tbody.innerHTML = "";
+            filtered.forEach(s => { tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.numeroEtudiant}</td><td>${s.nom} ${s.prenoms}</td><td>${s.sexe||"-"}</td><td>${s.statut}</td><td>${s.filiere}</td><td>${s.anneeEtude}</td><td>${s.creditsAchetes}</td><td>${(s.ueChoisies||[]).length}</td></tr>`); });
+        }
+    }
+    document.getElementById("applyFilterBtn")?.addEventListener("click", renderFilteredTable);
+    document.getElementById("refreshStatsBtn")?.addEventListener("click", () => { refreshStatsAndGroupings(); renderFilteredTable(); });
+
+    // Recherche et vérification
+    document.getElementById("searchStudentBtn")?.addEventListener("click", () => {
+        const q = document.getElementById("searchStudentInput").value.toLowerCase();
+        const div = document.getElementById("searchResult");
+        if(!q) { div.innerHTML = "<p>Entrez un critère</p>"; return; }
+        const found = students.filter(s => s.nom.toLowerCase().includes(q) || s.prenoms.toLowerCase().includes(q) || s.numeroEtudiant.toLowerCase().includes(q));
+        div.innerHTML = found.length ? `<ul>${found.map(s=>`<li><strong>${s.numeroEtudiant}</strong> - ${s.nom} ${s.prenoms} (${s.statut})</li>`).join('')}</ul>` : "<p>Aucun résultat</p>";
+    });
+    document.getElementById("verifInscriptionBtn")?.addEventListener("click", () => {
+        const num = document.getElementById("verifNumEtudiant").value.trim();
+        const student = students.find(s => s.numeroEtudiant === num);
+        document.getElementById("verifResult").innerHTML = student ? `<span style='color:green'>✅ INSCRIT 2025-2026 : ${student.nom} ${student.prenoms}</span>` : "<span style='color:red'>❌ Non inscrit ou matricule inconnu</span>";
+    });
+
+    function populateUeSelectForFilter() {
+        const allUes = new Set();
+        students.forEach(s => (s.ueChoisies || []).forEach(ue => allUes.add(ue.nom)));
+        const select = document.getElementById("ueSelectForFilter");
+        if(select) {
+            select.innerHTML = '<option value="">-- Sélectionner UE --</option>';
+            Array.from(allUes).sort().forEach(ue => select.innerHTML += `<option value="${ue.replace(/"/g, '&quot;')}">${ue}</option>`);
+        }
+    }
+    document.getElementById("filterByUeBtn")?.addEventListener("click", () => {
+        const selected = document.getElementById("ueSelectForFilter").value;
+        const div = document.getElementById("studentsByUeResult");
+        if(!selected) { div.innerHTML = "<p>Choisissez une UE</p>"; return; }
+        const filtered = students.filter(s => (s.ueChoisies || []).some(ue => ue.nom === selected));
+        div.innerHTML = filtered.length ? `<h4>📌 Étudiants - ${selected}</h4><ul>${filtered.map(s=>`<li>${s.numeroEtudiant} - ${s.nom} ${s.prenoms} (${s.filiere})</li>`).join('')}</ul>` : "<p>Aucun étudiant</p>";
+    });
+
+    // PDF exports
+    function generatePDF(elementId, filename) {
+        const el = document.getElementById(elementId);
+        if(!el) return;
+        html2pdf().set({ margin: [0.5,0.5,0.5,0.5], filename: filename, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(el).save();
+    }
+    document.getElementById("printRegroupementsBtn")?.addEventListener("click", () => generatePDF("printableRegroupements", "statistiques.pdf"));
+    document.getElementById("printFiltresListeBtn")?.addEventListener("click", () => generatePDF("printableListeFiltree", "liste_filtree.pdf"));
+    document.getElementById("printRechercheBtn")?.addEventListener("click", () => generatePDF("printableRecherche", "recherche.pdf"));
+    document.getElementById("printVerificationBtn")?.addEventListener("click", () => generatePDF("printableVerification", "verification.pdf"));
+    document.getElementById("printUeListBtn")?.addEventListener("click", () => generatePDF("printableUeResult", "etudiants_par_ue.pdf"));
+
+    // Onglets
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const tabId = btn.dataset.tab;
+            document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+            document.getElementById(tabId).classList.add("active");
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            if(tabId === "tab3") { refreshStatsAndGroupings(); renderFilteredTable(); }
+            if(tabId === "tab5") populateUeSelectForFilter();
+        });
+    });
+
+    // Initialisation silencieuse après auth
+    window.checkAuth = checkAuth;
+    checkAuth();
+    renderUeRowsInForm([]);
+</script>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Générateur de Fiche Pédagogique — Complète</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root {
+    --primary: #0a2463; --primary-light: #1e3a8a; --primary-mid: #3b82f6; --primary-surface: #eef2ff;
+    --accent: #f59e0b; --accent-light: #fef3c7; --success: #10b981; --success-light: #d1fae5;
+    --danger: #ef4444; --danger-light: #fee2e2; --orange: #f97316; --orange-light: #ffedd5;
+    --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1;
+    --gray-400: #94a3b8; --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b;
+    --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--gray-100); color: var(--gray-800); line-height: 1.5; }
+  ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+  .app-layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 500px; min-width: 500px; background: white; border-right: 1px solid var(--gray-200); overflow-y: auto; height: 100vh; position: sticky; top: 0; z-index: 50; }
+  .sidebar-inner { padding: 14px 12px; }
+  .sidebar-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--gray-100); }
+  .sidebar-header .logo { width: 30px; height: 30px; background: var(--primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: white; font-size: .9rem; font-weight: 700; }
+  .sidebar-header h2 { font-size: .85rem; font-weight: 700; color: var(--gray-800); }
+  .sidebar-header .badge { font-size: .58rem; background: var(--accent-light); color: #92400e; padding: 1px 6px; border-radius: 20px; font-weight: 600; margin-left: auto; }
+  .form-cat { font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--gray-400); margin: 10px 0 3px 0; display: flex; align-items: center; gap: 4px; }
+  .form-cat .act { font-size: .65rem; text-transform: none; color: var(--primary-mid); cursor: pointer; font-weight: 600; margin-left: auto; }
+  .form-row { display: flex; gap: 5px; } .form-row > * { flex: 1; }
+  .form-g { margin-bottom: 3px; }
+  .form-g label { display: block; font-size: .65rem; font-weight: 600; color: var(--gray-600); margin-bottom: 1px; }
+  .form-g input, .form-g textarea, .form-g select { width: 100%; padding: 4px 7px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-xs); font-size: .73rem; font-family: inherit; transition: all .2s; background: var(--gray-50); color: var(--gray-800); }
+  .form-g input:focus, .form-g textarea:focus { border-color: var(--primary-mid); outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.12); background: white; }
+  .form-g textarea { min-height: 26px; resize: vertical; }
+  .sidebar-actions { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .btn { padding: 6px 10px; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: .75rem; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: inherit; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--primary); color: white; } .btn-primary:hover { background: var(--primary-light); box-shadow: var(--shadow-md); }
+  .btn-success { background: var(--success); color: white; } .btn-success:hover { background: #059669; }
+  .btn-orange { background: var(--orange); color: white; } .btn-orange:hover { background: #ea580c; }
+  .btn-outline { background: transparent; color: var(--gray-600); border: 1.5px solid var(--gray-200); } .btn-outline:hover { background: var(--gray-50); }
+  .btn-sm { padding: 3px 7px; font-size: .7rem; }
+  .coll { margin-bottom: 1px; }
+  .coll .h { display: flex; align-items: center; gap: 3px; cursor: pointer; font-size: .67rem; font-weight: 600; color: var(--gray-500); padding: 2px 5px; border-radius: 3px; background: var(--gray-50); user-select: none; }
+  .coll .h:hover { background: var(--gray-100); }
+  .coll .b { padding: 3px 5px 0 5px; display: none; }
+  .coll.open .b { display: block; }
+  .coll .h .arr { transition: transform .2s; font-size: .55rem; }
+  .coll.open .h .arr { transform: rotate(90deg); }
+  #seancesContainer { margin-bottom: 3px; }
+  .sc { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-xs); padding: 5px 7px; margin-bottom: 3px; position: relative; }
+  .sc .num { font-size: .62rem; font-weight: 700; color: var(--primary-mid); margin-bottom: 1px; }
+  .sc .r { display: flex; gap: 3px; margin-bottom: 1px; } .sc .r input { flex: 1; }
+  .sc .del { position: absolute; top: 1px; right: 1px; background: none; border: none; color: var(--gray-400); cursor: pointer; font-size: .8rem; line-height: 1; padding: 0 3px; border-radius: 2px; }
+  .sc .del:hover { background: var(--danger-light); color: var(--danger); }
+  .img-prev { max-width: 100%; max-height: 60px; border-radius: var(--radius-xs); margin-top: 2px; object-fit: cover; display: none; border: 1px solid var(--gray-200); }
+  .img-prev.show { display: block; }
+  .img-te { border-radius: var(--radius-xs); padding: 3px 5px; margin-top: 3px; background: var(--gray-50); border: 1px dashed var(--gray-300); display: flex; gap: 3px; }
+  .img-te input { flex: 1; font-size: .68rem; padding: 2px 5px; border: 1px solid var(--gray-200); border-radius: 3px; background: white; }
+  .img-te label { font-size: .6rem; color: var(--gray-400); white-space: nowrap; display: flex; align-items: center; }
+  .img-te input[type="file"] { flex: 1.3; font-size: .62rem; padding: 1px 2px; }
+  .main-content { flex: 1; padding: 16px 24px; display: flex; justify-content: center; }
+  .page-container { max-width: 1140px; width: 100%; }
+  .page { background: white; border-radius: var(--radius); box-shadow: var(--shadow-xl); overflow: hidden; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 30px; text-align: center; }
+  .empty-state .icon { font-size: 2.8rem; margin-bottom: 10px; opacity: .4; }
+  .empty-state h3 { font-size: 1rem; color: var(--gray-400); font-weight: 600; }
+  .page-header { background: linear-gradient(135deg, var(--primary), #1e3a8a); padding: 8px 18px; display: flex; justify-content: space-between; align-items: center; font-size: .7rem; color: rgba(255,255,255,.9); }
+  .page-footer { background: var(--gray-50); border-top: 1px solid var(--gray-200); padding: 5px 18px; display: flex; justify-content: space-between; font-size: .64rem; color: var(--gray-500); }
+  .title-page { padding: 26px 22px 20px; text-align: center; background: linear-gradient(180deg, var(--primary-surface), white 60%); position: relative; }
+  .title-page::after { content: ''; position: absolute; bottom: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, transparent, var(--primary-mid), transparent); }
+  .title-page h1 { font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 3px; letter-spacing: -1px; }
+  .title-page .subtitle { font-size: 1.1rem; font-weight: 600; color: var(--primary-mid); }
+  .title-page .theme { font-size: .95rem; color: var(--gray-600); font-weight: 500; margin-bottom: 10px; }
+  .title-page .info-line { font-size: .75rem; color: var(--gray-500); margin: 1px 0; }
+  .title-page .divider { margin: 10px auto; width: 70%; border: none; height: 2px; background: linear-gradient(90deg,transparent,var(--primary-mid),transparent); border-radius: 2px; }
+  .context-box { background: linear-gradient(135deg, var(--primary-surface), white); border: 1.5px solid var(--primary-mid); border-radius: var(--radius-sm); padding: 8px 14px; max-width: 620px; margin: 10px auto; font-size: .8rem; color: var(--gray-700); box-shadow: var(--shadow); position: relative; }
+  .context-box::before { content: '📌'; position: absolute; top: -7px; left: -7px; font-size: .8rem; background: white; padding: 1px 3px; border-radius: 4px; box-shadow: var(--shadow); }
+  .seance-table { margin: 10px auto; border-collapse: collapse; font-size: .74rem; border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow); }
+  .seance-table th { background: var(--primary); color: white; padding: 5px 9px; font-weight: 600; font-size: .7rem; text-transform: uppercase; letter-spacing: .2px; }
+  .seance-table td { padding: 4px 9px; border-bottom: 1px solid var(--gray-100); background: white; }
+  .section { padding: 14px 22px; border-bottom: 1px solid var(--gray-100); }
+  .section-title { font-size: .95rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .section-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--primary-mid); border-radius: 2px; }
+  .sub-title { font-size: .8rem; font-weight: 700; color: var(--gray-700); margin: 6px 0 3px 0; display: flex; align-items: center; gap: 4px; }
+  .tbox { border-radius: var(--radius-sm); padding: 8px 12px; margin: 5px 0; box-shadow: var(--shadow); }
+  .tbox-title { font-weight: 700; font-size: .75rem; margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+  .tbox-info { background: linear-gradient(135deg, var(--primary-surface), white); border-left: 4px solid var(--primary-mid); } .tbox-info .tbox-title { color: var(--primary); }
+  .tbox-act { background: linear-gradient(135deg, var(--orange-light), white); border-left: 4px solid var(--orange); } .tbox-act .tbox-title { color: #9a3412; }
+  .tbox-eval { background: linear-gradient(135deg, var(--success-light), white); border-left: 4px solid var(--success); } .tbox-eval .tbox-title { color: #065f46; }
+  .tbox-trace { background: linear-gradient(135deg, var(--accent-light), white); border-left: 4px solid var(--accent); } .tbox-trace .tbox-title { color: #92400e; }
+  .tbox-imp { background: linear-gradient(135deg, var(--danger-light), white); border-left: 4px solid var(--danger); } .tbox-imp .tbox-title { color: #991b1b; }
+  .tbox-def { background: linear-gradient(135deg, #f0fdf4, white); border-left: 4px solid #22c55e; } .tbox-def .tbox-title { color: #166534; }
+  .tbox-prop { background: linear-gradient(135deg, #fef2f2, white); border-left: 4px solid var(--danger); } .tbox-prop .tbox-title { color: #991b1b; }
+  .tbox-ex { background: linear-gradient(135deg, #f5f3ff, white); border-left: 4px solid #8b5cf6; } .tbox-ex .tbox-title { color: #5b21b6; }
+  .bc { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; font-size: .6rem; flex-shrink: 0; }
+  .bc-info { background: var(--primary-surface); color: var(--primary-mid); }
+  .bc-act { background: var(--orange-light); color: #9a3412; }
+  .bc-eval { background: var(--success-light); color: #065f46; }
+  .bc-trace { background: var(--accent-light); color: #92400e; }
+  .bc-imp { background: var(--danger-light); color: #991b1b; }
+  .bc-def { background: #f0fdf4; color: #166534; }
+  .bc-prop { background: #fef2f2; color: #991b1b; }
+  .bc-ex { background: #f5f3ff; color: #5b21b6; }
+  .img-wrap { text-align: center; margin: 6px 0; padding: 4px; background: var(--gray-50); border-radius: var(--radius-xs); border: 1px dashed var(--gray-300); }
+  .img-wrap img { max-width: 100%; max-height: 160px; border-radius: var(--radius-xs); object-fit: contain; }
+  .img-wrap .cap { font-size: .68rem; color: var(--gray-400); margin-top: 2px; font-style: italic; }
+  .tbl { border-collapse: collapse; width: 100%; margin: 3px 0; font-size: .74rem; border-radius: var(--radius-xs); overflow: hidden; }
+  .tbl th { background: var(--gray-50); color: var(--gray-700); padding: 4px 7px; border: 1px solid var(--gray-200); text-align: left; font-weight: 600; font-size: .7rem; }
+  .tbl td { padding: 4px 7px; border: 1px solid var(--gray-200); vertical-align: top; }
+  .sig-tbl { margin: 5px auto; border-collapse: collapse; width: 55%; }
+  .sig-tbl th, .sig-tbl td { border: 1px solid var(--gray-300); padding: 3px 10px; }
+  .sig-tbl th { background: var(--gray-50); font-weight: 600; font-size: .72rem; }
+  .math { font-family: 'JetBrains Mono', monospace; font-style: italic; color: var(--primary); font-weight: 500; background: var(--primary-surface); padding: 1px 4px; border-radius: 3px; white-space: nowrap; font-size: .86em; }
+  .math-d { text-align: center; font-size: .86rem; margin: 3px 0; color: var(--primary); font-family: 'JetBrains Mono', monospace; padding: 3px; background: var(--gray-50); border-radius: var(--radius-xs); }
+  ul { padding-left: 14px; font-size: .8rem; }
+  ul.bsq { list-style: none; padding-left: 0; }
+  ul.bsq li { padding-left: 13px; position: relative; }
+  ul.bsq li::before { content: '▣'; position: absolute; left: 0; color: var(--primary-mid); font-size: .55rem; top: 2px; }
+  ul.btri { list-style: none; padding-left: 0; }
+  ul.btri li { padding-left: 13px; position: relative; }
+  ul.btri li::before { content: '▸'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+  ol { padding-left: 16px; font-size: .8rem; } ol li { margin-bottom: 1px; }
+  .qbox { text-align: center; font-family: 'Playfair Display', serif; font-style: italic; color: var(--gray-500); padding: 5px; border-top: 1px solid var(--gray-200); margin-top: 5px; font-size: .8rem; }
+  .fe { text-align: center; padding: 10px; }
+  .fe hr { margin: 4px auto; border: none; height: 2px; background: linear-gradient(90deg,transparent,var(--primary-mid),transparent); width: 100%; border-radius: 2px; }
+  .fe .t { font-size: .78rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; text-transform: uppercase; }
+  .fe .s { font-size: .7rem; color: var(--gray-400); margin-top: 2px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  @media (max-width: 1000px) { .app-layout { flex-direction: column; } .sidebar { width: 100%; min-width: 100%; height: auto; position: static; } .main-content { padding: 10px; } }
+  .toast { position: fixed; bottom: 16px; right: 16px; background: var(--gray-900); color: white; padding: 7px 16px; border-radius: var(--radius-sm); font-size: .75rem; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 999; opacity: 0; transform: translateY(20px); transition: all .3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media print { .sidebar { display: none !important; } .main-content { padding: 0 !important; } .page { box-shadow: none; border-radius: 0; } .section, .tbox, .grid-2, .grid-3 { page-break-inside: avoid; } body { background: white; } .toast { display: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="app-layout">
+  <div class="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-header">
+        <div class="logo">📋</div>
+        <div><h2>Générateur de Fiche Pédagogique</h2></div>
+        <span class="badge">v4.0</span>
+      </div>
+
+      <!-- 1 INFOS GÉNÉRALES -->
+      <div class="form-cat">① Informations générales</div>
+      <div class="form-row">
+        <div class="form-g"><label>École / CEG</label><input type="text" id="f_ecole" value="CEG MASSEDENA"></div>
+        <div class="form-g"><label>Classe</label><input type="text" id="f_classe" value="Classe de 6ème"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-g"><label>Effectif</label><input type="text" id="f_effectif" value="38 élèves"></div>
+        <div class="form-g"><label>Matière</label><input type="text" id="f_matiere" value="Mathématiques"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-g"><label>Enseignant</label><input type="text" id="f_enseignant" value="KOLA Maniwah Essohouna"></div>
+        <div class="form-g"><label>Date</label><input type="text" id="f_date" value="02/02/2026"></div>
+      </div>
+      <div class="form-g"><label>Durée totale</label><input type="text" id="f_duree" value="3 séances de 60 min"></div>
+      <div class="form-g"><label>Compétence visée</label><textarea id="f_competence" rows="1">Résoudre des problèmes faisant appel au calcul numérique dans des situations concrètes de la vie quotidienne africaine, en mobilisant la notion de fraction comme outil de modélisation et de résolution.</textarea></div>
+      <div class="form-row">
+        <div class="form-g"><label>Références</label><input type="text" id="f_references" value="Programme officiel de mathématiques 6ème, Socle commun"></div>
+        <div class="form-g"><label>Séquence</label><input type="text" id="f_sequence" value="Séquence 3 — Deuxième trimestre"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-g"><label>Domaine</label><input type="text" id="f_domaine" value="Nombres et calculs"></div>
+        <div class="form-g"><label>Thème</label><input type="text" id="f_theme" value="Nombres et Calculs"></div>
+      </div>
+      <div class="form-g"><label>Titre de la leçon</label><input type="text" id="f_titre" value="Les Fractions : Notion, Comparaison et Opérations de Base"></div>
+      <div class="form-g"><label>Contexte pédagogique</label><textarea id="f_contexte" rows="1">Cette séquence vise à construire progressivement la notion de fraction chez les élèves de 6ème à travers des situations concrètes du quotidien africain.</textarea></div>
+
+      <!-- 2 OBJECTIFS & PRÉREQUIS -->
+      <div class="form-cat">② Objectifs &amp; Prérequis</div>
+      <div class="form-g"><label>Objectifs (un par ligne)</label><textarea id="f_objectifs" rows="2">Reconnaître et identifier des fractions dans des contextes variés
+Représenter graphiquement des fractions à l'aide de supports variés
+Comparer et ranger des fractions en utilisant des stratégies adaptées
+Effectuer des opérations élémentaires sur les fractions
+Utiliser les fractions pour résoudre des problèmes de partage</textarea></div>
+      <div class="form-g"><label>Prérequis (un par ligne)</label><textarea id="f_prerequis" rows="2">Connaissance des nombres entiers naturels jusqu'à 1000
+Maîtrise des opérations de base (+, −, ×, ÷)
+Notion intuitive de partage équitable
+Lecture et écriture correcte des nombres</textarea></div>
+
+      <!-- 3 MATÉRIEL & STRATÉGIES -->
+      <div class="form-cat">③ Matériel &amp; Stratégies</div>
+      <div class="grid-2">
+        <div class="form-g"><label>Matériel concret</label><textarea id="f_matConcret" rows="1">Fruits (oranges, bananes, mangues)
+Bandes de papier de différentes longueurs
+Disques en carton fractionnés
+Billes, cailloux, graines</textarea></div>
+        <div class="form-g"><label>Supports pédagogiques</label><textarea id="f_matSupports" rows="1">Fiches d'exercices différenciées (3 niveaux)
+Planches illustrées sur le partage
+Tableau magnétique avec fractions aimantées
+Calculatrices simples</textarea></div>
+      </div>
+      <div class="form-g"><label>Stratégies pédagogiques</label><textarea id="f_strategies" rows="1">Approche inductive : partir de situations concrètes pour dégager les concepts
+Différenciation : adapter les activités selon les profils d'apprentissage
+Manipulation : utiliser systématiquement du matériel concret avant l'abstraction
+Travail collaboratif : alterner phases individuelles, en binômes et en groupes
+Métacognition : faire verbaliser les démarches et les stratégies
+Contextualisation : ancrer les apprentissages dans la réalité africaine</textarea></div>
+      <div class="form-g"><label>Adaptations pédagogiques</label><textarea id="f_adaptations" rows="1">Pour les élèves en difficulté : réduire la quantité d'exercices, accentuer la manipulation
+Pour les élèves avancés : problèmes complexes, recherche documentaire
+Pour les élèves à besoins éducatifs particuliers : supports adaptés, temps supplémentaire</textarea></div>
+
+      <!-- 4 SÉANCES -->
+      <div class="form-cat">④ Séances <span class="act" onclick="ajouterSeance()">+ Ajouter</span></div>
+      <div id="seancesContainer"></div>
+
+      <!-- 5 IMAGE -->
+      <div class="form-cat">⑤ Image</div>
+      <div class="form-row">
+        <div class="form-g" style="flex:2"><label>Fichier image</label><input type="file" id="f_image" accept="image/jpeg,image/png,image/webp" onchange="loadImg('f_image');apercuImage();"></div>
+        <div class="form-g" style="flex:1"><label>Position</label><select id="f_imagePos"><option value="after-title">Après titre</option><option value="after-context">Après contexte</option><option value="custom">Bloc libre</option></select></div>
+      </div>
+      <div class="form-g"><label>Légende</label><input type="text" id="f_imageLegende" placeholder="Légende"></div>
+      <div><img class="img-prev" id="imgPreview" alt=""></div>
+
+      <!-- 5b DÉROULEMENT -->
+      <div class="form-cat">⓹ Déroulement des activités</div>
+      <div class="form-g"><textarea id="f_deroulement" rows="2" placeholder="Une étape par ligne">Phase 1 : Rappel des prérequis et mise en situation (10 min)
+Phase 2 : Activité de découverte par manipulation guidée (15 min)
+Phase 3 : Mise en commun et institutionnalisation (10 min)
+Phase 4 : Exercices d'application et entraînement (15 min)
+Phase 5 : Synthèse, évaluation et remédiation (10 min)</textarea></div>
+
+      <!-- 6 TRACE ÉCRITE -->
+      <div class="form-cat">⑥ Traces écrites complètes <span class="act" onclick="ajouterTrace()">+ Ajouter une trace</span></div>
+      <div id="tracesContainer"></div>
+
+      <!-- 7 CAPACITÉS VISÉES -->
+      <div class="form-cat">⑦ Capacités visées</div>
+      <div class="grid-2">
+        <div class="form-g"><label>Capacités col.1 (un par ligne)</label><textarea id="f_cap1" rows="2">Représenter : Traduire une fraction sous forme graphique, numérique et concrète
+Comparer : Utiliser des stratégies adaptées pour comparer et ordonner
+Calculer : Maîtriser les opérations élémentaires avec précision
+Résoudre : Appliquer les fractions à des problèmes du quotidien</textarea></div>
+        <div class="form-g"><label>Capacités col.2 (un par ligne)</label><textarea id="f_cap2" rows="2">Communiquer : Exprimer clairement sa démarche avec un vocabulaire adapté
+Modéliser : Traduire une situation réelle en langage mathématique
+Raisonner : Justifier ses choix et vérifier la cohérence des résultats
+Autonomiser : Développer des méthodes de travail personnelles</textarea></div>
+      </div>
+
+      <!-- 8 ÉVALUATION -->
+      <div class="form-cat">⑧ Modalités d'évaluation</div>
+      <div class="form-g"><textarea id="f_evalForm" rows="1" placeholder="Évaluation formative">Observation directe de la participation et de la manipulation
+Questionnement : questions orales ciblées, explications des démarches
+Exercices au tableau : correction immédiate avec rétroaction
+Auto-évaluation : fiche de positionnement après chaque séance</textarea></div>
+      <div class="form-g"><textarea id="f_evalSom" rows="1" placeholder="Évaluation sommative">Fiche d'exercices notés (coefficient 1) — 30 minutes
+Résolution de problème contextualisé (coefficient 2) — 45 minutes
+Présentation orale d'une démarche de résolution (coefficient 1)
+Questionnaire de synthèse (coefficient 3) — 60 minutes</textarea></div>
+      <div class="form-g"><textarea id="f_evalCrit" rows="1" placeholder="Critères">Exactitude des calculs et des représentations (40 %)
+Pertinence des méthodes utilisées (25 %)
+Clarté des explications et du vocabulaire (20 %)
+Capacité à appliquer dans des situations nouvelles (10 %)
+Autonomie et prise d'initiative (5 %)</textarea></div>
+
+      <!-- 9 CONTEXTE AFRICAIN -->
+      <div class="form-cat">⑨ Contexte africain &amp; Liens</div>
+      <div class="grid-2">
+        <div class="form-g"><label>Domaines d'application</label><textarea id="f_domaines" rows="1">Alimentation : Partage de nourriture, recettes traditionnelles
+Commerce : Mesures au marché, calcul des prix
+Agriculture : Répartition des récoltes, surfaces cultivables
+Artisanat : Proportions dans la fabrication, mesures</textarea></div>
+        <div class="form-g"><label>Liens transdisciplinaires</label><textarea id="f_liens" rows="1">SVT : Proportion dans l'alimentation, croissance
+Géographie : Répartition des ressources, démographie
+Histoire : Mesures anciennes, systèmes de comptage
+Éducation civique : Partage équitable, solidarité</textarea></div>
+      </div>
+      <div class="form-g"><textarea id="f_exemples" rows="1" placeholder="Exemples concrets">Partager 24 ignames entre 8 familles de façon équitable
+Mesurer 3/4 kg de riz avec une balance traditionnelle
+Calculer la part de chacun dans une tontine de 12 personnes avec 60 000 FCFA</textarea></div>
+
+      <!-- 10 ANNEXES -->
+      <div class="form-cat">⑩ Annexes pédagogiques</div>
+      <div class="form-g"><textarea id="f_diffDif" rows="1" placeholder="Élèves en difficulté">Utilisation systématique de matériel concret
+Fractions simples (1/2, 1/3, 1/4)
+Énoncés courts et illustrés
+Tutorat par des élèves avancés</textarea></div>
+      <div class="form-g"><textarea id="f_diffAv" rows="1" placeholder="Élèves avancés">Problèmes complexes en plusieurs étapes
+Introduction aux fractions décimales
+Création d'exercices pour les camarades
+Projets interdisciplinaires</textarea></div>
+      <div class="form-g"><textarea id="f_ressources" rows="1" placeholder="Ressources complémentaires">Manuel de mathématiques 6ème
+Fiches de travail photocopiables
+Matériel de manipulation à fabriquer
+Vidéos éducatives sur les fractions</textarea></div>
+      <div class="form-g"><textarea id="f_remarquesFin" rows="1" placeholder="Remarques finales">Insister sur le sens avant la technique
+Valoriser toutes les démarches de résolution
+Faire verbaliser les difficultés rencontrées
+Maintenir un lien constant avec le concret</textarea></div>
+
+      <!-- ACTIONS -->
+      <div class="sidebar-actions">
+        <button class="btn btn-primary" onclick="generer()">⚡ GÉNÉRER LA FICHE COMPLÈTE</button>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-success" onclick="window.print()" style="flex:1">🖨 Imprimer</button>
+          <button class="btn btn-orange" onclick="exporterLatex()" style="flex:1">📄 LaTeX</button>
+        </div>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-outline btn-sm" onclick="exporterHTML()" style="flex:1">💾 HTML</button>
+          <button class="btn btn-outline btn-sm" onclick="if(confirm('Réinitialiser tous les champs ?')){resetTout()}" style="flex:1">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PREVIEW ===== -->
+  <div class="main-content">
+    <div class="page-container" id="pageContainer">
+      <div class="page" id="emptyState">
+        <div class="empty-state"><div class="icon">📄</div><h3>Prêt à générer votre fiche</h3><p style="color:var(--gray-400);font-size:.78rem">Remplissez les 10 sections du panneau, puis cliquez sur <strong>"Générer la fiche complète"</strong>.</p></div>
+      </div>
+
+      <div class="page" id="fichePage" style="display:none">
+        <div class="page-header"><span id="g_hdrL">École – Classe</span><span id="g_hdrR">Fiche Pédagogique</span></div>
+
+        <!-- ===== PAGE DE GARDE ===== -->
+        <div class="title-page">
+          <h1>FICHE PÉDAGOGIQUE DE LEÇON</h1>
+          <div class="subtitle" id="g_theme">Thème</div>
+          <div class="theme" id="g_titre">Titre</div><br>
+          <div class="info-line" id="g_ens">Enseignant</div>
+          <div class="info-line" id="g_etab">Établissement</div>
+          <div class="info-line" id="g_dates">Date</div>
+          <div class="info-line" id="g_duree">Durée</div>
+          <hr class="divider">
+          <div id="g_img1"></div>
+          <div class="context-box" id="g_ctx">Contexte</div>
+          <div id="g_img2"></div>
+          <div id="g_seanceTbl"></div>
+          <div id="g_img3"></div>
+        </div>
+
+        <!-- ===== INFORMATIONS GÉNÉRALES ===== -->
+        <div class="section">
+          <div class="section-title">Informations générales</div>
+          <div class="tbox tbox-info">
+            <table class="tbl">
+              <tr><th style="width:130px">COMPÉTENCE</th><td id="g_comp">—</td></tr>
+              <tr><th>RÉFÉRENCES</th><td id="g_ref">—</td></tr>
+              <tr><th>DOMAINE</th><td id="g_dom">—</td></tr>
+              <tr><th>SÉQUENCE</th><td id="g_seq">—</td></tr>
+            </table>
+          </div>
+          <div class="grid-2">
+            <div><div class="sub-title"><span class="bc bc-info">🎯</span> Objectifs spécifiques</div><ul class="bsq" id="g_obj"></ul></div>
+            <div><div class="sub-title"><span class="bc bc-info">📋</span> Prérequis</div><ul class="bsq" id="g_pre"></ul></div>
+          </div>
+          <div class="grid-2">
+            <div><div class="sub-title">📦 Matériel concret</div><ul id="g_matC"></ul></div>
+            <div><div class="sub-title">📦 Supports pédagogiques</div><ul id="g_matP"></ul></div>
+          </div>
+          <div class="sub-title"><span class="bc bc-info">🔧</span> Stratégies pédagogiques</div>
+          <ul class="btri" id="g_strat"></ul>
+          <div class="tbox tbox-imp"><div class="tbox-title"><span class="bc bc-imp">⚠️</span> Adaptations pédagogiques</div><ul id="g_adapt"></ul></div>
+        </div>
+
+        <!-- ===== DÉROULEMENT ===== -->
+        <div class="section">
+          <div class="section-title">Déroulement des activités</div>
+          <div id="g_seancesDet"></div>
+          <div id="g_deroulement"></div>
+        </div>
+
+        <!-- ===== TRACES ÉCRITES ===== -->
+        <div class="section">
+          <div class="section-title">Traces écrites complètes</div>
+          <div id="g_tracesContainer"></div>
+        </div>
+
+        <!-- ===== CAPACITÉS ===== -->
+        <div class="section">
+          <div class="section-title">Capacités visées</div>
+          <div class="grid-2"><ul class="btri" id="g_cap1"></ul><ul class="btri" id="g_cap2"></ul></div>
+        </div>
+
+        <!-- ===== CONTEXTE AFRICAIN ===== -->
+        <div class="section">
+          <div class="section-title">Contexte africain et liens transversaux</div>
+          <div class="tbox tbox-info">
+            <div class="grid-2">
+              <div><div class="sub-title">Domaines d'application</div><ul id="g_domaines"></ul></div>
+              <div><div class="sub-title">Liens transdisciplinaires</div><ul id="g_liens"></ul></div>
+            </div>
+            <div class="sub-title">Exemples concrets</div><ul id="g_exemples"></ul>
+          </div>
+        </div>
+
+        <!-- ===== ÉVALUATION ===== -->
+        <div class="section">
+          <div class="section-title">Modalités d'évaluation</div>
+          <div class="tbox tbox-eval">
+            <table class="tbl">
+              <tr><th style="width:110px">Formative</th><td id="g_evalF">—</td></tr>
+              <tr><th>Sommative</th><td id="g_evalS">—</td></tr>
+              <tr><th>Critères</th><td id="g_evalC">—</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== ANNEXES ===== -->
+        <div class="section">
+          <div class="section-title">Annexes pédagogiques</div>
+          <div class="grid-2">
+            <div><div class="sub-title">Différenciation</div><p><b>En difficulté :</b></p><ul id="g_diffD"></ul><p><b>Avancés :</b></p><ul id="g_diffA"></ul></div>
+            <div><div class="sub-title">Ressources</div><ul id="g_ress"></ul><div class="sub-title">Remarques</div><ul id="g_remF"></ul></div>
+          </div>
+        </div>
+
+        <!-- ===== FIN ===== -->
+        <div class="section" style="border-bottom:none">
+          <div class="fe"><hr><div class="t">— Fiche pédagogique terminée —</div><hr style="width:100%;margin-top:3px"><div class="s" id="g_pied">Document généré</div></div>
+        </div>
+
+        <div class="page-footer"><span id="g_ftrL">Enseignant</span><span id="g_ftrC">1 / 1</span><span id="g_ftrR">Date</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);}
+const $=id=>document.getElementById(id);
+const v=id=>{const e=$(id);return e?e.value:'';};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const escA=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const nl2br=s=>esc(s).replace(/\n/g,'<br>');
+const imgData={};
+function loadImg(id){const i=$(id);const f=i.files[0];if(!f){imgData[id]='';return;}imgData[id+'_name']=f.name;const r=new FileReader();r.onload=e=>{imgData[id]=e.target.result;};r.readAsDataURL(f);}
+
+let sc=3;const PX=['s1','s2','s3','s4','s5','s6','s7','s8'];
+function gsv(p,f){const e=$('f_'+p+'_'+f);return e?e.value:'';}
+function rS(){
+  let h='';
+  for(let i=0;i<sc;i++){const p=PX[i]||'s'+(i+1);
+    h+=`<div class="sc"><button class="del" onclick="supS(${i})"${i<1?' style="display:none"':''}>✕</button>
+    <div class="num">◆ Séance ${i+1}</div>
+    <div class="r"><input type="text" id="f_${p}_titre" placeholder="Titre" value="${escA(gsv(p,'titre'))}"><input type="text" id="f_${p}_duree" placeholder="Durée" value="${escA(gsv(p,'duree'))}" style="width:60px"></div>
+    <div class="r"><input type="text" id="f_${p}_obj" placeholder="Objectif" value="${escA(gsv(p,'obj'))}"><input type="text" id="f_${p}_mat" placeholder="Matériel" value="${escA(gsv(p,'mat'))}"></div></div>`;}
+  $('seancesContainer').innerHTML=h;
+}
+function ajouterSeance(){if(sc>=8){toast('Max 8 séances');return;}sc++;rS();toast('Séance ajoutée');}
+function supS(idx){
+  if(sc<=1)return;const b=[];
+  for(let i=0;i<sc;i++){const p=PX[i]||'s'+(i+1);b.push({t:gsv(p,'titre'),d:gsv(p,'duree'),o:gsv(p,'obj'),m:gsv(p,'mat')});}
+  b.splice(idx,1);sc--;rS();
+  for(let i=0;i<sc&&i<b.length;i++){const p=PX[i]||'s'+(i+1);
+    if($('f_'+p+'_titre'))$('f_'+p+'_titre').value=b[i].t;
+    if($('f_'+p+'_duree'))$('f_'+p+'_duree').value=b[i].d;
+    if($('f_'+p+'_obj'))$('f_'+p+'_obj').value=b[i].o;
+    if($('f_'+p+'_mat'))$('f_'+p+'_mat').value=b[i].m;}
+}
+function apercuImage(){const u=imgData['f_image']||v('f_image'),img=$('imgPreview');if(u){img.src=u;img.classList.add('show');img.onerror=()=>img.classList.remove('show');}else img.classList.remove('show');}
+function imgHTML(){const u=imgData['f_image']||v('f_image');if(!u)return '';const c=v('f_imageLegende');return `<div class="img-wrap"><img src="${escA(u)}" alt="${escA(c||'')}">${c?'<div class="cap">'+esc(c)+'</div>':''}</div>`;}
+function lst(id,ulId,cls){const items=v(id).split('\n').filter(s=>s.trim());let h='';items.forEach(i=>{h+=`<li>${esc(i.trim())}</li>`;});$(ulId).innerHTML=h;if(cls)$(ulId).className=cls;}
+function txt(id,elId,boxId){const val=v(id);$(elId).innerHTML=nl2br(val||'');if(boxId){const b=$(boxId);if(b)b.style.display=(val&&val.trim())?'block':'none';}}
+function imgTE(pref,elId){const u=imgData[pref+'Img']||v(pref+'Img');if(!u){$(elId).innerHTML='';return;}const c=v(pref+'ImgLeg');$(elId).innerHTML=`<div class="img-wrap"><img src="${escA(u)}" alt="${escA(c||'')}">${c?'<div class="cap">'+esc(c)+'</div>':''}</div>`;}
+
+// ===== TRACE ÉCRITE DYNAMIQUE =====
+const TRACE_TYPES = [
+  { key:'def', label:'Définition', icon:'📌', boxClass:'tbox-def', bcClass:'bc-def' },
+  { key:'prop', label:'Théorème / Propriété', icon:'⚡', boxClass:'tbox-prop', bcClass:'bc-prop' },
+  { key:'remarque', label:'Remarque', icon:'💡', boxClass:'tbox-imp', bcClass:'bc-imp' },
+  { key:'exemple', label:'Exemple', icon:'✏️', boxClass:'tbox-ex', bcClass:'bc-ex' },
+  { key:'activite', label:'Activité', icon:'🔬', boxClass:'tbox-act', bcClass:'bc-act' },
+  { key:'solActivite', label:'Solution activité', icon:'✅', boxClass:'tbox-eval', bcClass:'bc-eval' },
+  { key:'exoApp', label:"Exercice d'application", icon:'📝', boxClass:'tbox-act', bcClass:'bc-act' },
+  { key:'solExo', label:'Solution exercices', icon:'✅', boxClass:'tbox-eval', bcClass:'bc-eval' },
+  { key:'exoMaison', label:'Exercice de maison', icon:'🏠', boxClass:'tbox-trace', bcClass:'bc-trace' },
+  { key:'solMaison', label:'Solution devoir', icon:'✅', boxClass:'tbox-eval', bcClass:'bc-eval' }
+];
+let tCounter = 0;
+let traces = [];
+
+function createTraceItem(type, content, img, imgLeg) {
+  return { id:'ti_'+(++tCounter), type, content:content||'', img:img||'', imgLeg:imgLeg||'' };
+}
+function createTrace(name) {
+  return { id:'t_'+(++tCounter), name:name||'Trace écrite complète', items:[] };
+}
+function ajouterTrace() {
+  traces.push(createTrace());
+  renderTraces();
+  generer();
+  toast('Trace écrite ajoutée');
+}
+function supprimerTrace(idx) {
+  if(traces.length<=1){toast('Il doit rester au moins une trace');return;}
+  traces.splice(idx,1);renderTraces();generer();
+}
+function ajouterItemTrace(tIdx, type) {
+  traces[tIdx].items.push(createTraceItem(type));renderTraces();generer();
+}
+function supprimerItemTrace(tIdx, iIdx) {
+  const item=traces[tIdx].items[iIdx];
+  if(item.img)item.img='';
+  traces[tIdx].items.splice(iIdx,1);renderTraces();generer();
+}
+function traceItemImg(tIdx, iIdx, input) {
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{traces[tIdx].items[iIdx].img=e.target.result;renderTraces();generer();};
+  r.readAsDataURL(file);
+}
+function renderTraces() {
+  const c=$('tracesContainer');if(!c)return;
+  if(!traces.length){traces.push(createTrace());}
+  let h='';
+  traces.forEach((tr,ti)=>{
+    h+=`<div class="sc"><div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
+      <span class="num">Trace ${ti+1}</span>
+      <input type="text" value="${escA(tr.name)}" onchange="traces[${ti}].name=this.value;generer();" style="flex:1;padding:2px 5px;font-size:.7rem;border:1px solid var(--gray-200);border-radius:3px;">
+      <button class="del" onclick="supprimerTrace(${ti})" style="position:static;font-size:.7rem;">✕</button>
+    </div>`;
+    TRACE_TYPES.forEach(tt=>{
+      const items=tr.items.filter(it=>it.type===tt.key);
+      h+=`<div class="coll open"><div class="h" onclick="this.parentElement.classList.toggle('open')">
+        <span class="arr">▶</span> ${tt.label} (${items.length})
+        <span class="act" onclick="event.stopPropagation();ajouterItemTrace(${ti},'${tt.key}')" style="font-size:.6rem;margin-left:auto;font-weight:600;color:var(--primary-mid);cursor:pointer;">+</span>
+      </div><div class="b">`;
+      items.forEach((it,ii)=>{
+        h+=`<div style="background:white;border:1px solid var(--gray-200);border-radius:3px;padding:3px 4px;margin-bottom:2px;">
+          <div style="display:flex;gap:2px;margin-bottom:1px;">
+            <span style="font-size:.58rem;font-weight:600;color:var(--gray-400);">${tt.label}${items.length>1?' '+(ii+1):''}</span>
+            <button class="del" onclick="supprimerItemTrace(${ti},${ii})" style="position:static;font-size:.55rem;padding:0 2px;margin-left:auto;">✕</button>
+          </div>
+          <textarea onchange="traces[${ti}].items[${ii}].content=this.value;renderTraces();generer();" rows="1" style="width:100%;padding:2px 4px;font-size:.68rem;border:1px solid var(--gray-200);border-radius:2px;resize:vertical;">${escA(it.content)}</textarea>
+          <div style="display:flex;gap:2px;margin-top:1px;">
+            <input type="file" accept="image/jpeg,image/png,image/webp" onchange="traceItemImg(${ti},${ii},this)" style="font-size:.55rem;flex:1;">
+            <input type="text" placeholder="Légende" value="${escA(it.imgLeg)}" onchange="traces[${ti}].items[${ii}].imgLeg=this.value;renderTraces();generer();" style="font-size:.6rem;flex:1;padding:1px 3px;border:1px solid var(--gray-200);border-radius:2px;">
+          </div>`;
+        if(it.img)h+=`<img src="${escA(it.img)}" style="max-width:100%;max-height:40px;border-radius:2px;margin-top:1px;object-fit:cover;">`;
+        h+=`</div>`;
+      });
+      h+=`</div></div>`;
+    });
+    h+=`</div>`;
+  });
+  c.innerHTML=h;
+}
+function renderPreviewTraces() {
+  const c=$('g_tracesContainer');if(!c)return;
+  if(!traces.length){c.innerHTML='';return;}
+  let h='<div class="tbox tbox-trace"><div class="tbox-title"><span class="bc bc-trace">📖</span> Leçon : <span>'+esc(v('f_titre'))+'</span></div>';
+  traces.forEach((tr,ti)=>{
+    if(!tr.items.length)return;
+    h+=`<div style="margin-bottom:8px;padding:6px;background:var(--gray-50);border-radius:6px;">
+      <div style="font-weight:700;font-size:.78rem;color:var(--primary);margin-bottom:4px;">${esc(tr.name)}</div>`;
+    const grouped={};TRACE_TYPES.forEach(tt=>grouped[tt.key]=[]);
+    tr.items.forEach(it=>{if(grouped[it.type])grouped[it.type].push(it);});
+    TRACE_TYPES.forEach(tt=>{
+      const its=grouped[tt.key];
+      if(!its||!its.length)return;
+      its.forEach((it,ii)=>{
+        h+=`<div class="tbox ${tt.boxClass}"><div class="tbox-title"><span class="bc ${tt.bcClass}">${tt.icon}</span> ${tt.label}${its.length>1?' '+(ii+1):''}</div>
+          <div>${nl2br(it.content)}</div>`;
+        if(it.img)h+=`<div class="img-wrap"><img src="${escA(it.img)}" alt="${escA(it.imgLeg||'')}">${it.imgLeg?'<div class="cap">'+esc(it.imgLeg)+'</div>':''}</div>`;
+        h+=`</div>`;
+      });
+    });
+    if(tr.items.some(it=>it.type==='exoMaison'))
+      h+=`<table class="sig-tbl"><tr><th>Signature parent</th><th>Date</th></tr><tr><td style="height:18px"></td><td></td></tr></table>`;
+    h+=`</div>`;
+  });
+  h+=`<div class="qbox">« Les mathématiques nous aident à mieux partager et mesurer notre monde quotidien. »</div></div>`;
+  c.innerHTML=h;
+}
+
+function generer(){
+  $('g_hdrL').textContent=v('f_ecole')+' – '+v('f_classe');
+  $('g_hdrR').textContent='Fiche Pédagogique – '+v('f_matiere');
+  $('g_ftrL').textContent=v('f_enseignant');
+  $('g_ftrR').textContent=v('f_date');
+  $('g_theme').textContent=v('f_theme');
+  $('g_titre').textContent=v('f_titre');
+  $('g_ens').textContent='Enseignant : '+v('f_enseignant');
+  $('g_etab').textContent=v('f_ecole')+' – '+v('f_classe')+' – Effectif : '+v('f_effectif');
+  $('g_dates').textContent='Date : '+v('f_date');
+  $('g_duree').textContent='Durée : '+v('f_duree');
+  $('g_ctx').textContent=v('f_contexte');
+  $('g_pied').textContent='Document généré le '+v('f_date')+' — '+v('f_ecole');
+  $('g_comp').textContent=v('f_competence');
+  $('g_ref').textContent=v('f_references');
+  $('g_dom').textContent=v('f_domaine');
+  $('g_seq').textContent=v('f_sequence');
+
+  const ih=imgHTML(),pos=v('f_imagePos');
+  $('g_img1').innerHTML=$('g_img2').innerHTML=$('g_img3').innerHTML='';
+  if(ih){if(pos==='after-title')$('g_img1').innerHTML=ih;else if(pos==='after-context')$('g_img2').innerHTML=ih;else $('g_img3').innerHTML=ih;}
+
+  let t='<table class="seance-table"><tr><th>Séance</th><th>Durée</th><th>Objectif</th><th>Matériel</th></tr>';
+  for(let i=0;i<sc;i++){const p=PX[i]||'s'+(i+1);t+=`<tr><td>${i+1}</td><td>${esc(gsv(p,'duree'))}</td><td>${esc(gsv(p,'obj'))}</td><td>${esc(gsv(p,'mat'))}</td></tr>`;}
+  t+='</table>';$('g_seanceTbl').innerHTML=t;
+
+  let d='';
+  for(let i=0;i<sc;i++){const p=PX[i]||'s'+(i+1);const tt=gsv(p,'titre')||'Séance '+(i+1);d+=`<div class="tbox tbox-act"><div class="tbox-title"><span class="bc bc-act">📘</span> Séance ${i+1} : ${esc(tt)}</div><table class="tbl"><tr><th style="width:85px">Étape 1</th><td>Situation déclenchante (10 min)</td></tr><tr><th>Étape 2</th><td>Manipulation / Recherche (15 min)</td></tr><tr><th>Étape 3</th><td>Mise en commun et synthèse (10 min)</td></tr></table></div>`;}
+  $('g_seancesDet').innerHTML=d;
+
+  const der=v('f_deroulement');let dh='';const dl=der.split('\n').filter(s=>s.trim());if(dl.length){dh='<ol style="margin-top:6px">';dl.forEach(s=>{dh+=`<li style="margin-bottom:3px">${esc(s)}</li>`;});dh+='</ol>';}$('g_deroulement').innerHTML=dh;
+
+  lst('f_objectifs','g_obj','bsq');
+  lst('f_prerequis','g_pre','bsq');
+  lst('f_matConcret','g_matC','');
+  lst('f_matSupports','g_matP','');
+  lst('f_strategies','g_strat','btri');
+  lst('f_adaptations','g_adapt','');
+
+  renderPreviewTraces();
+
+  lst('f_cap1','g_cap1','btri');
+  lst('f_cap2','g_cap2','btri');
+
+  $('g_evalF').innerHTML=nl2br(v('f_evalForm'));
+  $('g_evalS').innerHTML=nl2br(v('f_evalSom'));
+  $('g_evalC').innerHTML=nl2br(v('f_evalCrit'));
+
+  lst('f_domaines','g_domaines','');
+  lst('f_liens','g_liens','');
+  lst('f_exemples','g_exemples','');
+
+  lst('f_diffDif','g_diffD','');
+  lst('f_diffAv','g_diffA','');
+  lst('f_ressources','g_ress','');
+  lst('f_remarquesFin','g_remF','');
+
+  $('emptyState').style.display='none';
+  $('fichePage').style.display='block';
+  toast('✅ Fiche complète générée');
+}
+
+function exporterHTML(){
+  if($('fichePage').style.display==='none'){toast("Générez d'abord");return;}
+  const s=document.querySelector('style').outerHTML;
+  const b=new Blob([`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Fiche Pédagogique</title>${s}</head><body style="background:white;padding:0"><div style="max-width:1140px;margin:0 auto">${$('fichePage').outerHTML}</div></body></html>`],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fiche_pedagogique.html';a.click();URL.revokeObjectURL(a.href);
+  toast('💾 Exporté HTML');
+}
+
+function exporterLatex(){
+  if($('fichePage').style.display==='none'){toast("Générez d'abord");return;}
+  const el=s=>String(s).replace(/&/g,'\\&').replace(/%/g,'\\%').replace(/\$/g,'\\$').replace(/#/g,'\\#').replace(/_/g,'\\_').replace(/\{/g,'\\{').replace(/\}/g,'\\}').replace(/~/g,'\\textasciitilde{}');
+  const ecl=s=>el(s).replace(/\n/g,'\n  ');
+  let sRows='';
+  for(let i=0;i<sc;i++){const p=PX[i]||'s'+(i+1);sRows+=`    ${i+1} & ${el(gsv(p,'duree'))} & ${el(gsv(p,'obj'))} & ${el(gsv(p,'mat'))} \\\\\\hline\n`;}
+  let traceLatex='';
+  traces.forEach((tr,ti)=>{
+    if(!tr.items.length)return;
+    traceLatex+=`\\begin{tracebox}\\centering\\textbf{\\Large ${el(tr.name)}}\n`;
+    const grouped={};TRACE_TYPES.forEach(tt=>grouped[tt.key]=[]);
+    tr.items.forEach(it=>{if(grouped[it.type])grouped[it.type].push(it);});
+    grouped.def.forEach(it=>{traceLatex+=`\\begin{definitionbox}${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{definitionbox}\n`;});
+    grouped.prop.forEach(it=>{traceLatex+=`\\begin{importantbox}\\textbf{Propriété} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{importantbox}\n`;});
+    grouped.remarque.forEach(it=>{traceLatex+=`\\begin{importantbox}\\textbf{Remarque} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{importantbox}\n`;});
+    grouped.exemple.forEach(it=>{traceLatex+=`\\begin{activitybox}\\textbf{Exemple} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{activitybox}\n`;});
+    grouped.activite.forEach(it=>{traceLatex+=`\\begin{activitybox}\\textbf{Activité} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{activitybox}\n`;});
+    grouped.solActivite.forEach(it=>{traceLatex+=`\\begin{evaluationbox}\\textbf{Solution} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{evaluationbox}\n`;});
+    grouped.exoApp.forEach(it=>{traceLatex+=`\\begin{activitybox}\\textbf{Exercice d'application} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{activitybox}\n`;});
+    grouped.solExo.forEach(it=>{traceLatex+=`\\begin{evaluationbox}\\textbf{Solution} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{evaluationbox}\n`;});
+    if(grouped.exoMaison.length){grouped.exoMaison.forEach(it=>{traceLatex+=`\\begin{tracebox}\\textbf{Exercice de maison} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\begin{center}\\begin{tabular}{|c|c|}\\hline\\rowcolor{lightblue}\\textbf{Signature} & \\textbf{Date} \\\\\\hline & \\\\\\hline\\end{tabular}\\end{center}\\end{tracebox}\n`;});}
+    grouped.solMaison.forEach(it=>{traceLatex+=`\\begin{evaluationbox}\\textbf{Solution du devoir} \\\\ ${ecl(it.content)}${it.img?'\\par{\\centering\\includegraphics[width=0.5\\textwidth]{'+el(it.img)+'}\\par\\small\\textit{'+el(it.imgLeg)+'}\\par}':''}\\end{evaluationbox}\n`;});
+    traceLatex+=`\\end{tracebox}\n`;
+  });
+  const ltx=`% === FICHE PÉDAGOGIQUE GÉNÉRÉE LE ${el(v('f_date'))} ===
+\\documentclass[10pt,a4paper]{article}
+\\usepackage[T1]{fontenc}\\usepackage[french]{babel}\\usepackage{amsmath,amssymb}
+\\usepackage{geometry}\\usepackage{fancyhdr}\\usepackage{array}\\usepackage{enumitem}
+\\usepackage[skins,breakable]{tcolorbox}\\usepackage{multicol}\\usepackage{tabularx}
+\\usepackage{xcolor}\\usepackage{booktabs}\\usepackage{hyperref}\\usepackage{lmodern}
+\\usepackage{graphicx}\\usepackage{lastpage}\\usepackage{float}
+\\definecolor{headerblue}{RGB}{10,36,99}\\definecolor{lightblue}{RGB}{238,242,255}
+\\definecolor{mediumblue}{RGB}{59,130,246}\\definecolor{darkblue}{RGB}{15,23,42}
+\\definecolor{accentorange}{RGB}{249,115,22}\\definecolor{accentgreen}{RGB}{16,185,129}
+\\definecolor{accentyellow}{RGB}{245,158,11}\\definecolor{accentred}{RGB}{239,68,68}
+\\geometry{top=1.5cm,bottom=1.2cm,left=1cm,right=1cm,headheight=15pt}
+\\newtcolorbox{headerbox}[1][]{enhanced,colback=lightblue,colframe=mediumblue,arc=4pt,boxsep=10pt,left=8pt,right=8pt,top=8pt,bottom=8pt,fontupper=\\normalfont,before skip=12pt,after skip=12pt,breakable,#1}
+\\newtcolorbox{activitybox}[1][]{enhanced,colback=accentorange!5!white,colframe=accentorange,arc=3pt,boxsep=8pt,left=6pt,right=6pt,top=8pt,bottom=8pt,title=Activité,fonttitle=\\bfseries\\color{darkblue},drop fuzzy shadow=accentorange!50!black,breakable,#1}
+\\newtcolorbox{evaluationbox}[1][]{enhanced,colback=accentgreen!5!white,colframe=accentgreen,arc=3pt,boxsep=8pt,left=6pt,right=6pt,top=8pt,bottom=8pt,title=Évaluation,fonttitle=\\bfseries\\color{darkblue},drop fuzzy shadow=accentgreen!50!black,breakable,#1}
+\\newtcolorbox{tracebox}[1][]{enhanced,colback=accentyellow!5!white,colframe=accentyellow,arc=3pt,boxsep=8pt,left=6pt,right=6pt,top=8pt,bottom=8pt,title=Trace Écrite,fonttitle=\\bfseries\\color{darkblue},drop fuzzy shadow=accentyellow!50!black,breakable,#1}
+\\newtcolorbox{definitionbox}[1][]{enhanced,colback=lightblue!80,colframe=mediumblue,arc=2pt,boxsep=6pt,left=6pt,right=6pt,top=6pt,bottom=6pt,fontupper=\\small,before skip=6pt,after skip=6pt,breakable,#1}
+\\newtcolorbox{importantbox}{enhanced,colback=accentred!5!white,colframe=accentred,arc=3pt,boxsep=8pt,left=6pt,right=6pt,top=8pt,bottom=8pt,title=\\textbf{Important},fonttitle=\\bfseries\\color{darkblue},drop fuzzy shadow=accentred!50!black,breakable}
+\\newcommand{\\sectiontitle}[1]{\\section*{\\textcolor{headerblue}{\\Large\\underline{\\textbf{#1}}}}\\vspace{-0.3cm}}
+\\newcommand{\\subsectiontitle}[1]{\\subsection*{\\textcolor{mediumblue}{\\textbf{#1}}}}
+\\pagestyle{fancy}\\fancyhf{}
+\\fancyhead[L]{\\textcolor{headerblue}{\\small ${el(v('f_ecole'))} -- ${el(v('f_classe'))}}}
+\\fancyhead[R]{\\textcolor{headerblue}{\\small Fiche Pédagogique -- ${el(v('f_matiere'))}}}
+\\fancyfoot[L]{\\textcolor{headerblue}{\\small ${el(v('f_enseignant'))}}}
+\\fancyfoot[C]{\\textcolor{headerblue}{\\thepage/\\pageref{LastPage}}}
+\\fancyfoot[R]{\\textcolor{headerblue}{\\small ${el(v('f_date'))}}}
+\\renewcommand{\\headrulewidth}{0.4pt}\\renewcommand{\\footrulewidth}{0.4pt}
+\\begin{document}
+\\title{\\vspace*{2cm}\\begin{minipage}{\\textwidth}\\centering\\textbf{\\Huge FICHE PÉDAGOGIQUE DE LEÇON} \\\\\\[0.4cm]\\color{headerblue}\\LARGE\\textbf{${el(v('f_theme'))}} \\\\\\[0.3cm]\\color{darkblue}\\Large\\textbf{${el(v('f_titre'))}} \\\\\\[0.5cm]\\begin{tabular}{@{}c@{}}\\normalsize\\color{gray}${el(v('f_enseignant'))} \\\\ ${el(v('f_ecole'))} -- ${el(v('f_classe'))} -- ${el(v('f_effectif'))} \\\\ Date : ${el(v('f_date'))} \\\\ Durée : ${el(v('f_duree'))}\\end{tabular}\\end{minipage}}\\author{}\\date{}\\maketitle
+\\begin{center}\\rule{\\textwidth}{2pt}\\end{center}
+\\vspace{0.5cm}
+\\begin{definitionbox}\\centering\\textbf{\\large Contexte :} ${ecl(v('f_contexte'))}\\end{definitionbox}
+\\vspace{0.3cm}
+\\begin{center}\\begin{tabular}{|c|c|c|c|}\\hline\\rowcolor{lightblue}\\textbf{Séance} & \\textbf{Durée} & \\textbf{Objectif} & \\textbf{Matériel} \\\\\\hline ${sRows}\\end{tabular}\\end{center}
+\\vspace{0.3cm}
+\\subsectiontitle{DÉROULEMENT DES ACTIVITÉS}
+\\begin{enumerate}[leftmargin=*,label=\\arabic*.,itemsep=3pt]
+${v('f_deroulement').split('\n').filter(s=>s.trim()).map(s=>'  \\item '+el(s.trim())).join('\n')}
+\\end{enumerate}
+\\newpage
+\\sectiontitle{INFORMATIONS GÉNÉRALES}
+\\begin{headerbox}\\begin{tabularx}{\\textwidth}{@{}>{\\bfseries\\color{darkblue}}lX@{}}COMPÉTENCE : & ${ecl(v('f_competence'))} \\\\ RÉFÉRENCES : & ${el(v('f_references'))} \\\\ DOMAINE : & ${el(v('f_domaine'))} \\\\ SÉQUENCE : & ${el(v('f_sequence'))} \\\\ \\end{tabularx}\\end{headerbox}
+\\vspace{0.3cm}
+\\begin{minipage}[t]{0.48\\textwidth}\\subsectiontitle{OBJECTIFS}\\begin{itemize}[leftmargin=*,label=\\textcolor{headerblue}{\\tiny$\\blacksquare$},itemsep=2pt]${v('f_objectifs').split('\n').filter(s=>s.trim()).map(s=>'\\n    \\\\item '+el(s.trim())).join('')}\\end{itemize}\\end{minipage}
+\\hfill
+\\begin{minipage}[t]{0.48\\textwidth}\\subsectiontitle{PRÉREQUIS}\\begin{itemize}[leftmargin=*,label=\\textcolor{headerblue}{\\tiny$\\blacksquare$},itemsep=2pt]${v('f_prerequis').split('\n').filter(s=>s.trim()).map(s=>'\\n    \\\\item '+el(s.trim())).join('')}\\end{itemize}\\end{minipage}
+\\vspace{0.3cm}\\subsectiontitle{STRATÉGIES}\\begin{itemize}[leftmargin=*,label=\\textcolor{headerblue}{$\\triangleright$}]${v('f_strategies').split('\n').filter(s=>s.trim()).map(s=>'\\n  \\\\item '+el(s.trim())).join('')}\\end{itemize}
+\\begin{importantbox}\\textbf{Adaptations :} ${v('f_adaptations').split('\n').filter(s=>s.trim()).map(s=>'\\\\begin{itemize}\\\\item '+el(s.trim())+'\\\\end{itemize}').join('')}\\end{importantbox}
+\\newpage
+\\sectiontitle{TRACES ÉCRITES COMPLÈTES}
+${traceLatex}
+\\vspace{0.5cm}\\begin{center}\\textbf{\\textcolor{headerblue}{FICHE PÉDAGOGIQUE TERMINÉE}} \\\\ \\rule{\\textwidth}{2pt} \\\\ \\small ${el(v('f_date'))} -- ${el(v('f_ecole'))}\\end{center}
+\\end{document}`;
+  const b=new Blob([ltx],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fiche_pedagogique.tex';a.click();URL.revokeObjectURL(a.href);
+  toast('📄 LaTeX exporté');
+}
+
+function resetTout(){
+  const defs={
+    f_ecole:'CEG MASSEDENA',f_classe:'Classe de 6ème',f_effectif:'38 élèves',f_matiere:'Mathématiques',
+    f_enseignant:'KOLA Maniwah Essohouna',f_date:'02/02/2026',f_duree:'3 séances de 60 min',
+    f_competence:'Résoudre des problèmes faisant appel au calcul numérique dans des situations concrètes de la vie quotidienne africaine, en mobilisant la notion de fraction comme outil de modélisation et de résolution.',
+    f_references:'Programme officiel de mathématiques 6ème, Socle commun',f_sequence:'Séquence 3 — Deuxième trimestre',
+    f_domaine:'Nombres et calculs',f_theme:'Nombres et Calculs',
+    f_titre:'Les Fractions : Notion, Comparaison et Opérations de Base',
+    f_contexte:'Cette séquence vise à construire progressivement la notion de fraction chez les élèves de 6ème à travers des situations concrètes du quotidien africain.',
+    f_objectifs:'Reconnaître et identifier des fractions dans des contextes variés\nReprésenter graphiquement des fractions à l\'aide de supports variés\nComparer et ranger des fractions en utilisant des stratégies adaptées\nEffectuer des opérations élémentaires sur les fractions\nUtiliser les fractions pour résoudre des problèmes de partage',
+    f_prerequis:'Connaissance des nombres entiers naturels jusqu\'à 1000\nMaîtrise des opérations de base (+, −, ×, ÷)\nNotion intuitive de partage équitable\nLecture et écriture correcte des nombres',
+    f_matConcret:'Fruits (oranges, bananes, mangues)\nBandes de papier de différentes longueurs\nDisques en carton fractionnés\nBilles, cailloux, graines',
+    f_matSupports:'Fiches d\'exercices différenciées (3 niveaux)\nPlanches illustrées sur le partage\nTableau magnétique avec fractions aimantées\nCalculatrices simples',
+    f_strategies:'Approche inductive : partir de situations concrètes pour dégager les concepts\nDifférenciation : adapter les activités selon les profils d\'apprentissage\nManipulation : utiliser systématiquement du matériel concret avant l\'abstraction\nTravail collaboratif : alterner phases individuelles, en binômes et en groupes\nMétacognition : faire verbaliser les démarches et les stratégies\nContextualisation : ancrer les apprentissages dans la réalité africaine',
+    f_adaptations:'Pour les élèves en difficulté : réduire la quantité d\'exercices, accentuer la manipulation\nPour les élèves avancés : problèmes complexes, recherche documentaire\nPour les élèves à besoins éducatifs particuliers : supports adaptés, temps supplémentaire',
+    f_image:'',f_imagePos:'after-title',f_imageLegende:'',
+    f_cap1:'Représenter : Traduire une fraction sous forme graphique, numérique et concrète\nComparer : Utiliser des stratégies adaptées pour comparer et ordonner\nCalculer : Maîtriser les opérations élémentaires avec précision\nRésoudre : Appliquer les fractions à des problèmes du quotidien',
+    f_cap2:'Communiquer : Exprimer clairement sa démarche avec un vocabulaire adapté\nModéliser : Traduire une situation réelle en langage mathématique\nRaisonner : Justifier ses choix et vérifier la cohérence des résultats\nAutonomiser : Développer des méthodes de travail personnelles',
+    f_evalForm:'Observation directe de la participation et de la manipulation\nQuestionnement : questions orales ciblées, explications des démarches\nExercices au tableau : correction immédiate avec rétroaction\nAuto-évaluation : fiche de positionnement après chaque séance',
+    f_evalSom:'Fiche d\'exercices notés (coefficient 1) — 30 minutes\nRésolution de problème contextualisé (coefficient 2) — 45 minutes\nPrésentation orale d\'une démarche de résolution (coefficient 1)\nQuestionnaire de synthèse (coefficient 3) — 60 minutes',
+    f_evalCrit:'Exactitude des calculs et des représentations (40 %)\nPertinence des méthodes utilisées (25 %)\nClarté des explications et du vocabulaire (20 %)\nCapacité à appliquer dans des situations nouvelles (10 %)\nAutonomie et prise d\'initiative (5 %)',
+    f_domaines:'Alimentation : Partage de nourriture, recettes traditionnelles\nCommerce : Mesures au marché, calcul des prix\nAgriculture : Répartition des récoltes, surfaces cultivables\nArtisanat : Proportions dans la fabrication, mesures',
+    f_liens:'SVT : Proportion dans l\'alimentation, croissance\nGéographie : Répartition des ressources, démographie\nHistoire : Mesures anciennes, systèmes de comptage\nÉducation civique : Partage équitable, solidarité',
+    f_exemples:'Partager 24 ignames entre 8 familles de façon équitable\nMesurer 3/4 kg de riz avec une balance traditionnelle\nCalculer la part de chacun dans une tontine de 12 personnes avec 60 000 FCFA',
+    f_diffDif:'Utilisation systématique de matériel concret\nFractions simples (1/2, 1/3, 1/4)\nÉnoncés courts et illustrés\nTutorat par des élèves avancés',
+    f_diffAv:'Problèmes complexes en plusieurs étapes\nIntroduction aux fractions décimales\nCréation d\'exercices pour les camarades\nProjets interdisciplinaires',
+    f_ressources:'Manuel de mathématiques 6ème\nFiches de travail photocopiables\nMatériel de manipulation à fabriquer\nVidéos éducatives sur les fractions',
+    f_remarquesFin:'Insister sur le sens avant la technique\nValoriser toutes les démarches de résolution\nFaire verbaliser les difficultés rencontrées\nMaintenir un lien constant avec le concret',
+    f_deroulement:'Phase 1 : Rappel des prérequis et mise en situation (10 min)\nPhase 2 : Activité de découverte par manipulation guidée (15 min)\nPhase 3 : Mise en commun et institutionnalisation (10 min)\nPhase 4 : Exercices d\'application et entraînement (15 min)\nPhase 5 : Synthèse, évaluation et remédiation (10 min)',
+    f_s1_titre:'Découverte et Représentation',f_s1_duree:'60 min',f_s1_obj:'Construire le concept de fraction',f_s1_mat:'Bandes de papier, fruits',
+    f_s2_titre:'Comparaison et Rangement',f_s2_duree:'75 min',f_s2_obj:'Développer des stratégies de comparaison',f_s2_mat:'Disques fractionnés',
+    f_s3_titre:'Opérations et Applications',f_s3_duree:'75 min',f_s3_obj:'Maîtriser les opérations élémentaires',f_s3_mat:'Calculatrices, fiches'
+  };
+  for(const[id,val]of Object.entries(defs)){const el=$(id);if(el&&el.type!=='file')el.value=val;}
+  Object.keys(imgData).forEach(k=>delete imgData[k]);sc=3;rS();apercuImage();
+  initTraces();
+  generer();toast('↺ Réinitialisé');
+}
+
+function initTraces(){
+  traces=[createTrace('Trace écrite complète')];
+  const t=traces[0];
+  t.items.push(createTraceItem('def',"Une fraction est un nombre qui représente une ou plusieurs parties d'une unité divisée en parts égales."));
+  t.items.push(createTraceItem('prop',"Propriété 1 : Un même nombre fractionnaire peut s'écrire de différentes façons (fractions équivalentes).\nPropriété 2 : Si on multiplie ou divise le numérateur et le dénominateur par un même nombre non nul, on obtient une fraction égale."));
+  t.items.push(createTraceItem('remarque',"Remarque : Une fraction peut représenter un nombre entier lorsque le numérateur est un multiple du dénominateur. Une fraction dont le numérateur est inférieur au dénominateur est appelée fraction propre."));
+  t.items.push(createTraceItem('exemple',"Exemple 1 : Dans un gâteau partagé en 8 parts égales, si on prend 3 parts, on a 3/8 du gâteau.\nExemple 2 : 2/3 de 15 = (2 × 15) ÷ 3 = 30 ÷ 3 = 10."));
+  t.items.push(createTraceItem('activite',"Activité : À l'aide de bandes de papier, représenter les fractions 1/2, 1/4, 3/4 et 2/3. Comparer les longueurs obtenues et classer ces fractions par ordre croissant."));
+  t.items.push(createTraceItem('solActivite',"Solution : 1/4 = 0,25 ; 1/2 = 0,5 ; 2/3 ≈ 0,67 ; 3/4 = 0,75. Ordre croissant : 1/4 < 1/2 < 2/3 < 3/4."));
+  t.items.push(createTraceItem('exoApp',"1. Simplifier : 12/18, 20/25, 36/48.\n2. Calculer : 4/11 + 5/11 - 2/11.\n3. Un fermier vend 2/5 de sa récolte le matin et 1/4 l'après-midi. Fraction totale vendue ?"));
+  t.items.push(createTraceItem('solExo',"1. 12/18 = 2/3 ; 20/25 = 4/5 ; 36/48 = 3/4.\n2. 4/11 + 5/11 - 2/11 = 7/11.\n3. 2/5 + 1/4 = 8/20 + 5/20 = 13/20."));
+  t.items.push(createTraceItem('exoMaison',"Devoir : Famille Traoré.\n- 30 poulets à partager entre 5 familles\n- 48 L de boisson (verres de 1/3 L)\n- 60 sachets sucre : 2/5 pour le thé, 1/4 pour les gâteaux. Reste ?"));
+  t.items.push(createTraceItem('solMaison',"1. 1/5 → 6 poulets/famille.\n2. 48 ÷ 1/3 = 144 verres.\n3. Thé : 60×2/5=24 ; Gâteaux : 60×1/4=15.\n4. Reste : 7/20 → 21 sachets."));
+  renderTraces();
+}
+
+rS();
+initTraces();
+window.addEventListener('DOMContentLoaded',generer);
+</script>
+</body>
+</html>

@@ -1,0 +1,1095 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestion des Diplômes Universitaires</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #1a1a2e; line-height: 1.6; }
+#loginOverlay { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); display: flex; justify-content: center; align-items: center; }
+#loginOverlay.hidden { display: none; }
+.login-box { background: #fff; border-radius: 12px; padding: 2.5rem 2rem; width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center; }
+.login-box h1 { font-size: 1.3rem; color: #1a1a2e; margin-bottom: 0.3rem; }
+.login-box p { font-size: 0.8rem; color: #888; margin-bottom: 1.5rem; }
+.login-box .login-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+.login-box .form-group { text-align: left; margin-bottom: 1rem; }
+.login-box .form-group label { font-size: 0.78rem; font-weight: 600; color: #555; display: block; margin-bottom: 0.3rem; }
+.login-box .form-group input { width: 100%; padding: 0.65rem 0.8rem; border: 1.5px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.2s; }
+.login-box .form-group input:focus { border-color: #0f3460; outline: none; }
+.login-box .btn-login { width: 100%; padding: 0.7rem; background: #0f3460; color: #fff; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.login-box .btn-login:hover { background: #1a1a2e; }
+.login-box .login-error { font-size: 0.78rem; color: #c0392b; margin-top: 0.6rem; min-height: 1.2rem; }
+.login-box .login-hint { font-size: 0.7rem; color: #bbb; margin-top: 1rem; }
+.app-header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100; }
+.app-header h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 0.75rem; }
+.app-header h1 span { font-size: 1.6rem; }
+.app-header .app-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.btn-primary { background: #e94560; color: #fff; }
+.btn-secondary { background: #533483; color: #fff; }
+.btn-success { background: #0f3460; color: #fff; }
+.btn-info { background: #16213e; color: #fff; }
+.btn-danger { background: #c0392b; color: #fff; }
+.btn-warning { background: #f39c12; color: #fff; }
+.btn-sm { padding: 0.3rem 0.7rem; font-size: 0.78rem; }
+.btn-outline { background: transparent; border: 1.5px solid #fff; color: #fff; }
+.btn-outline:hover { background: rgba(255,255,255,0.15); }
+.app-main { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
+.tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; background: #fff; border-radius: 10px; padding: 0.3rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.tab-btn { padding: 0.7rem 1.5rem; border: none; background: transparent; border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; }
+.tab-btn:hover { background: #f0f2f5; color: #1a1a2e; }
+.tab-btn.active { background: #1a1a2e; color: #fff; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.widget-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; }
+.widget { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; transition: box-shadow 0.2s; }
+.widget:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.12); }
+.widget-header { background: #f8f9fa; padding: 0.8rem 1rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9ecef; cursor: pointer; }
+.widget-header h3 { font-size: 0.95rem; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem; }
+.widget-header .badge { background: #e94560; color: #fff; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 20px; font-weight: 600; }
+.widget-body { padding: 1rem; }
+.widget-body.collapsed { display: none; }
+.form-group { margin-bottom: 0.8rem; }
+.form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: #555; margin-bottom: 0.25rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.5rem 0.7rem; border: 1.5px solid #ddd; border-radius: 6px; font-size: 0.85rem; font-family: inherit; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #0f3460; box-shadow: 0 0 0 3px rgba(15,52,96,0.1); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+.filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; }
+.filter-group { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; min-width: 150px; }
+.filter-group label { font-size: 0.7rem; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.filter-group input, .filter-group select { padding: 0.4rem 0.6rem; border: 1.5px solid #ddd; border-radius: 5px; font-size: 0.82rem; }
+.filter-group input:focus, .filter-group select:focus { outline: none; border-color: #0f3460; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead th { background: #1a1a2e; color: #fff; padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
+tbody td { padding: 0.5rem 0.8rem; border-bottom: 1px solid #eee; }
+tbody tr:hover { background: #f8f9fa; }
+.actions-cell { display: flex; gap: 0.3rem; }
+.mention-bien { color: #27ae60; font-weight: 700; }
+.mention-tresbien { color: #2980b9; font-weight: 700; }
+.mention-passable { color: #f39c12; font-weight: 700; }
+.mention-insuffisant { color: #c0392b; font-weight: 700; }
+.badge-promo { background: #e8f0fe; color: #0f3460; padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.7rem; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.badge-ue { display:inline-block; background:#27ae60; color:#fff; padding:0.1rem 0.5rem; border-radius:8px; font-size:0.7rem; font-weight:600; margin:0.12rem 0.2rem 0.12rem 0; white-space:nowrap; }
+.diploma-preview { background: #fff; padding: 2.5rem; border: 3px solid #1a1a2e; border-radius: 6px; max-width: 800px; margin: 1rem auto; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,215,0,0.3); }
+.diploma-preview .diploma-border { border: 3px double #b8860b; padding: 2rem 2rem 1.8rem; position: relative; z-index: 1; background: rgba(255,255,255,0.92); }
+.diploma-preview .diploma-border::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(184,134,11,0.25); pointer-events: none; }
+.diploma-preview .diploma-border::after { content: ""; position: absolute; top: -1px; left: 20%; width: 60%; height: 3px; background: linear-gradient(90deg, transparent, #b8860b, transparent); pointer-events: none; }
+.diploma-preview .corner { position: absolute; width: 32px; height: 32px; border-color: #b8860b; border-style: solid; z-index: 2; pointer-events: none; }
+.diploma-preview .corner::after { content: ""; position: absolute; width: 8px; height: 8px; background: #b8860b; border-radius: 50%; opacity: 0.4; }
+.diploma-preview .corner-tl { top: 6px; left: 6px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.diploma-preview .corner-tl::after { bottom: -4px; right: -4px; }
+.diploma-preview .corner-tr { top: 6px; right: 6px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.diploma-preview .corner-tr::after { bottom: -4px; left: -4px; }
+.diploma-preview .corner-bl { bottom: 6px; left: 6px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.diploma-preview .corner-bl::after { top: -4px; right: -4px; }
+.diploma-preview .corner-br { bottom: 6px; right: 6px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+.diploma-preview .corner-br::after { top: -4px; left: -4px; }
+.diploma-preview .diploma-seal { position: absolute; bottom: 30px; right: 40px; width: 90px; height: 90px; border-radius: 50%; border: 3px solid rgba(184,134,11,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: rgba(184,134,11,0.4); text-transform: uppercase; text-align: center; z-index: 2; background: rgba(255,215,0,0.05); pointer-events: none; line-height: 1.2; transform: rotate(-15deg); }
+.diploma-preview .diploma-seal::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 2px dotted rgba(184,134,11,0.2); }
+.diploma-preview .diploma-header { text-align: center; margin-bottom: 1rem; position: relative; z-index: 1; }
+.diploma-preview .diploma-logo { max-height: 80px; margin-bottom: 0.5rem; }
+.diploma-preview .diploma-title { font-size: 1.6rem; font-weight: 800; color: #1a1a2e; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 0.3rem; position: relative; display: inline-block; }
+.diploma-preview .diploma-title::after { content: ""; display: block; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, #b8860b, transparent); margin: 6px auto 0; }
+.diploma-preview .diploma-subtitle { font-size: 0.9rem; color: #555; font-weight: 600; }
+.diploma-preview .diploma-agrement { font-size: 0.75rem; color: #888; margin-top: 0.2rem; }
+.diploma-preview .diploma-body { text-align: center; margin: 1.2rem 0; position: relative; z-index: 1; }
+.diploma-preview .diploma-atteste { font-size: 0.9rem; color: #444; margin-bottom: 0.6rem; }
+.diploma-preview .diploma-nom { font-size: 2rem; font-weight: 800; color: #1a1a2e; margin: 0.3rem 0; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.diploma-preview .diploma-formation { font-size: 1.1rem; color: #0f3460; font-weight: 600; margin: 0.4rem 0; }
+.diploma-preview .diploma-details { margin: 0.8rem auto; width: auto; font-size: 0.85rem; }
+.diploma-preview .diploma-details td { padding: 0.2rem 0.8rem; }
+.diploma-preview .diploma-signatures { display: flex; justify-content: space-around; margin-top: 1.5rem; text-align: center; position: relative; z-index: 1; }
+.diploma-preview .diploma-signatures .signature-box { min-width: 140px; }
+.diploma-preview .diploma-signatures .signature-line { border-top: 2px solid #555; padding-top: 0.4rem; margin-top: 1.8rem; font-size: 0.78rem; font-weight: 600; min-width: 120px; }
+.diploma-preview { --watermark-opacity: 0.035; }
+.diploma-preview::before { content: attr(data-watermark); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 6rem; font-weight: 900; color: rgba(26,26,46, var(--watermark-opacity, 0.035)); pointer-events: none; white-space: nowrap; z-index: 0; letter-spacing: 12px; font-family: 'Georgia', serif; user-select: none; }
+.diploma-preview::after { content: attr(data-securite); position: absolute; bottom: 8%; right: -2%; transform: rotate(-90deg); font-size: 0.85rem; font-weight: 700; color: rgba(15,52,96,0.06); pointer-events: none; white-space: nowrap; z-index: 0; letter-spacing: 4px; text-transform: uppercase; font-family: 'Courier New', monospace; user-select: none; }
+.diploma-select { margin-bottom: 0.8rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.diploma-select select { padding: 0.5rem 1rem; border: 1.5px solid #ddd; border-radius: 6px; font-size: 0.9rem; flex: 1; min-width: 200px; background: #fff; }
+.diploma-toolbar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 0.6rem 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.8rem; border: 1px solid #e9ecef; }
+.diploma-toolbar label { font-size: 0.78rem; font-weight: 600; color: #555; display: flex; align-items: center; gap: 0.4rem; }
+.diploma-toolbar input[type=range] { width: 100px; }
+.diploma-toolbar .zoom-value { font-size: 0.8rem; font-weight: 700; color: #1a1a2e; min-width: 35px; text-align: center; }
+.diploma-toolbar .preview-meta { font-size: 0.75rem; color: #888; margin-left: auto; }
+.diploma-preview { animation: diplomaFadeIn 0.5s ease; }
+@keyframes diplomaFadeIn { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+#diplomaPreviewArea { overflow-x: auto; }
+#diplomaPreviewArea .diploma-preview { transform-origin: top center; }
+.doc-type-toggle { display: flex; gap: 0; margin-bottom: 0.8rem; background: #f0f2f5; border-radius: 8px; padding: 3px; border: 1px solid #e0e0e0; }
+.doc-type-toggle button { flex: 1; padding: 0.5rem 1rem; border: none; background: transparent; border-radius: 6px; font-size: 0.82rem; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; }
+.doc-type-toggle button.active { background: #fff; color: #1a1a2e; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.releve-preview { background: #fff; padding: 2rem; border: 3px solid #1a1a2e; border-radius: 6px; max-width: 800px; margin: 1rem auto; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,215,0,0.3); animation: diplomaFadeIn 0.5s ease; --watermark-opacity: 0.035; }
+.releve-preview::before { content: attr(data-watermark); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 6rem; font-weight: 900; color: rgba(26,26,46, var(--watermark-opacity, 0.035)); pointer-events: none; white-space: nowrap; z-index: -1; letter-spacing: 12px; font-family: 'Georgia', serif; user-select: none; }
+.releve-preview::after { content: attr(data-securite); position: absolute; bottom: 8%; right: -2%; transform: rotate(-90deg); font-size: 0.85rem; font-weight: 700; color: rgba(15,52,96,0.06); pointer-events: none; white-space: nowrap; z-index: -1; letter-spacing: 4px; text-transform: uppercase; font-family: 'Courier New', monospace; user-select: none; }
+.releve-preview .releve-inner { border: 2px double #b8860b; padding: 1.5rem 1.5rem 1.2rem; position: relative; z-index: 1; background: rgba(255,255,255,0.92); }
+.releve-preview .releve-inner::before { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(184,134,11,0.2); pointer-events: none; }
+.releve-preview .releve-inner::after { content: ""; position: absolute; top: -1px; left: 15%; width: 70%; height: 2px; background: linear-gradient(90deg, transparent, #b8860b, transparent); pointer-events: none; }
+.releve-preview .rc { position: absolute; width: 28px; height: 28px; border-color: #b8860b; border-style: solid; z-index: 2; pointer-events: none; }
+.releve-preview .rc::after { content: ""; position: absolute; width: 6px; height: 6px; background: #b8860b; border-radius: 50%; opacity: 0.35; }
+.releve-preview .rc-tl { top: 5px; left: 5px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.releve-preview .rc-tl::after { bottom: -3px; right: -3px; }
+.releve-preview .rc-tr { top: 5px; right: 5px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.releve-preview .rc-tr::after { bottom: -3px; left: -3px; }
+.releve-preview .rc-bl { bottom: 5px; left: 5px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.releve-preview .rc-bl::after { top: -3px; right: -3px; }
+.releve-preview .rc-br { bottom: 5px; right: 5px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+.releve-preview .rc-br::after { top: -3px; left: -3px; }
+.releve-preview .releve-header { text-align: center; margin-bottom: 1.2rem; border-bottom: 2px solid #1a1a2e; padding-bottom: 0.8rem; position: relative; z-index: 1; }
+.releve-preview .releve-header h2 { font-size: 1.3rem; color: #1a1a2e; margin-bottom: 0.2rem; }
+.releve-preview .releve-header .releve-subtitle { font-size: 0.85rem; color: #555; }
+.releve-preview .releve-student { font-size: 0.85rem; color: #333; margin-bottom: 1rem; line-height: 1.7; }
+.releve-preview table.releve-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 1rem; }
+.releve-preview table.releve-table th { background: #1a1a2e; color: #fff; padding: 0.5rem 0.6rem; text-align: center; font-weight: 600; font-size: 0.75rem; }
+.releve-preview table.releve-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #e0e0e0; text-align: center; }
+.releve-preview table.releve-table td:first-child { text-align: left; font-weight: 600; }
+.releve-preview table.releve-table td.observation-cell { text-align: left; font-size: 0.75rem; color: #555; font-style: italic; max-width: 200px; }
+.releve-preview table.releve-table tr.total-row td { border-top: 2px solid #1a1a2e; font-weight: 700; font-size: 0.85rem; }
+.releve-preview .releve-observation { margin-top: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #0f3460; font-size: 0.82rem; color: #333; line-height: 1.6; }
+.releve-preview .releve-observation strong { color: #0f3460; }
+.releve-preview .releve-footer { margin-top: 1.2rem; display: flex; justify-content: space-between; font-size: 0.75rem; color: #777; border-top: 1px solid #ddd; padding-top: 0.8rem; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { font-size: 1.1rem; }
+.modal-header .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; padding: 0 0.3rem; }
+.modal-header .close-btn:hover { color: #333; }
+.modal-body { padding: 1.5rem; }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 0.5rem; }
+.empty-state { text-align: center; padding: 3rem 1rem; color: #999; }
+.empty-state .empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
+.toast { background: #1a1a2e; color: #fff; padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; }
+.toast.success { background: #27ae60; }
+.toast.error { background: #c0392b; }
+.toast.info { background: #2980b9; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.8rem; }
+.archive-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 1rem; transition: box-shadow 0.2s; }
+.archive-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+.archive-card .arch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.archive-card .arch-header strong { font-size: 0.9rem; color: #1a1a2e; }
+.archive-card .arch-type { font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
+.archive-card .arch-type.attestation { background: #e8f0fe; color: #0f3460; }
+.archive-card .arch-type.releve { background: #fef3e2; color: #b8860b; }
+.archive-card .arch-meta { font-size: 0.75rem; color: #777; margin-bottom: 0.3rem; line-height: 1.5; }
+.archive-card .arch-securite { font-family: 'Courier New', monospace; font-size: 0.7rem; color: #999; letter-spacing: 1px; }
+.archive-card .arch-actions { margin-top: 0.5rem; display: flex; gap: 0.4rem; }
+@media print {
+  body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .app-header, .tabs, .app-actions, .btn, .table-container, .diploma-select, .widget-header, .no-print, .diploma-toolbar, .widget, .widget-grid, .form-group, .form-row, .filter-bar, .doc-type-toggle, .modal-overlay, .toast-container, #loginOverlay, #tab-etablissement, #tab-formation, #tab-modules, #tab-etudiants { display: none !important; }
+  .app-main { max-width: 100%; margin: 0; padding: 0; }
+  #tab-diplome { display: block !important; }
+  #tab-diplome .widget:first-child { display: none !important; }
+  .diploma-preview { border: 2px solid #000; max-width: 100%; padding: 1.5rem; margin: 0 auto; box-shadow: none; page-break-inside: avoid; }
+  .diploma-preview .diploma-border { border: 2px double #000; padding: 1.2rem; }
+  .diploma-preview .diploma-border::before { border-color: rgba(0,0,0,0.15); }
+  .diploma-preview .diploma-border::after { background: linear-gradient(90deg, transparent, #000, transparent); }
+  .diploma-preview .corner { border-color: #000; }
+  .diploma-preview .corner::after { background: #000; }
+  .diploma-preview .diploma-nom { font-size: 1.8rem; }
+  .diploma-preview .diploma-title { font-size: 1.6rem; }
+  .diploma-preview .diploma-seal { border-color: rgba(0,0,0,0.2); color: rgba(0,0,0,0.3); }
+  .diploma-preview::before { color: rgba(26,26,46, var(--watermark-opacity, 0.06)); }
+  .diploma-preview::after { color: rgba(15,52,96,0.07); }
+  .releve-preview { border: 1px solid #000; max-width: 100%; margin: 0 auto; box-shadow: none; page-break-inside: avoid; }
+  .releve-preview .releve-inner { border-color: #000; }
+  .releve-preview .releve-inner::before { border-color: rgba(0,0,0,0.15); }
+  .releve-preview .releve-inner::after { background: linear-gradient(90deg, transparent, #000, transparent); }
+  .releve-preview .rc { border-color: #000; }
+  .releve-preview .rc::after { background: #000; }
+  .releve-preview::before { color: rgba(26,26,46, var(--watermark-opacity, 0.06)); }
+  .releve-preview::after { color: rgba(15,52,96,0.07); }
+  .releve-preview table.releve-table th { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .releve-preview table.releve-table tr.total-row td { border-top-color: #000; }
+  @page { margin: 1.5cm; size: A4 portrait; }
+}
+@media (max-width: 768px) {
+  .app-header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
+  .app-header h1 { font-size: 1rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .widget-grid { grid-template-columns: 1fr; }
+  .diploma-preview { padding: 1rem; }
+  .diploma-preview .diploma-border { padding: 1rem; }
+  .diploma-preview .diploma-border::before { inset: 4px; }
+  .diploma-preview .corner { width: 18px; height: 18px; }
+  .diploma-preview .diploma-seal { width: 60px; height: 60px; bottom: 15px; right: 15px; font-size: 0.55rem; }
+  .diploma-preview::before { font-size: 4rem; letter-spacing: 6px; }
+  .diploma-preview::after { display: none; }
+  .diploma-preview .diploma-signatures { flex-direction: column; gap: 1rem; }
+  .tabs { flex-wrap: wrap; }
+  .tab-btn { flex: 1; font-size: 0.8rem; padding: 0.5rem 0.8rem; text-align: center; }
+  .filter-bar { flex-direction: column; gap: 0.5rem; }
+  .filter-group { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-icon">&#128274;</div>
+    <h1>Gestion des Dipl&ocirc;mes Universitaires</h1>
+    <p>Authentification requise</p>
+    <div class="form-group">
+      <label>Identifiant</label>
+      <input id="loginUser" type="text" placeholder="Entrez votre identifiant" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPass').focus();}">
+    </div>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input id="loginPass" type="password" placeholder="Entrez votre mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();connecter();}">
+    </div>
+    <button class="btn-login" onclick="connecter()">Se connecter</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">Application s&eacute;curis&eacute;e &mdash; acc&egrave;s r&eacute;serv&eacute;</div>
+  </div>
+</div>
+<header class="app-header">
+  <h1><span>&#127891;</span> Gestion Dipl&ocirc;mes Universitaires</h1>
+  <div class="app-actions">
+    <button class="btn btn-outline btn-sm" onclick="exporterDonnees()">&#128230; Exporter</button>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">&#128229; Importer</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importerDonnees(event)">
+    <button class="btn btn-outline btn-sm" onclick="deconnecter()" title="D&#233;connexion">&#128682;</button>
+  </div>
+</header>
+<main class="app-main">
+  <div class="tabs no-print">
+    <button class="tab-btn active" data-tab="tab-etablissement" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e94560;color:#fff;font-size:0.7rem;margin-right:6px;">1</span> Universit&#233;</button>
+    <button class="tab-btn" data-tab="tab-formation" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e94560;color:#fff;font-size:0.7rem;margin-right:6px;">2</span> Fili&#232;re</button>
+    <button class="tab-btn" data-tab="tab-modules" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e94560;color:#fff;font-size:0.7rem;margin-right:6px;">3</span> Unit&#233;s d'Enseignement</button>
+    <button class="tab-btn" data-tab="tab-enseignants" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#27ae60;color:#fff;font-size:0.7rem;margin-right:6px;">4</span> Enseignants <span id="teacherCount" class="badge" style="background:#27ae60;color:#fff;font-size:0.7rem;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">0</span></button>
+    <button class="tab-btn" data-tab="tab-etudiants" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e94560;color:#fff;font-size:0.7rem;margin-right:6px;">5</span> &#201;tudiants <span id="studentCount" class="badge" style="background:#e94560;color:#fff;font-size:0.7rem;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">0</span></button>
+    <button class="tab-btn" data-tab="tab-diplome" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e94560;color:#fff;font-size:0.7rem;margin-right:6px;">6</span> Dipl&#244;me</button>
+    <button class="tab-btn" data-tab="tab-archives" onclick="switchTab(this)"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#533483;color:#fff;font-size:0.7rem;margin-right:6px;">7</span> Archives <span id="archiveCount" class="badge" style="background:#533483;color:#fff;font-size:0.7rem;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">0</span></button>
+  </div>
+  <div id="tab-etablissement" class="tab-content active">
+    <div class="widget-grid">
+      <div class="widget">
+        <div class="widget-header" onclick="toggleWidget(this)"><h3>&#127970; Informations de l'universit&#233;</h3><span>&#9660;</span></div>
+        <div class="widget-body">
+          <div class="form-row">
+            <div class="form-group"><label>Nom de l'universit&#233;</label><input id="etab-nom" value="Universit&#233; Paris-Saclay" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Facult&#233;</label><input id="etab-faculte" value="Facult&#233; des Sciences" onchange="sauvegarder()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Sigle / Acronyme</label><input id="etab-sigle" value="UPSaclay" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>D&#233;partement</label><input id="etab-departement" value="D&#233;partement d'Informatique" onchange="sauvegarder()"></div>
+          </div>
+          <div class="form-group"><label>Adresse</label><input id="etab-adresse" value="123 Rue de l'Universit&#233;" onchange="sauvegarder()"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Ville</label><input id="etab-ville" value="Orsay" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Code postal</label><input id="etab-cp" value="91400" onchange="sauvegarder()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>T&#233;l&#233;phone</label><input id="etab-tel" value="01 69 15 67 89" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Email</label><input id="etab-email" value="contact@universite.fr" onchange="sauvegarder()"></div>
+          </div>
+          <div class="form-group"><label>Site web</label><input id="etab-web" value="www.universite.fr" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Doyen / Directeur</label><input id="etab-directeur" value="Pr. Jean Martin" onchange="sauvegarder()"></div>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="widget-header" onclick="toggleWidget(this)"><h3>&#128220; Accr&#233;ditation et certification</h3><span>&#9660;</span></div>
+        <div class="widget-body">
+          <div class="form-row">
+            <div class="form-group"><label>Num&#233;ro d'accr&#233;ditation</label><input id="etab-agrement" value="AC-2024-12345" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Date d'accr&#233;ditation</label><input id="etab-date-agrement" type="date" value="2024-01-01" onchange="sauvegarder()"></div>
+          </div>
+          <div class="form-group"><label>Qualification / Label</label><input id="etab-qualification" value="&#201;tablissement accr&#233;dit&#233; par le Minist&#232;re" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Logo (URL)</label><input id="etab-logo" placeholder="https://exemple.com/logo.png" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Cachet / Signature (URL image)</label><input id="etab-cachet" placeholder="https://exemple.com/cachet.png" onchange="sauvegarder()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-formation" class="tab-content">
+    <div class="widget-grid"><div class="widget">
+      <div class="widget-header" onclick="toggleWidget(this)"><h3>&#128218; D&#233;tails de la fili&#232;re</h3><span>&#9660;</span></div>
+      <div class="widget-body">
+        <div class="form-group"><label>Intitul&#233; de la fili&#232;re</label><input id="form-titre" value="Licence en Informatique" onchange="sauvegarder()"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Mention</label><input id="form-mention" value="Informatique" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Parcours / Sp&#233;cialit&#233;</label><input id="form-parcours" value="D&#233;veloppement Web" onchange="sauvegarder()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Niveau</label><select id="form-niveau" onchange="sauvegarder()"><option value="Licence 1">Licence 1</option><option value="Licence 2">Licence 2</option><option value="Licence 3" selected>Licence 3</option><option value="Master 1">Master 1</option><option value="Master 2">Master 2</option></select></div>
+          <div class="form-group"><label>Dur&#233;e</label><input id="form-duree" value="1 an" onchange="sauvegarder()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Volume horaire total</label><input id="form-volume" value="450 heures" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Cr&#233;dits ECTS total</label><input id="form-ects" value="60" onchange="sauvegarder()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Ann&#233;e universitaire</label><input id="form-promotion" value="2024-2025" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Date de d&#233;but</label><input id="form-debut" type="date" value="2024-09-01" onchange="sauvegarder()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Date de fin</label><input id="form-fin" type="date" value="2025-06-30" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Code RNCP / N&#176; programme</label><input id="form-rncp" value="RNCP37894" onchange="sauvegarder()"></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="form-description" rows="3" onchange="sauvegarder()">Formation compl&#232;te aux technologies du web moderne.</textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Organisme certificateur</label><input id="form-certificateur" value="Minist&#232;re de l'Enseignement Sup&#233;rieur" onchange="sauvegarder()"></div>
+          <div class="form-group"><label>Semestre</label><input id="form-semestre" value="S6" onchange="sauvegarder()"></div>
+        </div>
+        <div class="form-group"><label>Responsable p&#233;dagogique</label><input id="form-responsable" value="Pr. Jean Martin" onchange="sauvegarder()"></div>
+      </div>
+    </div></div>
+  </div>
+  <div id="tab-etudiants" class="tab-content">
+    <div class="widget no-print">
+      <div class="widget-header" onclick="toggleWidget(this)">
+        <h3>&#128101; Liste des &#233;tudiants</h3>
+        <div style="display:flex;gap:0.5rem;"><button class="btn btn-success btn-sm" onclick="ouvrirModalEtudiant()">+ Ajouter un &#233;tudiant</button></div>
+      </div>
+      <div class="widget-body">
+        <div class="filter-bar">
+          <div class="filter-group"><label>&#128269; Rechercher</label><input id="filter-nom" placeholder="Nom ou pr&#233;nom..." oninput="renderEtudiants()"></div>
+          <div class="filter-group"><label>&#127891; Dipl&#244;me</label><select id="filter-diplome" onchange="renderEtudiants()"><option value="">Tous</option></select></div>
+          <div class="filter-group"><label>&#128197; Promotion</label><select id="filter-promotion" onchange="renderEtudiants()"><option value="">Toutes</option></select></div>
+        </div>
+        <div id="tableEtudiantsContainer" class="table-container"><div class="empty-state"><div class="empty-icon">&#128101;</div><p>Aucun &#233;tudiant inscrit.</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-diplome" class="tab-content">
+    <div class="widget no-print">
+      <div class="widget-header"><h3>&#127891; G&#233;n&#233;ration des documents</h3></div>
+      <div class="widget-body">
+        <div class="diploma-select">
+          <label><strong>S&#233;lectionner un &#233;tudiant :</strong></label>
+          <select id="diplomaStudentSelect" onchange="changerEtudiant()"><option value="">-- Choisir --</option></select>
+          <button class="btn btn-primary" onclick="genererLaTeX()">&#128196; T&#233;l&#233;charger .tex</button>
+          <button class="btn btn-success" onclick="imprimerPDF()">&#128424; Imprimer / PDF</button>
+        </div>
+        <div class="doc-type-toggle">
+          <button class="active" data-doc="attestation" onclick="changerTypeDoc('attestation')">&#127891; Attestation</button>
+          <button data-doc="releve" onclick="changerTypeDoc('releve')">&#128202; Relev&#233; de notes</button>
+        </div>
+      </div>
+    </div>
+    <div class="diploma-toolbar no-print" id="diplomaToolbar" style="display:none;">
+      <label>&#128269; Zoom <input type="range" id="zoomSlider" min="50" max="150" value="100" oninput="appliquerZoom(this.value)"> <span class="zoom-value" id="zoomValue">100%</span></label>
+      <span class="preview-meta" id="previewMeta"></span>
+      <button class="btn btn-sm btn-warning" onclick="archiverDocument()" style="margin-left:auto;">&#128190; Archiver</button>
+    </div>
+    <div id="diplomaPreviewArea"><div class="empty-state"><div class="empty-icon">&#127891;</div><p>S&#233;lectionnez un &#233;tudiant.</p></div></div>
+  </div>
+  <div id="tab-modules" class="tab-content">
+    <div class="widget-grid">
+      <div class="widget">
+        <div class="widget-header" onclick="toggleWidget(this)"><h3>&#128221; Unit&#233;s d'Enseignement (UE)</h3><span>&#9660;</span></div>
+        <div class="widget-body">
+          <div id="modulesContainer"></div>
+          <button class="btn btn-secondary btn-sm" onclick="ajouterModule()" style="margin-top:0.5rem;">+ Ajouter une UE</button>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="widget-header" onclick="toggleWidget(this)"><h3>&#128202; Bar&#232;me et r&#232;gles de mention</h3><span>&#9660;</span></div>
+        <div class="widget-body">
+          <div class="form-row-3">
+            <div class="form-group"><label>Note &#233;liminatoire</label><input id="seuil-eliminatoire" type="number" value="8" step="0.5" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Moyenne pour "Passable"</label><input id="seuil-passable" type="number" value="10" step="0.5" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Moyenne pour "Bien"</label><input id="seuil-bien" type="number" value="13" step="0.5" onchange="sauvegarder()"></div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group"><label>Moyenne pour "Tr&#232;s Bien"</label><input id="seuil-tb" type="number" value="16" step="0.5" onchange="sauvegarder()"></div>
+            <div class="form-group"><label>Assiduit&#233; minimum (%)</label><input id="seuil-assiduite" type="number" value="75" step="5" onchange="sauvegarder()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="widget-header" onclick="toggleWidget(this)"><h3>&#128220; Filigrane</h3><span>&#9660;</span></div>
+        <div class="widget-body">
+          <div class="form-row-3">
+            <div class="form-group"><label>Texte</label><input id="watermark-texte" placeholder="DOCUMENT OFFICIEL" onchange="sauvegarder()" oninput="previewWatermark()"></div>
+            <div class="form-group"><label>Opacit&#233; <span id="watermark-opacity-val">3,5%</span></label><input id="watermark-opacite" type="range" min="1" max="15" value="3.5" step="0.5" oninput="sauvegarder();document.getElementById('watermark-opacity-val').textContent=parseFloat(this.value).toFixed(1).replace('.',',')+'%';previewWatermark()"></div>
+            <div class="form-group" style="justify-content:flex-end;"><label>&nbsp;</label><button class="btn btn-sm btn-secondary" onclick="razWatermark()">R&#233;initialiser</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-enseignants" class="tab-content">
+    <div class="widget">
+      <div class="widget-header" onclick="toggleWidget(this)">
+        <h3>&#128218; Liste des enseignants</h3>
+        <div style="display:flex;gap:0.5rem;"><button class="btn btn-success btn-sm" onclick="ouvrirModalEnseignant()">+ Ajouter un enseignant</button></div>
+      </div>
+      <div class="widget-body">
+        <div id="enseignantsContainer"></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-archives" class="tab-content">
+    <div class="widget">
+      <div class="widget-header"><h3>&#128190; Archives des documents</h3></div>
+      <div class="widget-body">
+        <div class="filter-bar">
+          <div class="filter-group"><label>&#128269; Rechercher</label><input id="arch-filter-nom" placeholder="Nom..." oninput="renderArchives()"></div>
+          <div class="filter-group"><label>&#127891; Type</label><select id="arch-filter-type" onchange="renderArchives()"><option value="">Tous</option><option value="attestation">Attestation</option><option value="releve">Relev&#233;</option></select></div>
+          <div class="filter-group"><label>&#128197; Promotion</label><select id="arch-filter-promo" onchange="renderArchives()"><option value="">Toutes</option></select></div>
+        </div>
+        <div id="archivesContainer"><div class="empty-state"><div class="empty-icon">&#128190;</div><p>Aucun document archiv&#233;.</p></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="modalEnseignant" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalEnseignantTitle">Ajouter un enseignant</h2>
+      <button class="close-btn" onclick="fermerModalEnseignant()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="enseignant-id">
+      <div class="form-row">
+        <div class="form-group"><label>Nom *</label><input id="ens-nom" placeholder="Dupont"></div>
+        <div class="form-group"><label>Pr&#233;nom *</label><input id="ens-prenom" placeholder="Jean"></div>
+      </div>
+      <div class="form-group"><label>Grade</label>
+        <select id="ens-grade"><option value="Pr.">Pr. (Professeur)</option><option value="MCF">MCF (Ma&#238;tre de Conf&#233;rences)</option><option value="Dr.">Dr. (Docteur)</option><option value="PA">PA (Professeur Associ&#233;)</option><option value="M.">M. (Monsieur)</option><option value="Mme">Mme (Madame)</option></select>
+      </div>
+      <div class="form-group"><label>Unit&#233;s d&#8217;Enseignement</label><div id="ens-ues-container" style="max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:6px;padding:0.5rem;"></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="fermerModalEnseignant()">Annuler</button>
+      <button class="btn btn-primary btn-sm" onclick="sauvegarderEnseignant()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+<div id="modalEtudiant" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalEtudiantTitle">Ajouter un &#233;tudiant</h2>
+      <button class="close-btn" onclick="fermerModalEtudiant()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="etudiant-id">
+      <div class="form-row">
+        <div class="form-group"><label>Nom *</label><input id="e-nom" placeholder="Martin"></div>
+        <div class="form-group"><label>Pr&#233;nom *</label><input id="e-prenom" placeholder="Sophie"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date de naissance</label><input id="e-date-naissance" type="date"></div>
+        <div class="form-group"><label>Lieu de naissance</label><input id="e-lieu-naissance" placeholder="Paris"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Nationalit&#233;</label><input id="e-nationalite" value="Fran&#231;aise"></div>
+        <div class="form-group"><label>Sexe</label><select id="e-sexe"><option value="M">Masculin</option><option value="F">F&#233;minin</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input id="e-email" type="email" placeholder="sophie.martin@email.com"></div>
+        <div class="form-group"><label>T&#233;l&#233;phone</label><input id="e-tel" placeholder="06 12 34 56 78"></div>
+      </div>
+      <div class="form-group"><label>Adresse</label><input id="e-adresse" placeholder="15 Rue des Lilas"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ville</label><input id="e-ville" placeholder="Paris"></div>
+        <div class="form-group"><label>Code postal</label><input id="e-cp" placeholder="75012"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Num&#233;ro de dossier</label><input id="e-dossier" placeholder="2024-001"></div>
+        <div class="form-group"><label>Appr&#233;ciation</label><input id="e-appreciation" placeholder="Tr&#232;s bon parcours"></div>
+      </div>
+      <hr style="margin:0.8rem 0;">
+      <h4 style="margin-bottom:0.5rem;font-size:0.9rem;">&#128202; Notes par Unit&#233; d'Enseignement</h4>
+      <div id="modalNotesContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fermerModalEtudiant()">Annuler</button>
+      <button class="btn btn-primary" onclick="sauvegarderEtudiant()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+<div id="toastContainer" class="toast-container"></div>
+<script>
+let appData = {
+  etablissement: {
+    nom: "Université Paris-Saclay",
+    faculte: "Faculté des Sciences",
+    sigle: "UPSaclay",
+    departement: "Département d'Informatique",
+    logo: "",
+    adresse: "123 Rue de l'Université",
+    ville: "Orsay",
+    codePostal: "91400",
+    telephone: "01 69 15 67 89",
+    email: "contact@universite.fr",
+    siteWeb: "www.universite.fr",
+    numeroAgrement: "AC-2024-12345",
+    dateAgrement: "2024-01-01",
+    directeur: "Pr. Jean Martin",
+    qualification: "Établissement accrédité par le Ministère de l'Enseignement Supérieur",
+    cachet: ""
+  },
+  formation: {
+    titre: "Licence en Informatique",
+    mention: "Informatique",
+    parcours: "Développement Web",
+    niveau: "Licence 3",
+    duree: "1 an",
+    dateDebut: "2024-09-01",
+    dateFin: "2025-06-30",
+    volumeHoraire: "450 heures",
+    ectsTotal: "60",
+    semestre: "S6",
+    description: "Formation complète aux technologies du web moderne.",
+    certificateur: "Ministère de l'Enseignement Supérieur",
+    codeRNCP: "RNCP37894",
+    promotion: "2024-2025",
+    responsablePedagogique: "Pr. Jean Martin"
+  },
+  modules: [
+    { id: "ue1", nom: "HTML/CSS et Design Web", code: "INF101", heures: 60, coefficient: 2, credits: 6, enseignant: "Pr. Jean Durand" },
+    { id: "ue2", nom: "Programmation JavaScript", code: "INF102", heures: 80, coefficient: 3, credits: 8, enseignant: "MCF Sophie Petit" },
+    { id: "ue3", nom: "Développement React", code: "INF201", heures: 70, coefficient: 3, credits: 8, enseignant: "Pr. Marc Bernard" },
+    { id: "ue4", nom: "Back-end Node.js", code: "INF202", heures: 60, coefficient: 2, credits: 6, enseignant: "Dr. Claire Leroy" },
+    { id: "ue5", nom: "Bases de données", code: "INF301", heures: 50, coefficient: 2, credits: 6, enseignant: "MCF Paul Dubois" },
+    { id: "ue6", nom: "Projet de Fin d'Études", code: "INF302", heures: 130, coefficient: 4, credits: 26, enseignant: "Pr. Anne Moreau" }
+  ],
+  seuils: { eliminatoire: 8, passable: 10, bien: 13, tresBien: 16, assiduiteMin: 75 },
+  watermark: { texte: "DOCUMENT OFFICIEL", opacite: 3.5 },
+  etudiants: [],
+  archives: [],
+  enseignants: [
+    { id: "ens1", nom: "Durand", prenom: "Jean", grade: "Pr." },
+    { id: "ens2", nom: "Petit", prenom: "Sophie", grade: "MCF" },
+    { id: "ens3", nom: "Bernard", prenom: "Marc", grade: "Pr." },
+    { id: "ens4", nom: "Leroy", prenom: "Claire", grade: "Dr." },
+    { id: "ens5", nom: "Dubois", prenom: "Paul", grade: "MCF" },
+    { id: "ens6", nom: "Moreau", prenom: "Anne", grade: "Pr." }
+  ]
+};
+let docType = "attestation";
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function escHtml(t) { var d = document.createElement("div"); d.appendChild(document.createTextNode(t || "")); return d.innerHTML; }
+function genererCodeSecurite() {
+  const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let r = "";
+  for (let i = 0; i < 4; i++) { for (let j = 0; j < 4; j++) r += c[Math.floor(Math.random() * c.length)]; if (i < 3) r += "-"; }
+  return r;
+}
+function formaterDate(s) { if (!s) return ""; var d = new Date(s+"T00:00:00"); return d.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}); }
+function formaterDateLatex(s) { if (!s) return ""; var d = new Date(s+"T00:00:00"); return d.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}).replace(/^1 /,"1er "); }
+function previewWatermark() {
+  var c = document.getElementById("diplomaCard"); if (!c) return;
+  var t = document.getElementById("watermark-texte")?.value || "DOCUMENT OFFICIEL";
+  var o = parseFloat(document.getElementById("watermark-opacite")?.value) || 3.5;
+  c.dataset.watermark = t; c.style.setProperty("--watermark-opacity",(o/100).toString());
+}
+function razWatermark() {
+  document.getElementById("watermark-texte").value = "DOCUMENT OFFICIEL";
+  document.getElementById("watermark-opacite").value = "3.5";
+  document.getElementById("watermark-opacity-val").textContent = "3,5%";
+  appData.watermark.texte = "DOCUMENT OFFICIEL"; appData.watermark.opacite = 3.5;
+  sauvegarder(); previewWatermark(); toast("Filigrane réinitialisé.", "info");
+}
+function calculerMention(m) { if (m >= appData.seuils.tresBien) return "Très Bien"; if (m >= appData.seuils.bien) return "Bien"; if (m >= appData.seuils.passable) return "Passable"; return "Insuffisant"; }
+function calculerMoyenne(notes) {
+  let tp = 0, tc = 0;
+  for (const m of appData.modules) {
+    const n = notes[m.id];
+    if (n !== undefined && n !== null && n !== "") { tp += parseFloat(n) * m.coefficient; tc += m.coefficient; }
+  }
+  return tc > 0 ? Math.round((tp/tc)*10)/10 : 0;
+}
+function getV(id) { var el = document.getElementById(id); return el ? el.value : ""; }
+function sauvegarder() {
+  appData.etablissement.nom = getV("etab-nom") || appData.etablissement.nom;
+  appData.etablissement.faculte = getV("etab-faculte") || appData.etablissement.faculte;
+  appData.etablissement.sigle = getV("etab-sigle") || appData.etablissement.sigle;
+  appData.etablissement.departement = getV("etab-departement") || appData.etablissement.departement;
+  appData.etablissement.adresse = getV("etab-adresse") || appData.etablissement.adresse;
+  appData.etablissement.ville = getV("etab-ville") || appData.etablissement.ville;
+  appData.etablissement.codePostal = getV("etab-cp") || appData.etablissement.codePostal;
+  appData.etablissement.telephone = getV("etab-tel") || appData.etablissement.telephone;
+  appData.etablissement.email = getV("etab-email") || appData.etablissement.email;
+  appData.etablissement.siteWeb = getV("etab-web") || appData.etablissement.siteWeb;
+  appData.etablissement.directeur = getV("etab-directeur") || appData.etablissement.directeur;
+  appData.etablissement.numeroAgrement = getV("etab-agrement") || appData.etablissement.numeroAgrement;
+  appData.etablissement.dateAgrement = getV("etab-date-agrement") || appData.etablissement.dateAgrement;
+  appData.etablissement.qualification = getV("etab-qualification") || appData.etablissement.qualification;
+  appData.etablissement.logo = getV("etab-logo") || appData.etablissement.logo;
+  appData.etablissement.cachet = getV("etab-cachet") || appData.etablissement.cachet;
+  appData.formation.titre = getV("form-titre") || appData.formation.titre;
+  appData.formation.mention = getV("form-mention") || appData.formation.mention;
+  appData.formation.parcours = getV("form-parcours") || appData.formation.parcours;
+  appData.formation.niveau = getV("form-niveau") || appData.formation.niveau;
+  appData.formation.duree = getV("form-duree") || appData.formation.duree;
+  appData.formation.volumeHoraire = getV("form-volume") || appData.formation.volumeHoraire;
+  appData.formation.ectsTotal = getV("form-ects") || appData.formation.ectsTotal;
+  appData.formation.semestre = getV("form-semestre") || appData.formation.semestre;
+  appData.formation.dateDebut = getV("form-debut") || appData.formation.dateDebut;
+  appData.formation.dateFin = getV("form-fin") || appData.formation.dateFin;
+  appData.formation.description = getV("form-description") || appData.formation.description;
+  appData.formation.certificateur = getV("form-certificateur") || appData.formation.certificateur;
+  appData.formation.codeRNCP = getV("form-rncp") || appData.formation.codeRNCP;
+  appData.formation.promotion = getV("form-promotion") || appData.formation.promotion;
+  appData.formation.responsablePedagogique = getV("form-responsable") || appData.formation.responsablePedagogique;
+  appData.seuils.eliminatoire = parseFloat(document.getElementById("seuil-eliminatoire")?.value) || appData.seuils.eliminatoire;
+  appData.seuils.passable = parseFloat(document.getElementById("seuil-passable")?.value) || appData.seuils.passable;
+  appData.seuils.bien = parseFloat(document.getElementById("seuil-bien")?.value) || appData.seuils.bien;
+  appData.seuils.tresBien = parseFloat(document.getElementById("seuil-tb")?.value) || appData.seuils.tresBien;
+  appData.seuils.assiduiteMin = parseFloat(document.getElementById("seuil-assiduite")?.value) || appData.seuils.assiduiteMin;
+  appData.watermark.texte = document.getElementById("watermark-texte")?.value || appData.watermark.texte;
+  appData.watermark.opacite = parseFloat(document.getElementById("watermark-opacite")?.value) || appData.watermark.opacite;
+  localStorage.setItem("gestionDiplomes", JSON.stringify(appData));
+  remplirFiltres();
+}
+function chargerDonnees() {
+  try {
+    const saved = localStorage.getItem("gestionDiplomes");
+    if (saved) {
+      const p = JSON.parse(saved);
+      appData = { ...appData, ...p };
+      if (p.etablissement) appData.etablissement = { ...appData.etablissement, ...p.etablissement };
+      if (p.formation) appData.formation = { ...appData.formation, ...p.formation };
+      if (p.modules) appData.modules = p.modules;
+      if (p.seuils) appData.seuils = { ...appData.seuils, ...p.seuils };
+      if (p.watermark) appData.watermark = { ...appData.watermark, ...p.watermark };
+      if (p.etudiants) appData.etudiants = p.etudiants;
+      if (p.archives) appData.archives = p.archives;
+    }
+  } catch(e) { console.warn("Erreur chargement", e); }
+  if (!appData.enseignants) appData.enseignants = [];
+  for (const m of appData.modules) {
+    if (m.enseignant && !m.enseignantId) {
+      const match = appData.enseignants.find(e => (e.grade + " " + e.prenom + " " + e.nom) === m.enseignant);
+      if (match) m.enseignantId = match.id;
+      else m.enseignantId = "";
+    }
+  }
+}
+function switchTab(btn) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById(btn.dataset.tab).classList.add("active");
+  if (btn.dataset.tab === "tab-diplome") remplirSelectDiplome();
+  if (btn.dataset.tab === "tab-modules") renderModules();
+}
+function toggleWidget(h) { const b = h.nextElementSibling; b.classList.toggle("collapsed"); h.querySelector("span").textContent = b.classList.contains("collapsed") ? "▶" : "▼"; }
+function renderModules() {
+  const container = document.getElementById("modulesContainer");
+  if (appData.modules.length === 0) { container.innerHTML = '<div class="empty-state"><p>Aucune UE d&#233;finie.</p></div>'; return; }
+  let html = '<table><thead><tr><th>Code UE</th><th>Intitul&#233;</th><th>Heures</th><th>Coef.</th><th>Cr&#233;dits ECTS</th><th>Enseignant</th><th>Action</th></tr></thead><tbody>';
+  for (const m of appData.modules) {
+    let sel = '<select onchange="changerEnseignantModule(\'' + m.id + '\',this.value)" style="width:130px;border:1px solid #ddd;border-radius:4px;padding:0.3rem;"><option value="">-- Aucun --</option>';
+    for (const ens of (appData.enseignants||[])) {
+      const full = ens.grade + " " + ens.prenom + " " + ens.nom;
+      sel += '<option value="' + ens.id + '"' + (m.enseignantId === ens.id ? ' selected' : '') + '>' + full + '</option>';
+    }
+    sel += '</select>';
+    html += '<tr><td><input value="' + (m.code || '') + '" onchange="modifierModule(\'' + m.id + '\',\'code\',this.value)" style="width:70px;border:1px solid #ddd;border-radius:4px;padding:0.3rem;"></td>' +
+      '<td><input value="' + m.nom + '" onchange="modifierModule(\'' + m.id + '\',\'nom\',this.value)" style="width:100%;border:1px solid #ddd;border-radius:4px;padding:0.3rem;"></td>' +
+      '<td><input type="number" value="' + m.heures + '" onchange="modifierModule(\'' + m.id + '\',\'heures\',this.value)" style="width:60px;border:1px solid #ddd;border-radius:4px;padding:0.3rem;"></td>' +
+      '<td><input type="number" value="' + m.coefficient + '" onchange="modifierModule(\'' + m.id + '\',\'coefficient\',this.value)" style="width:50px;border:1px solid #ddd;border-radius:4px;padding:0.3rem;"></td>' +
+      '<td><input type="number" value="' + (m.credits || 6) + '" onchange="modifierModule(\'' + m.id + '\',\'credits\',this.value)" style="width:60px;border:1px solid #ddd;border-radius:4px;padding:0.3rem;"></td>' +
+      '<td>' + sel + '</td>' +
+      '<td><button class="btn btn-danger btn-sm" onclick="supprimerModule(\'' + m.id + '\')">&times;</button></td></tr>';
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+function ajouterModule() {
+  appData.modules.push({ id:"ue"+uid(), nom:"Nouvelle UE", code:"UE000", heures:30, coefficient:1, credits:6, enseignant:"", enseignantId:"" });
+  renderModules(); renderEnseignants(); sauvegarder();
+}
+function modifierModule(id, champ, valeur) {
+  const m = appData.modules.find(x => x.id === id);
+  if (m) { if (champ==="heures"||champ==="coefficient"||champ==="credits") m[champ] = parseFloat(valeur)||0; else m[champ] = valeur; sauvegarder(); renderEnseignants(); }
+}
+function changerEnseignantModule(id, enseignantId) {
+  const m = appData.modules.find(x => x.id === id);
+  if (!m) return;
+  m.enseignantId = enseignantId;
+  if (enseignantId) {
+    const ens = appData.enseignants.find(x => x.id === enseignantId);
+    m.enseignant = ens ? ens.grade + " " + ens.prenom + " " + ens.nom : "";
+  } else { m.enseignant = ""; }
+  renderModules(); renderEnseignants(); sauvegarder();
+}
+function supprimerModule(id) {
+  if (!confirm("Supprimer cette UE ?")) return;
+  appData.modules = appData.modules.filter(m => m.id !== id);
+  renderModules(); renderEnseignants(); sauvegarder();
+}
+function renderEtudiants() {
+  const container = document.getElementById("tableEtudiantsContainer");
+  const search = (document.getElementById("filter-nom")?.value || "").toLowerCase().trim();
+  const fD = document.getElementById("filter-diplome")?.value || "";
+  const fP = document.getElementById("filter-promotion")?.value || "";
+  document.getElementById("studentCount").textContent = appData.etudiants.length;
+  let etudiants = appData.etudiants;
+  if (search) etudiants = etudiants.filter(e => (e.nom + " " + e.prenom).toLowerCase().includes(search));
+  if (fD && fD !== appData.formation.titre) etudiants = [];
+  if (fP && fP !== appData.formation.promotion) etudiants = [];
+  if (appData.etudiants.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128101;</div><p>Aucun &#233;tudiant.</p></div>'; return; }
+  if (etudiants.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128270;</div><p>Aucun r&#233;sultat.</p></div>'; return; }
+  let html = '<table><thead><tr><th>N&#176; Dossier</th><th>Nom</th><th>Pr&#233;nom</th><th>Fili&#232;re</th><th>Promotion</th><th>Moyenne</th><th>Mention</th><th>Actions</th></tr></thead><tbody>';
+  for (const e of etudiants) {
+    const moyenne = calculerMoyenne(e.notes || {});
+    const mention = calculerMention(moyenne);
+    const cls = mention.toLowerCase().normalize('NFD').replace(/[^a-z]/g,'');
+    html += '<tr><td>' + (e.numeroDossier||"-") + '</td><td><strong>' + e.nom + '</strong></td><td>' + e.prenom + '</td><td style="font-size:0.75rem;color:#555;">' + appData.formation.titre + '</td>' +
+      '<td style="font-size:0.75rem;"><span class="badge-promo">' + (appData.formation.promotion||"-") + '</span></td><td>' + (moyenne>0?moyenne+"/20":"-") + '</td>' +
+      '<td class="mention-' + cls + '">' + (moyenne>0?mention:"-") + '</td>' +
+      '<td class="actions-cell"><button class="btn btn-info btn-sm" onclick="ouvrirModalEtudiant(\'' + e.id + '\')">&#9998;</button><button class="btn btn-danger btn-sm" onclick="supprimerEtudiant(\'' + e.id + '\')">&#128465;</button></td></tr>';
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+function remplirFiltres() {
+  const d = document.getElementById("filter-diplome");
+  const p = document.getElementById("filter-promotion");
+  if (d) { const v=d.value; d.innerHTML='<option value="">Tous</option><option value="'+appData.formation.titre+'">'+appData.formation.titre+'</option>'; d.value=v; }
+  if (p) { const v=p.value; p.innerHTML='<option value="">Toutes</option><option value="'+appData.formation.promotion+'">'+appData.formation.promotion+'</option>'; p.value=v; }
+}
+function ouvrirModalEtudiant(id) {
+  const modal = document.getElementById("modalEtudiant");
+  document.getElementById("modalEtudiantTitle").textContent = id ? "Modifier l'&#233;tudiant" : "Ajouter un &#233;tudiant";
+  document.getElementById("etudiant-id").value = id || "";
+  const e = id ? appData.etudiants.find(x => x.id === id) : null;
+  document.getElementById("e-nom").value = e?.nom || "";
+  document.getElementById("e-prenom").value = e?.prenom || "";
+  document.getElementById("e-date-naissance").value = e?.dateNaissance || "";
+  document.getElementById("e-lieu-naissance").value = e?.lieuNaissance || "";
+  document.getElementById("e-nationalite").value = e?.nationalite || "Française";
+  document.getElementById("e-sexe").value = e?.sexe || "M";
+  document.getElementById("e-email").value = e?.email || "";
+  document.getElementById("e-tel").value = e?.telephone || "";
+  document.getElementById("e-adresse").value = e?.adresse || "";
+  document.getElementById("e-ville").value = e?.ville || "";
+  document.getElementById("e-cp").value = e?.codePostal || "";
+  document.getElementById("e-dossier").value = e?.numeroDossier || "";
+  document.getElementById("e-appreciation").value = e?.appreciation || "";
+  renderModalNotes(e?.notes || {});
+  modal.classList.add("active");
+}
+function fermerModalEtudiant() { document.getElementById("modalEtudiant").classList.remove("active"); }
+function renderModalNotes(notes) {
+  const container = document.getElementById("modalNotesContainer");
+  if (appData.modules.length === 0) { container.innerHTML = '<p style="color:#999;font-size:0.85rem;">D&#233;finissez des UE dans l\'onglet 3.</p>'; return; }
+  let html = "";
+  for (const m of appData.modules) {
+    const val = notes[m.id] !== undefined ? notes[m.id] : "";
+    html += '<div style="margin-bottom:0.6rem;padding:0.4rem 0.6rem;background:#f8f9fa;border-radius:6px;border-left:3px solid #0f3460;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.2rem;"><strong style="font-size:0.85rem;">' + m.nom + '</strong>' +
+      '<span style="font-size:0.7rem;color:#666;">' + (m.code||'') + ' &middot; ' + (m.credits||0) + ' ECTS &middot; Coef ' + m.coefficient + '</span></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:0.75rem;color:#888;">Enseignant : ' + (m.enseignant||'Non renseigné') + '</span>' +
+      '<label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;">Note ( /20 ): <input type="number" step="0.5" min="0" max="20" class="note-input" data-module="' + m.id + '" value="' + val + '" style="width:70px;padding:0.3rem;border:1.5px solid #ddd;border-radius:4px;"></label></div></div>';
+  }
+  container.innerHTML = html;
+}
+function sauvegarderEtudiant() {
+  const id = document.getElementById("etudiant-id").value;
+  const nom = document.getElementById("e-nom").value.trim();
+  const prenom = document.getElementById("e-prenom").value.trim();
+  if (!nom || !prenom) { toast("Saisissez le nom et le prénom.", "error"); return; }
+  const notes = {};
+  document.querySelectorAll(".note-input").forEach(inp => { const v=inp.value.trim(); if(v!=="") notes[inp.dataset.module]=parseFloat(v); });
+  const etudiant = { nom, prenom, dateNaissance:document.getElementById("e-date-naissance").value, lieuNaissance:document.getElementById("e-lieu-naissance").value, nationalite:document.getElementById("e-nationalite").value, sexe:document.getElementById("e-sexe").value, email:document.getElementById("e-email").value, telephone:document.getElementById("e-tel").value, adresse:document.getElementById("e-adresse").value, ville:document.getElementById("e-ville").value, codePostal:document.getElementById("e-cp").value, numeroDossier:document.getElementById("e-dossier").value, appreciation:document.getElementById("e-appreciation").value, notes };
+  if (!id) etudiant.dateDelivrance = new Date().toISOString().slice(0,10);
+  if (id) { const idx = appData.etudiants.findIndex(x => x.id === id); if (idx>=0) { etudiant.dateDelivrance=appData.etudiants[idx].dateDelivrance; appData.etudiants[idx]={...appData.etudiants[idx],...etudiant}; } toast("Étudiant modifié.", "success"); }
+  else { etudiant.id=uid(); etudiant.numeroDiplome="DIP-"+new Date().getFullYear()+"-"+String(appData.etudiants.length+1).padStart(3,"0"); appData.etudiants.push(etudiant); toast("Étudiant ajouté.", "success"); }
+  fermerModalEtudiant(); renderEtudiants(); sauvegarder();
+}
+function supprimerEtudiant(id) { if (!confirm("Supprimer cet étudiant ?")) return; appData.etudiants = appData.etudiants.filter(x => x.id !== id); renderEtudiants(); sauvegarder(); toast("Étudiant supprimé.", "info"); }
+function renderEnseignants() {
+  const container = document.getElementById("enseignantsContainer");
+  if (!container) return;
+  if (appData.enseignants.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128218;</div><p>Aucun enseignant enregistr&#233;.</p></div>'; return; }
+  document.getElementById("teacherCount").textContent = appData.enseignants.length;
+  let html = '<table><thead><tr><th>Grade</th><th>Nom</th><th>Pr&#233;nom</th><th>Nom complet</th><th>Unit&#233;s d&#8217;Enseignement</th><th>Action</th></tr></thead><tbody>';
+  for (const ens of appData.enseignants) {
+    const full = ens.grade + " " + ens.prenom + " " + ens.nom;
+    const ueList = appData.modules.filter(m => m.enseignantId === ens.id);
+    let ueHtml = "";
+    if (ueList.length === 0) { ueHtml = '<span style="color:#999;font-size:0.75rem;">Aucune</span>'; }
+    else { ueHtml = ueList.map(m => '<span class="badge-ue">' + escHtml(m.code || m.nom) + '</span>').join(" "); }
+    html += '<tr><td>' + ens.grade + '</td><td>' + ens.nom + '</td><td>' + ens.prenom + '</td><td>' + full + '</td><td style="font-size:0.75rem;">' + ueHtml + '</td>' +
+      '<td><button class="btn btn-info btn-sm" onclick="ouvrirModalEnseignant(\'' + ens.id + '\')">&#9998;</button><button class="btn btn-danger btn-sm" onclick="supprimerEnseignant(\'' + ens.id + '\')">&#128465;</button></td></tr>';
+  }
+  html += '</tbody></table>'; container.innerHTML = html;
+}
+function ouvrirModalEnseignant(id) {
+  document.getElementById("modalEnseignantTitle").textContent = id ? "Modifier l'enseignant" : "Ajouter un enseignant";
+  document.getElementById("enseignant-id").value = id || "";
+  const e = id ? appData.enseignants.find(x => x.id === id) : null;
+  document.getElementById("ens-nom").value = e?.nom || "";
+  document.getElementById("ens-prenom").value = e?.prenom || "";
+  document.getElementById("ens-grade").value = e?.grade || "Pr.";
+  const container = document.getElementById("ens-ues-container");
+  if (appData.modules.length === 0) {
+    container.innerHTML = '<div style="color:#999;font-size:0.8rem;padding:0.3rem;">Aucune UE d&#233;finie. Cr&#233;ez des UE dans l&#8217;onglet 3.</div>';
+  } else {
+    let html = "";
+    for (const m of appData.modules) {
+      const checked = id && m.enseignantId === id ? ' checked' : '';
+      html += '<label style="display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.3rem;border-bottom:1px solid #eee;cursor:pointer;font-size:0.82rem;"><input type="checkbox" class="ens-ue-cb" value="' + m.id + '"' + checked + '> ' + (m.code||"") + ' - ' + m.nom + ' <span style="color:#888;font-size:0.7rem;">(' + (m.credits||0) + ' ECTS)</span></label>';
+    }
+    container.innerHTML = html;
+  }
+  document.getElementById("modalEnseignant").classList.add("active");
+}
+function fermerModalEnseignant() { document.getElementById("modalEnseignant").classList.remove("active"); }
+function sauvegarderEnseignant() {
+  const id = document.getElementById("enseignant-id").value;
+  const nom = document.getElementById("ens-nom").value.trim();
+  const prenom = document.getElementById("ens-prenom").value.trim();
+  const grade = document.getElementById("ens-grade").value;
+  if (!nom || !prenom) { toast("Saisissez le nom et le prénom.", "error"); return; }
+  const full = grade + " " + prenom + " " + nom;
+  const selectedUes = [];
+  document.querySelectorAll(".ens-ue-cb:checked").forEach(cb => selectedUes.push(cb.value));
+  if (id) {
+    const idx = appData.enseignants.findIndex(x => x.id === id);
+    if (idx >= 0) { appData.enseignants[idx] = { ...appData.enseignants[idx], nom, prenom, grade }; }
+    for (const m of appData.modules) {
+      if (m.enseignantId === id && !selectedUes.includes(m.id)) {
+        m.enseignant = ""; m.enseignantId = "";
+      } else if (selectedUes.includes(m.id) && m.enseignantId !== id) {
+        m.enseignant = full; m.enseignantId = id;
+      } else if (m.enseignantId === id && selectedUes.includes(m.id)) {
+        m.enseignant = full;
+      }
+    }
+    toast("Enseignant modifié.", "success");
+  } else {
+    const newId = "ens" + uid();
+    appData.enseignants.push({ id: newId, nom, prenom, grade });
+    for (const m of appData.modules) {
+      if (selectedUes.includes(m.id)) { m.enseignant = full; m.enseignantId = newId; }
+    }
+    toast("Enseignant ajouté.", "success");
+  }
+  fermerModalEnseignant(); renderEnseignants(); renderModules(); sauvegarder();
+}
+function supprimerEnseignant(id) {
+  if (!confirm("Supprimer cet enseignant ?")) return;
+  for (const m of appData.modules) { if (m.enseignantId === id) { m.enseignant = ""; m.enseignantId = ""; } }
+  appData.enseignants = appData.enseignants.filter(x => x.id !== id);
+  renderEnseignants(); renderModules(); sauvegarder(); toast("Enseignant supprimé.", "info");
+}
+function remplirSelectDiplome() {
+  const sel = document.getElementById("diplomaStudentSelect");
+  const cv = sel.value;
+  sel.innerHTML = '<option value="">-- Choisir --</option>';
+  for (const e of appData.etudiants) sel.innerHTML += '<option value="'+e.id+'">'+e.nom+' '+e.prenom+' ('+(e.numeroDossier||"N/D")+')</option>';
+  if (cv) sel.value = cv;
+}
+function changerEtudiant() { if (docType==="attestation") afficherDiplome(); else afficherReleve(); }
+function changerTypeDoc(type) { docType=type; document.querySelectorAll(".doc-type-toggle button").forEach(b=>b.classList.toggle("active",b.dataset.doc===type)); const id=document.getElementById("diplomaStudentSelect").value; if(id) changerEtudiant(); }
+function preparerDiplome() { const sel=document.getElementById("diplomaStudentSelect"); return sel?sel.value:""; }
+function genererObservation(note) { if (note===undefined||note===null||note==="") return ""; if (note>=16) return "Excellent niveau."; if (note>=14) return "Très bon niveau."; if (note>=12) return "Bon niveau."; if (note>=10) return "Niveau passable."; if (note>=8) return "Niveau fragile."; return "Niveau insuffisant."; }
+function genererObservationGlobale(moyenne, mention) {
+  if (mention==="Très Bien") return "Félicitations pour ce parcours exemplaire.";
+  if (mention==="Bien") return "Très bon travail au cours de la formation.";
+  if (mention==="Passable") return "Formation validée avec des résultats satisfaisants.";
+  return "Les objectifs pédagogiques n'ont pas été pleinement atteints.";
+}
+function afficherDiplome() {
+  const id = document.getElementById("diplomaStudentSelect").value;
+  const area = document.getElementById("diplomaPreviewArea");
+  const toolbar = document.getElementById("diplomaToolbar");
+  const meta = document.getElementById("previewMeta");
+  const zs = document.getElementById("zoomSlider");
+  if (!id) { area.innerHTML='<div class="empty-state"><div class="empty-icon">&#127891;</div><p>S&#233;lectionnez un &#233;tudiant.</p></div>'; toolbar.style.display="none"; return; }
+  const e = appData.etudiants.find(x => x.id === id); if (!e) return;
+  const cs = genererCodeSecurite(); const moy = calculerMoyenne(e.notes||{}); const ment = calculerMention(moy);
+  const etab = appData.etablissement; const form = appData.formation;
+  meta.textContent = e.prenom+" "+e.nom+" — "+ment+" ("+moy+"/20) — Code: "+cs;
+  zs.value=100; document.getElementById("zoomValue").textContent="100%"; toolbar.style.display="flex";
+  let nh = "";
+  if (appData.modules.length > 0) {
+    nh = '<table class="diploma-details" style="margin:0.8rem auto;"><tr><th>UE</th><th>Cr&#233;dits</th><th>Note</th><th>Coef.</th><th>Enseignant</th></tr>';
+    for (const m of appData.modules) {
+      const n = e.notes?.[m.id];
+      nh += '<tr><td>' + m.nom + '</td><td>' + (m.credits||"-") + ' ECTS</td><td>' + (n!==undefined&&n!==""?n+"/20":"-") + '</td><td>' + m.coefficient + '</td><td style="font-size:0.75rem;">' + (m.enseignant||"-") + '</td></tr>';
+    }
+    nh += '<tr><td><strong>Moyenne g&#233;n&#233;rale</strong></td><td></td><td><strong>' + moy + '/20</strong></td><td><strong>' + ment + '</strong></td><td></td></tr></table>';
+  }
+  area.innerHTML = '<div class="diploma-preview" id="diplomaCard" data-securite="' + cs + '" data-watermark="' + ((appData.watermark&&appData.watermark.texte)||"DOCUMENT OFFICIEL") + '">' +
+    '<div class="diploma-border"><div class="corner corner-tl"></div><div class="corner corner-tr"></div><div class="corner corner-bl"></div><div class="corner corner-br"></div>' +
+    '<div class="diploma-seal">&#10003;<br>Certifi&#233;</div>' +
+    '<div class="diploma-header">' + (etab.logo?'<img class="diploma-logo" src="'+etab.logo+'" alt="Logo">':"") +
+    '<div class="diploma-title">Attestation de R&#233;ussite</div>' +
+    '<div class="diploma-subtitle">' + etab.nom + (etab.faculte?" — "+etab.faculte:"") + '</div>' +
+    '<div class="diploma-agrement">' + (etab.qualification||"Accr&#233;ditation N&#176; "+etab.numeroAgrement) + '</div></div>' +
+    '<div class="diploma-body"><div class="diploma-atteste">Le Doyen de <strong>' + etab.nom + '</strong> atteste que</div>' +
+    '<div class="diploma-atteste">' + (e.dateNaissance?'N&#233;(e) le '+formaterDate(e.dateNaissance):"") + (e.lieuNaissance?' &#224; '+e.lieuNaissance:"") + '</div>' +
+    '<div class="diploma-nom">' + e.prenom + ' ' + e.nom + '</div>' +
+    '<div class="diploma-atteste">a valid&#233; avec succ&#232;s la formation</div>' +
+    '<div class="diploma-formation">&#171; ' + form.titre + ' &#187;</div>' +
+    '<div class="diploma-atteste" style="font-size:0.85rem;">' + (form.mention?'Mention : '+form.mention+' &mdash; ':"") + (form.parcours?'Parcours : '+form.parcours+' &mdash; ':"") + (form.niveau?form.niveau:"") + '</div>' +
+    '<div class="diploma-atteste" style="font-size:0.85rem;">Ann&#233;e universitaire ' + form.promotion + ' &mdash; Semestre ' + (form.semestre||'-') + ' &mdash; ' + form.ectsTotal + ' ECTS</div>' +
+    '<div class="diploma-atteste" style="font-size:0.85rem;">du ' + formaterDate(form.dateDebut) + ' au ' + formaterDate(form.dateFin) + ' (' + form.volumeHoraire + ')</div>' +
+    nh + (e.appreciation?'<div class="diploma-atteste" style="font-style:italic;">Appr&#233;ciation : '+e.appreciation+'</div>':"") +
+    (e.numeroDiplome?'<div class="diploma-agrement" style="margin-top:0.4rem;">Dipl&#244;me N&#176; '+e.numeroDiplome+'</div>':"") +
+    '<div class="diploma-agrement">D&#233;livr&#233; le ' + formaterDate(e.dateDelivrance||new Date().toISOString().slice(0,10)) + '</div>' +
+    '<div class="diploma-agrement" style="margin-top:0.6rem;font-size:0.65rem;letter-spacing:2px;color:#aaa;font-family:\'Courier New\',monospace;">Code s&#233;curit&#233; : ' + cs + '</div></div>' +
+    '<div class="diploma-signatures"><div class="signature-box"><div class="signature-line">'+etab.directeur+'<br><span style="font-weight:400;font-size:0.7rem;">'+(etab.faculte?'Doyen de '+etab.faculte:'Directeur')+'</span></div></div>' +
+    '<div class="signature-box"><div class="signature-line">Responsable p&#233;dagogique<br><span style="font-weight:400;font-size:0.7rem;">'+(appData.formation.responsablePedagogique||'-')+'</span></div></div>' +
+    '<div class="signature-box"><div class="signature-line">L&#8217;&#233;tudiant(e)<br><span style="font-weight:400;font-size:0.7rem;">'+e.prenom+' '+e.nom+'</span></div></div></div></div></div>';
+  var wc = document.getElementById("diplomaCard");
+  if (wc && appData.watermark) wc.style.setProperty("--watermark-opacity", (appData.watermark.opacite/100).toString());
+}
+function afficherReleve() {
+  const id = document.getElementById("diplomaStudentSelect").value;
+  const area = document.getElementById("diplomaPreviewArea");
+  const toolbar = document.getElementById("diplomaToolbar");
+  const meta = document.getElementById("previewMeta");
+  const zs = document.getElementById("zoomSlider");
+  if (!id) { area.innerHTML='<div class="empty-state"><div class="empty-icon">&#128202;</div><p>S&#233;lectionnez un &#233;tudiant.</p></div>'; toolbar.style.display="none"; return; }
+  const e = appData.etudiants.find(x => x.id === id); if (!e) return;
+  const cs = genererCodeSecurite(); const moy = calculerMoyenne(e.notes||{}); const ment = calculerMention(moy);
+  const etab = appData.etablissement; const form = appData.formation;
+  meta.textContent = e.prenom+" "+e.nom+" — Relev&#233; — Code: "+cs;
+  zs.value=100; document.getElementById("zoomValue").textContent="100%"; toolbar.style.display="flex";
+  let rh = "";
+  if (appData.modules.length > 0) {
+    for (const m of appData.modules) {
+      const n = e.notes?.[m.id];
+      const nd = n!==undefined&&n!==""?n+"/20":"-";
+      rh += '<tr><td>'+ (m.code||'') + ' - ' + m.nom + '</td><td>'+m.coefficient+'</td><td>'+(m.credits||"-")+'</td><td><strong>'+nd+'</strong></td><td class="observation-cell">'+genererObservation(n)+'</td><td style="font-size:0.7rem;">'+(m.enseignant||"-")+'</td></tr>';
+    }
+  }
+  area.innerHTML = '<div class="releve-preview" id="diplomaCard" data-securite="'+cs+'" data-watermark="'+((appData.watermark&&appData.watermark.texte)||"DOCUMENT OFFICIEL")+'">' +
+    '<div class="releve-inner"><div class="rc rc-tl"></div><div class="rc rc-tr"></div><div class="rc rc-bl"></div><div class="rc rc-br"></div>' +
+    '<div class="releve-header"><h2>RELEV&#201; DE NOTES</h2><div class="releve-subtitle">'+etab.nom+' &mdash; '+(etab.faculte||etab.sigle)+'</div><div style="font-size:0.78rem;color:#888;">Accr&#233;ditation N&#176; '+etab.numeroAgrement+'</div></div>' +
+    '<div class="releve-student"><strong>&#201;tudiant :</strong> '+e.nom+' '+e.prenom+' &nbsp;|&nbsp; <strong>N&#176; dossier :</strong> '+(e.numeroDossier||"-")+'<br>' +
+    '<strong>Fili&#232;re :</strong> '+form.titre+(form.mention?' &mdash; Mention '+form.mention:'')+(form.parcours?' &mdash; '+form.parcours:'')+' &nbsp;|&nbsp; <strong>Niveau :</strong> '+(form.niveau||'-')+'<br>' +
+    '<strong>Ann&#233;e universitaire :</strong> '+form.promotion+' &nbsp;|&nbsp; <strong>Semestre :</strong> '+(form.semestre||'-')+' &nbsp;|&nbsp; <strong>Total ECTS :</strong> '+(form.ectsTotal||'-')+'<br>' +
+    '<strong>Date d\'&#233;dition :</strong> '+formaterDate(new Date().toISOString().slice(0,10))+'</div>' +
+    '<table class="releve-table"><thead><tr><th>Unit&#233; d\'Enseignement</th><th>Coef.</th><th>ECTS</th><th>Note</th><th>Observations</th><th>Enseignant</th></tr></thead><tbody>' +
+    (rh||'<tr><td colspan="6" style="color:#999;">Aucune UE.</td></tr>') +
+    '<tr class="total-row"><td colspan="2"><strong>Moyenne G&#233;n&#233;rale</strong></td><td><strong>'+form.ectsTotal+' ECTS</strong></td><td><strong>'+moy+'/20</strong></td><td><strong>'+ment+'</strong></td><td></td></tr></tbody></table>' +
+    '<div class="releve-observation"><strong>Observation :</strong><br>'+genererObservationGlobale(moy,ment)+'</div>' +
+    '<div class="releve-footer"><span>'+(etab.ville?"Fait &#224; "+etab.ville+", ":"")+'le '+formaterDate(new Date().toISOString().slice(0,10))+'</span>' +
+    '<span style="font-family:\'Courier New\',monospace;font-size:0.65rem;color:#aaa;">Code s&#233;curit&#233; : '+cs+'</span>' +
+    '<span>'+(etab.directeur?"Le Doyen, "+etab.directeur:"")+'</span></div></div></div>';
+  var wc = document.getElementById("diplomaCard");
+  if (wc && appData.watermark) wc.style.setProperty("--watermark-opacity", (appData.watermark.opacite/100).toString());
+}
+function appliquerZoom(val) { document.getElementById("zoomValue").textContent=val+"%"; var c=document.getElementById("diplomaCard"); if(c) c.style.transform="scale("+(val/100)+")"; }
+function genererLaTeX() {
+  const id = preparerDiplome();
+  if (!id) { toast("Aucun étudiant.", "error"); return; }
+  if (docType==="releve") { genererLaTeXReleve(); return; }
+  const e = appData.etudiants.find(x => x.id === id); if (!e) return;
+  const etab=appData.etablissement; const form=appData.formation;
+  const moy=calculerMoyenne(e.notes||{}); const ment=calculerMention(moy); const cs=genererCodeSecurite();
+  let nl="";
+  if (appData.modules.length>0) {
+    nl="\\begin{tabular}{|l|c|c|c|}\\hline\n\\textbf{UE} & \\textbf{Cr\\'edits} & \\textbf{Note} & \\textbf{Enseignant} \\\\ \\hline\n";
+    for (const m of appData.modules) { const n=e.notes?.[m.id]; nl+=(m.nom||m.code||'')+" & "+(m.credits||'-')+" ECTS & "+(n!==undefined&&n!==""?n+"/20":"-")+" & "+(m.enseignant||'-')+" \\\\ \\hline\n"; }
+    nl+="\\textbf{Moyenne g\\'en\\'erale} & & \\textbf{"+moy+"/20} & \\textbf{"+ment+"} \\\\ \\hline\n\\end{tabular}";
+  }
+  const latex = "\\documentclass[12pt,a4paper]{article}\n\\usepackage[french]{babel}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{graphicx}\n\\usepackage{array}\n\\usepackage{geometry}\n\\geometry{margin=2cm}\n\\pagestyle{empty}\n\\usepackage{draftwatermark}\n\\SetWatermarkText{"+cs+"}\n\\SetWatermarkScale{3}\n\\SetWatermarkColor[gray]{0.9}\n\\SetWatermarkAngle{45}\n\n\\begin{document}\n\n\\begin{center}\n"+(etab.logo?"\\includegraphics[height=3cm]{"+etab.logo+"}\\\\[0.3cm]\n":"")+
+    "{\\LARGE\\bfseries ATTESTATION DE R\\'EUSSITE}\\\\[0.3cm]\n{\\large "+etab.nom+(etab.faculte?" -- "+etab.faculte:"")+"}\\\\[0.2cm]\n{\\footnotesize "+(etab.qualification||"Accr\\'editation N\\deg "+etab.numeroAgrement)+"}\n\\end{center}\n\n\\vspace{0.5cm}\n\n\\noindent Le Doyen de \\textbf{"+etab.nom+"} atteste que\n\n\\vspace{0.3cm}\n\n\\begin{center}\n{\\LARGE\\bfseries "+e.prenom+" \\textsc{"+e.nom+"}}\\\\[0.2cm]\n"+(e.dateNaissance?"N\\'e(e) le "+formaterDateLatex(e.dateNaissance):"")+(e.lieuNaissance?" \\`a "+e.lieuNaissance:"")+
+    "\n\\end{center}\n\n\\vspace{0.3cm}\n\n\\noindent a valid\\'e avec succ\\`es la formation\n\n\\begin{center}\n{\\Large \\og "+form.titre+" \\fg}\\\\[0.2cm]\n{\\footnotesize "+(form.mention?"Mention : "+form.mention+" --- ":"")+(form.parcours?"Parcours : "+form.parcours:"")+"}\\\\[0.1cm]\n"+
+    "{\\footnotesize Ann\\'ee universitaire "+form.promotion+" --- Semestre "+(form.semestre||'-')+" --- "+form.ectsTotal+" ECTS}\\\\[0.1cm]\n"+
+    "{\\footnotesize du "+formaterDateLatex(form.dateDebut)+" au "+formaterDateLatex(form.dateFin)+" ("+form.volumeHoraire+")}\n\\end{center}\n\n\\vspace{0.3cm}\n\n\\begin{center}\n"+nl+"\n\\end{center}\n\n"+
+    "\\vspace{0.3cm}\n\n\\noindent Appr\\'eciation : "+(e.appreciation||"---")+"\n\n\\vspace{0.3cm}\n\n\\noindent D\\'elivr\\'e le "+formaterDateLatex(e.dateDelivrance||new Date().toISOString().slice(0,10))+"\n\n\\vspace{0.5cm}\n\n\\begin{center}\n\\begin{tabular}{p{4.5cm}p{4.5cm}p{4.5cm}}\n"+
+    etab.directeur+" & "+(appData.formation.responsablePedagogique||"Responsable")+" & L'apprenant(e)\\\\\n\\rule{4.5cm}{0.5pt} & \\rule{4.5cm}{0.5pt} & \\rule{4.5cm}{0.5pt}\\\\\n"+(etab.faculte?"Doyen de "+etab.faculte:"Directeur")+" & Responsable p\\'edagogique & "+e.prenom+" "+e.nom+"\\\\\n"+(etab.cachet?"\\includegraphics[height=1.5cm]{"+etab.cachet+"}":"")+
+    "\n\\end{tabular}\n\\end{center}\n\n\\vfill\n\n\\begin{center}\n{\\tiny "+form.certificateur+(form.codeRNCP?" --- Code RNCP : "+form.codeRNCP:"")+"}\n\\end{center}\n\n\\vspace{0.3cm}\n{\\tiny \\ttfamily Code s\\'ecurit\\'e : "+cs+"}\n\\end{document}";
+  var blob=new Blob([latex],{type:"text/plain;charset=utf-8"}); var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="attestation_"+e.nom+"_"+e.prenom+".tex"; a.click(); URL.revokeObjectURL(a.href);
+  toast("Fichier LaTeX téléchargé.", "success");
+}
+function genererLaTeXReleve() {
+  const id = preparerDiplome(); if (!id) return;
+  const e=appData.etudiants.find(x=>x.id===id); if(!e)return;
+  const etab=appData.etablissement; const form=appData.formation; const moy=calculerMoyenne(e.notes||{}); const ment=calculerMention(moy); const cs=genererCodeSecurite();
+  let rows="";
+  for(const m of appData.modules){const n=e.notes?.[m.id]; const nd=n!==undefined&&n!==""?n+"/20":"-"; rows+=m.nom+" & "+m.coefficient+" & "+(m.credits||'-')+" & "+nd+" & "+genererObservation(n)+" & "+(m.enseignant||'-')+" \\\\ \\hline\n";}
+  const latex="\\documentclass[12pt,a4paper]{article}\n\\usepackage[french]{babel}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{array}\n\\usepackage{geometry}\n\\geometry{margin=2cm}\n\\pagestyle{empty}\n\\usepackage{draftwatermark}\n\\SetWatermarkText{"+cs+"}\n\\SetWatermarkScale{3}\n\\SetWatermarkColor[gray]{0.9}\n\\SetWatermarkAngle{45}\n\n\\begin{document}\n\n\\begin{center}\n{\\LARGE\\bfseries RELEV\\'E DE NOTES}\\\\[0.3cm]\n{\\large "+etab.nom+" -- "+(etab.faculte||etab.sigle)+"}\\\\\n{\\footnotesize Accr\\'editation N\\deg "+etab.numeroAgrement+"}\n\\end{center}\n\n"+
+    "\\vspace{0.4cm}\n\n\\noindent\\textbf{\\'Etudiant :} "+e.nom+" "+e.prenom+" \\hfill \\textbf{N\\deg dossier :} "+(e.numeroDossier||"-")+"\\\\\n\\noindent\\textbf{Fili\\`ere :} "+form.titre+(form.mention?" --- Mention "+form.mention:"")+(form.parcours?" --- "+form.parcours:"")+"\\\\\n"+
+    "\\noindent\\textbf{Niveau :} "+(form.niveau||'-')+" \\hfill \\textbf{Ann\\'ee :} "+form.promotion+" \\hfill \\textbf{Semestre :} "+(form.semestre||'-')+" \\hfill \\textbf{ECTS :} "+(form.ectsTotal||'-')+"\\\\\n\\noindent\\textbf{P\\'eriode :} du "+formaterDateLatex(form.dateDebut)+" au "+formaterDateLatex(form.dateFin)+"\\\\\n"+
+    "\\noindent\\textbf{Date d'\\'edition :} "+formaterDateLatex(new Date().toISOString().slice(0,10))+"\n\n\\vspace{0.4cm}\n\n\\begin{tabular}{|p{3cm}|c|c|c|p{4cm}|c|}\n\\hline\n\\textbf{Unit\\'e d'Enseignement} & \\textbf{Coef.} & \\textbf{ECTS} & \\textbf{Note} & \\textbf{Observations} & \\textbf{Enseignant} \\\\ \\hline\n"+rows+
+    "\\hline\n\\textbf{Moyenne G\\'en\\'erale} & & "+form.ectsTotal+" ECTS & \\textbf{"+moy+"/20} & \\textbf{"+ment+"} & \\\\ \\hline\n\\end{tabular}\n\n\\vspace{0.4cm}\n\n\\noindent\\textbf{Observation :}\\\\\n"+genererObservationGlobale(moy,ment)+"\n\n\\vspace{0.5cm}\n\n\\begin{flushright}\nFait "+(etab.ville?"\\`a "+etab.ville+", ":"")+"le "+formaterDateLatex(new Date().toISOString().slice(0,10))+"\\\\\n"+(etab.directeur?"Le Doyen, "+etab.directeur:"")+"\n\\end{flushright}\n\n\\vspace{0.3cm}\n{\\tiny \\ttfamily Code s\\'ecurit\\'e : "+cs+"}\n\\end{document}";
+  var blob=new Blob([latex],{type:"text/plain;charset=utf-8"}); var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="releve_"+e.nom+"_"+e.prenom+".tex"; a.click(); URL.revokeObjectURL(a.href);
+  toast("Fichier LaTeX (relevé) téléchargé.", "success");
+}
+function imprimerPDF() {
+  const id=preparerDiplome(); if(!id){toast("Aucun étudiant.","error");return;}
+  setTimeout(()=>window.print(),400);
+}
+function exporterDonnees() {
+  sauvegarder(); var blob=new Blob([JSON.stringify(appData,null,2)],{type:"application/json;charset=utf-8"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="donnees_universite.json"; a.click(); URL.revokeObjectURL(a.href); toast("Données exportées.","success");
+}
+function importerDonnees(event) {
+  var file=event.target.files[0]; if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var d=JSON.parse(e.target.result);
+      if(d.etablissement){appData={...appData,...d,etablissement:{...appData.etablissement,...d.etablissement},formation:{...appData.formation,...(d.formation||{})},seuils:{...appData.seuils,...(d.seuils||{})},modules:d.modules||appData.modules,etudiants:d.etudiants||d.etudiant||appData.etudiants,enseignants:d.enseignants||appData.enseignants||[]};
+      remplirChamps();renderEtudiants();renderModules();renderEnseignants();sauvegarder();toast("Données importées.","success");}else toast("Format invalide.","error");
+    }catch(err){toast("Erreur import : "+err.message,"error");}
+  };
+  reader.readAsText(file); event.target.value="";
+}
+function remplirChamps() {
+  const s=(id,val)=>{var el=document.getElementById(id);if(el)el.value=val||"";};
+  s("etab-nom",appData.etablissement.nom); s("etab-faculte",appData.etablissement.faculte); s("etab-sigle",appData.etablissement.sigle); s("etab-departement",appData.etablissement.departement);
+  s("etab-adresse",appData.etablissement.adresse); s("etab-ville",appData.etablissement.ville); s("etab-cp",appData.etablissement.codePostal);
+  s("etab-tel",appData.etablissement.telephone); s("etab-email",appData.etablissement.email); s("etab-web",appData.etablissement.siteWeb);
+  s("etab-directeur",appData.etablissement.directeur); s("etab-agrement",appData.etablissement.numeroAgrement); s("etab-date-agrement",appData.etablissement.dateAgrement);
+  s("etab-qualification",appData.etablissement.qualification); s("etab-logo",appData.etablissement.logo); s("etab-cachet",appData.etablissement.cachet);
+  s("form-titre",appData.formation.titre); s("form-mention",appData.formation.mention); s("form-parcours",appData.formation.parcours); s("form-niveau",appData.formation.niveau);
+  s("form-duree",appData.formation.duree); s("form-volume",appData.formation.volumeHoraire); s("form-ects",appData.formation.ectsTotal); s("form-semestre",appData.formation.semestre);
+  s("form-debut",appData.formation.dateDebut); s("form-fin",appData.formation.dateFin); s("form-description",appData.formation.description);
+  s("form-certificateur",appData.formation.certificateur); s("form-rncp",appData.formation.codeRNCP); s("form-promotion",appData.formation.promotion);
+  s("form-responsable",appData.formation.responsablePedagogique);
+  if(appData.seuils){s("seuil-eliminatoire",appData.seuils.eliminatoire);s("seuil-passable",appData.seuils.passable);s("seuil-bien",appData.seuils.bien);s("seuil-tb",appData.seuils.tresBien);s("seuil-assiduite",appData.seuils.assiduiteMin);}
+  if(appData.watermark){s("watermark-texte",appData.watermark.texte);s("watermark-opacite",appData.watermark.opacite);document.getElementById("watermark-opacity-val").textContent=parseFloat(appData.watermark.opacite).toFixed(1).replace(".",",")+"%";}
+}
+function archiverDocument() {
+  const sel=document.getElementById("diplomaStudentSelect"); if(!sel.value){toast("Sélectionnez un étudiant.","error");return;}
+  const etudiant=appData.etudiants.find(e=>e.id===sel.value); if(!etudiant)return;
+  const card=document.getElementById("diplomaCard"); let codeSecu; if(card&&card.dataset.securite) codeSecu=card.dataset.securite; else codeSecu=genererCodeSecurite();
+  const moy=calculerMoyenne(etudiant.notes||{}); const ment=calculerMention(moy);
+  var obsM={}; if(appData.modules.length>0){for(const m of appData.modules){const n=etudiant.notes?.[m.id];obsM[m.id]=genererObservation(n);}}
+  const obsG=genererObservationGlobale(moy,ment); const dE=new Date().toISOString(); const dD=etudiant.dateDelivrance||dE.slice(0,10);
+  const archive={id:Date.now(),date:dE,type:docType,codeSecurite, moyenne:moy,mention:ment,observationsModules:obsM,observationGlobale:obsG,dateDelivrance:dD, etudiant:Object.assign({},etudiant),formation:Object.assign({},appData.formation),etablissement:Object.assign({},appData.etablissement),seuils:Object.assign({},appData.seuils),modules:appData.modules.map(function(m){return Object.assign({},m);}),enseignants:appData.enseignants?appData.enseignants.map(function(e){return Object.assign({},e);}):[]};
+  if(!appData.archives)appData.archives=[]; appData.archives.unshift(archive); sauvegarder(); renderArchives(); remplirFiltresArchives();
+  document.getElementById("archiveCount").textContent=appData.archives.length;
+  toast("Document archivé. Code : "+codeSecu,"success");
+}
+function renderArchives() {
+  const container=document.getElementById("archivesContainer"); if(!container)return;
+  const filtres=appData.archives||[]; const q=(document.getElementById("arch-filter-nom").value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const t=document.getElementById("arch-filter-type").value; const p=document.getElementById("arch-filter-promo").value;
+  const resultats=filtres.filter(function(a){if(q){var n=(a.etudiant.nom+" "+a.etudiant.prenom).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");if(n.indexOf(q)===-1)return false;}if(t&&a.type!==t)return false;if(p&&a.formation.promotion!==p)return false;return true;});
+  if(resultats.length===0){container.innerHTML='<div class="empty-state"><div class="empty-icon">&#128190;</div><p>Aucun document archivé.</p></div>';return;}
+  var html='<div class="archive-grid">';
+  resultats.forEach(function(a){var d=new Date(a.date);var ds=d.toLocaleDateString("fr-FR")+" "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});var nom=a.etudiant.nom+" "+a.etudiant.prenom;var diplome=a.formation.titre||"Sans titre";var promo=a.formation.promotion||"";var tl=a.type==="attestation"?"Attestation":"Relevé";var tc=a.type;var mt=a.mention||"";var my=a.moyenne!==undefined?a.moyenne+"/20":"";
+    html+='<div class="archive-card"><div class="arch-header"><strong>'+escHtml(nom)+'</strong><span class="arch-type '+tc+'">'+tl+'</span></div><div class="arch-meta">'+escHtml(diplome)+(promo?' &middot; '+escHtml(promo):"")+'</div><div class="arch-meta">'+ds+'</div>'+(my||mt?'<div class="arch-meta"><strong>'+my+'</strong>'+(mt?' &mdash; '+escHtml(mt):"")+'</div>':"")+'<div class="arch-securite">Code : '+a.codeSecurite+'</div><div class="arch-actions"><button class="btn btn-sm btn-secondary" onclick="afficherArchive('+a.id+')">&#128065; Voir</button><button class="btn btn-sm btn-secondary" onclick="supprimerArchive('+a.id+')">&#128465; Suppr.</button></div></div>';
+  }); html+='</div>'; container.innerHTML=html;
+}
+function afficherArchive(id) {
+  var archive=(appData.archives||[]).find(function(a){return a.id===id;}); if(!archive)return;
+  var etudiant=archive.etudiant; var savedEtab=appData.etablissement; var savedForm=appData.formation; var savedSeuils=appData.seuils; var savedModules=appData.modules; var savedEtudiants=appData.etudiants; var savedEnseignants=appData.enseignants;
+  appData.etablissement=Object.assign({},archive.etablissement); appData.formation=Object.assign({},archive.formation); appData.seuils=Object.assign({},archive.seuils); appData.modules=archive.modules.map(function(m){return Object.assign({},m);}); appData.enseignants=archive.enseignants?archive.enseignants.map(function(e){return Object.assign({},e);}):[];
+  var exists=appData.etudiants.find(function(e){return e.id===etudiant.id;}); if(!exists)appData.etudiants.unshift(Object.assign({},etudiant));
+  remplirChamps();renderEtudiants();remplirSelectDiplome(); var sel=document.getElementById("diplomaStudentSelect");sel.value=etudiant.id;
+  var rb=document.querySelector('.doc-type-toggle button[data-doc="'+archive.type+'"]'); if(rb)rb.click();
+  appData.etablissement=savedEtab; appData.formation=savedForm; appData.seuils=savedSeuils; appData.modules=savedModules; appData.etudiants=savedEtudiants; appData.enseignants=savedEnseignants;
+  var card=document.getElementById("diplomaCard"); if(card){card.dataset.securite=archive.codeSecurite;var meta=document.getElementById("previewMeta");if(meta){meta.textContent=archive.etudiant.prenom+" "+archive.etudiant.nom+" — "+(archive.type==="releve"?"Relevé":(archive.mention||""))+" — Code: "+archive.codeSecurite;}}
+  var tab=document.querySelector('.tab-btn[data-tab="tab-diplome"]');if(tab)switchTab(tab);
+}
+function supprimerArchive(id){if(!confirm("Supprimer des archives ?"))return;appData.archives=(appData.archives||[]).filter(function(a){return a.id!==id;});sauvegarder();renderArchives();remplirFiltresArchives();document.getElementById("archiveCount").textContent=appData.archives.length;toast("Document retiré.","info");}
+function remplirFiltresArchives(){var sel=document.getElementById("arch-filter-promo");if(!sel)return;var cv=sel.value;var promos={};(appData.archives||[]).forEach(function(a){if(a.formation.promotion)promos[a.formation.promotion]=true;});var keys=Object.keys(promos).sort();sel.innerHTML='<option value="">Toutes</option>';keys.forEach(function(k){sel.innerHTML+='<option value="'+escHtml(k)+'">'+escHtml(k)+"</option>";});sel.value=cv;}
+function connecter(){var u=document.getElementById("loginUser").value.trim();var p=document.getElementById("loginPass").value;var e=document.getElementById("loginError");if(!u||!p){e.textContent="Saisissez identifiant et mot de passe.";return;}if(u==="KOLA"&&p==="KOLA1@"){e.textContent="";document.getElementById("loginOverlay").classList.add("hidden");var fi=document.querySelector(".tab-btn");if(fi)fi.focus();}else{e.textContent="Identifiant ou mot de passe incorrect.";document.getElementById("loginPass").value="";document.getElementById("loginPass").focus();}}
+function deconnecter(){document.getElementById("loginOverlay").classList.remove("hidden");document.getElementById("loginUser").value="";document.getElementById("loginPass").value="";document.getElementById("loginError").textContent="";document.getElementById("loginUser").focus();}
+function toast(message,type){var container=document.getElementById("toastContainer");var t=document.createElement("div");t.className="toast "+(type||"info");t.innerHTML=message;container.appendChild(t);setTimeout(function(){t.style.opacity="0";t.style.transition="opacity 0.3s";setTimeout(function(){t.remove();},300);},3500);}
+function init(){chargerDonnees();remplirChamps();renderEtudiants();renderModules();renderEnseignants();remplirSelectDiplome();remplirFiltres();remplirFiltresArchives();renderArchives();document.getElementById("archiveCount").textContent=(appData.archives||[]).length;if(!appData.enseignants)appData.enseignants=[];document.getElementById("teacherCount").textContent=(appData.enseignants||[]).length;const at=document.querySelector(".tab-btn.active");if(at)switchTab(at);setInterval(sauvegarder,30000);}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

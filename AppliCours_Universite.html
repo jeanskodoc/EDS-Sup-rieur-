@@ -30,6 +30,13 @@
         .app-title { display:flex; align-items:center; gap:10px; }
         .app-title i { color:#2c3e50; font-size:1.8rem; }
         .app-title h1 { font-size:1.3rem; font-weight:600; color:#1a2a4a; }
+        /* NOUVEAU : Drapeau togolais */
+        .togo-flag { display:inline-block; border-radius:4px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.2); vertical-align:middle; flex-shrink:0; }
+        .togo-flag svg { display:block; width:100%; height:100%; }
+        .togo-flag.small { width:28px; height:18px; }
+        .togo-flag.medium { width:36px; height:24px; }
+        .togo-flag.large { width:60px; height:40px; }
+        .togo-flag.xlarge { width:80px; height:53px; }
         .header-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
         .user-badge { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
         .timer { background:#2c3e50; color:white; padding:8px 16px; border-radius:40px; font-weight:500; display:flex; align-items:center; gap:6px; font-size:0.9rem; }
@@ -241,7 +248,34 @@
          ============================================================ -->
     <div id="authContainer" class="auth-card">
         <div class="auth-header">
-            <i class="fas fa-university"></i>
+            <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom:12px;">
+                <span class="togo-flag xlarge" title="République Togolaise">
+                    <svg viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <!-- 5 bandes horizontales : vert / jaune / vert / jaune / vert -->
+                        <rect x="0" y="0"  width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="12" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="24" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="36" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="48" width="90" height="12" fill="#006a4e"/>
+                        <!-- Canton rouge en haut à gauche (couvre les 2 premières bandes = 24 px de hauteur) -->
+                        <rect x="0" y="0" width="36" height="24" fill="#e4002b"/>
+                        <!-- Étoile blanche centrée dans le canton -->
+                        <polygon points="18,4 20.6,11.5 28.5,11.5 22.1,16.4 24.7,24 18,19.1 11.3,24 13.9,16.4 7.5,11.5 15.4,11.5" fill="#ffffff"/>
+                    </svg>
+                </span>
+                <i class="fas fa-university"></i>
+                <span class="togo-flag xlarge" title="République Togolaise">
+                    <svg viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <rect x="0" y="0"  width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="12" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="24" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="36" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="48" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="0" width="36" height="24" fill="#e4002b"/>
+                        <polygon points="18,4 20.6,11.5 28.5,11.5 22.1,16.4 24.7,24 18,19.1 11.3,24 13.9,16.4 7.5,11.5 15.4,11.5" fill="#ffffff"/>
+                    </svg>
+                </span>
+            </div>
             <h1>AppliCours Université</h1>
             <p>Enseignants · Facultés · Filières post-BAC</p>
         </div>
@@ -289,8 +323,30 @@
     <div id="mainApp" class="main-app">
         <div class="app-header">
             <div class="app-title">
+                <span class="togo-flag medium" title="République Togolaise">
+                    <svg viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <rect x="0" y="0"  width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="12" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="24" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="36" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="48" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="0" width="36" height="24" fill="#e4002b"/>
+                        <polygon points="18,4 20.6,11.5 28.5,11.5 22.1,16.4 24.7,24 18,19.1 11.3,24 13.9,16.4 7.5,11.5 15.4,11.5" fill="#ffffff"/>
+                    </svg>
+                </span>
                 <i class="fas fa-university"></i>
                 <h1>AppliCours Université</h1>
+                <span class="togo-flag medium" title="République Togolaise">
+                    <svg viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <rect x="0" y="0"  width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="12" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="24" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="36" width="90" height="12" fill="#fcd116"/>
+                        <rect x="0" y="48" width="90" height="12" fill="#006a4e"/>
+                        <rect x="0" y="0" width="36" height="24" fill="#e4002b"/>
+                        <polygon points="18,4 20.6,11.5 28.5,11.5 22.1,16.4 24.7,24 18,19.1 11.3,24 13.9,16.4 7.5,11.5 15.4,11.5" fill="#ffffff"/>
+                    </svg>
+                </span>
             </div>
             <div class="header-actions">
                 <button class="btn btn-primary" id="new-course"><i class="fas fa-plus"></i> Nouveau</button>
@@ -307,7 +363,7 @@
             </div>
             <div class="user-badge">
                 <span id="userDisplay">Enseignant</span>
-                <div class="timer" id="sessionTimer"><i class="far fa-clock"></i><span id="timeDisplay">30j 0h 0m</span></div>
+                <div class="timer" id="sessionTimer"><i class="far fa-clock"></i><span id="timeDisplay">—</span></div>
                 <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Exit</button>
             </div>
         </div>
@@ -865,7 +921,7 @@
             if (isExpired(user)) {
                 usersDB = usersDB.filter(u => u.id !== user.id);
                 saveUsers();
-                return { success:false, message:'Compte expiré (30 jours). Créez-en un nouveau.' };
+                return { success:false, message:'Compte expiré (' + VALIDITY_DAYS + ' jours). Créez-en un nouveau.' };
             }
             currentUser = JSON.parse(JSON.stringify(user));
             document.getElementById('userDisplay').innerText = user.nom;
@@ -910,7 +966,7 @@
             const el = document.getElementById('codeResult');
             el.style.display = 'block';
             el.innerHTML =
-                '<strong>✔ Compte créé (valide 30 jours)</strong><br>' +
+                '<strong>✔ Compte créé (valide ' + VALIDITY_DAYS + ' jours)</strong><br>' +
                 'Identifiant: <code style="background:#f0f7fe;padding:3px 8px;border-radius:8px;font-weight:600;">' + escapeHtml(finalIdent) + '</code><br>' +
                 'Code: <code style="background:#f0f7fe;padding:3px 8px;border-radius:8px;font-weight:600;">' + escapeHtml(code) + '</code><br>' +
                 'Expire le: <strong>' + new Date(expires).toLocaleString() + '</strong><br>' +
@@ -971,7 +1027,10 @@
             const created = new Date(account.createdAt).toLocaleDateString();
             const expires = new Date(account.expiresAt).toLocaleDateString();
             infoEl.innerHTML =
-                '<strong style="color:white;">' + escapeHtml(account.nom) + '</strong><br>' +
+                '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+                '<strong style="color:white;font-size:1rem;">' + escapeHtml(account.nom) + '</strong>' +
+                '<span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:600;">VALIDE ' + VALIDITY_DAYS + ' JOURS</span>' +
+                '</div>' +
                 '<span style="opacity:0.85;">Identifiant :</span> <code style="background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:6px;">' + escapeHtml(account.identifiant) + '</code><br>' +
                 '<span style="opacity:0.85;">Code :</span> <code style="background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:6px;">' + escapeHtml(account.code) + '</code><br>' +
                 '<span style="opacity:0.7;font-size:0.78rem;">Créé le ' + created + ' · Expire le ' + expires + '</span>';
@@ -1043,7 +1102,7 @@
         function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
         function logoutUser() {
             if (currentUser) {
-                alert('Votre accès de 30 jours a expiré.');
+                alert('Votre accès de ' + VALIDITY_DAYS + ' jours a expiré.');
                 currentUser = null;
                 document.getElementById('mainApp').style.display = 'none';
                 document.getElementById('authContainer').style.display = 'block';
